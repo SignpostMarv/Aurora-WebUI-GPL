@@ -2,6 +2,7 @@
 namespace Aurora\Addon{
 	use RuntimeException;
 	use InvalidArgumentException;
+	use UnexpectedValueException;
 
 	use Aurora\Framework\RegionFlags;
 
@@ -74,7 +75,11 @@ namespace Aurora\Addon{
 			$result = curl_exec($ch);
 			curl_close($ch);
 			if(is_string($result) === true){
-				return json_decode($result);
+				$result = json_decode($result);
+				if(is_object($result) === false){
+					throw new UnexpectedValueException('API result expected to be object, ' . gettype($result) . ' found.');
+				}
+				return $result;
 			}
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
 		}
@@ -87,7 +92,19 @@ namespace Aurora\Addon{
 			if(is_string($name) === false){
 				throw new InvalidArgumentException('Name should be a string');
 			}
-			return $this->makeCallToAPI('CheckIfUserExists', array('Name'=>$name));
+			$result = $this->makeCallToAPI('CheckIfUserExists', array('Name'=>$name));
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Verified property was not set on API result');
+			}else if(is_bool($result->Verified) === false){
+				if(is_string($result->Verified) === true){
+					$result = strtolower($result->Verified);
+					if($result === 'true' || $result === 'false'){
+						return ($result === 'true');
+					}
+				}
+				throw new UnexpectedValueException('Verified property from API result should be a boolean or boolean as string (true/false)');
+			}
+			return $result->Verified;
 		}
 
 		public function GetRegions($flags){ // this doesn't work at the moment, there's a bug in the c# on the php5 branch of Aurora-WebUI
