@@ -86,26 +86,6 @@ namespace Aurora\Addon{
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
 		}
 
-//!	Determines the online status of the grid and whether logins are enabled.
-/**
-*	@return Aurora::Addon::WebUI::OnlineStatus
-*	@see Aurora::Addon::WebUI::makeCallToAPI()
-*/
-		public function OnlineStatus(){
-			$result = $this->makeCallToAPI('OnlineStatus');
-			if(isset($result->Online, $result->LoginEnabled) === false){
-				$missing = array();
-				if(isset($result->Online) === false){
-					$missing[] = 'Online';
-				}
-				if(isset($result->LoginEnabled) === false){
-					$missing[] = 'LoginEnabled';
-				}
-				throw new UnexpectedValueException('API result missing required properties: ' . implode(', ', $missing));
-			}
-			return new WebUI\OnlineStatus($result->Online, $result->LoginEnabled);
-		}
-
 //!	Determines whether the specified username exists in the AuroraSim database.
 /**
 *	@param string $name the username we want to check exists
@@ -129,6 +109,26 @@ namespace Aurora\Addon{
 				throw new UnexpectedValueException('Verified property from API result should be a boolean or boolean as string (true/false)');
 			}
 			return $result->Verified;
+		}
+
+//!	Determines the online status of the grid and whether logins are enabled.
+/**
+*	@return Aurora::Addon::WebUI::OnlineStatus
+*	@see Aurora::Addon::WebUI::makeCallToAPI()
+*/
+		public function OnlineStatus(){
+			$result = $this->makeCallToAPI('OnlineStatus');
+			if(isset($result->Online, $result->LoginEnabled) === false){
+				$missing = array();
+				if(isset($result->Online) === false){
+					$missing[] = 'Online';
+				}
+				if(isset($result->LoginEnabled) === false){
+					$missing[] = 'LoginEnabled';
+				}
+				throw new UnexpectedValueException('API result missing required properties: ' . implode(', ', $missing));
+			}
+			return new WebUI\OnlineStatus($result->Online, $result->LoginEnabled);
 		}
 
 //!	Get a list of regions in the AuroraSim install that match the specified flags.
