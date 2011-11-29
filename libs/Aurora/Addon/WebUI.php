@@ -86,6 +86,11 @@ namespace Aurora\Addon{
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
 		}
 
+//!	Determines the online status of the grid and whether logins are enabled.
+/**
+*	@return Aurora::Addon::WebUI::OnlineStatus
+*	@see Aurora::Addon::WebUI::makeCallToAPI()
+*/
 		public function OnlineStatus(){
 			$result = $this->makeCallToAPI('OnlineStatus');
 			if(isset($result->Online, $result->LoginEnabled) === false){
@@ -101,6 +106,12 @@ namespace Aurora\Addon{
 			return new WebUI\OnlineStatus($result->Online, $result->LoginEnabled);
 		}
 
+//!	Determines whether the specified username exists in the AuroraSim database.
+/**
+*	@param string $name the username we want to check exists
+*	@return boolean TRUE if the user exists, FALSE otherwise.
+*	@see Aurora::Addon::WebUI::makeCallToAPI()
+*/
 		public function CheckIfUserExists($name){
 			if(is_string($name) === false){
 				throw new InvalidArgumentException('Name should be a string');
@@ -120,7 +131,13 @@ namespace Aurora\Addon{
 			return $result->Verified;
 		}
 
-//!	@return array Currently returns an array, although may return a interface-specific Iterator in the future.
+//!	Get a list of regions in the AuroraSim install that match the specified flags.
+/**
+*	@param integer A bitfield corresponding to constants in Aurora::Framework::RegionFlags
+*	@return array Currently returns an array, although may return a interface-specific Iterator in the future.
+*	@see Aurora::Addon::WebUI::makeCallToAPI()
+*	@see Aurora::Addon::WebUI::fromEndPointResult()
+*/
 		public function GetRegions($flags){ // this doesn't work at the moment, there's a bug in the c# on the php5 branch of Aurora-WebUI
 			if(is_integer($flags) === false){
 				throw new InvalidArgumentException('RegionFlags argument should be supplied as integer.');
@@ -147,7 +164,7 @@ namespace Aurora\Addon\WebUI{
 	use Aurora\Services\Interfaces;
 	use Aurora\Framework\RegionFlags;
 
-//!	Implementation of OpenSim::Services::Interfaces::GridRegion
+//!	Implementation of Aurora::Services::Interfaces::GridRegion
 	class GridRegion implements Interfaces\GridRegion{
 
 //!	string
@@ -408,8 +425,20 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
-//!	
+//! class for representing the online status result of an API query.
+/**
+*	Now the simplest approach would just be to return the object that from json_decode() in Aurora::Addon::WebUI::makeCallToAPI(), but stdClass doesn't prevent properties being removed or overwritten.
+*/
 	class OnlineStatus{
+//!	Constructor used by Aurora::Addon::WebUI::OnlineStatus()
+/**
+*	We could- if we wanted to be really paranoid- examine the backtrace to make sure that the constructor is online called from within Aurora::Addon::WebUI::OnlineStatus(), but that would be a waste of resources.
+*	@param boolean $Online TRUE means the grid is online, FALSE otherwise.
+*	@param boolean $LoginEnabled TRUE means the grid has logins enabled, FALSE otherwise.
+*	@see Aurora::Addon::WebUI::OnlineStatus::maybe2bool()
+*	@see Aurora::Addon::WebUI::OnlineStatus::$Online
+*	@see Aurora::Addon::WebUI::OnlineStatus::$LoginEnabled
+*/
 		public function __construct($Online, $LoginEnabled){
 			self::maybe2bool($Online);
 			self::maybe2bool($LoginEnabled);
@@ -419,6 +448,9 @@ namespace Aurora\Addon\WebUI{
 			}else if(is_bool($LoginEnabled) === false){
 				throw new InvalidArgumentException('LoginEnabled should be boolean');
 			}
+
+			$this->Online       = $Online;
+			$this->LoginEnabled = $LoginEnabled;
 		}
 
 //!	boolean
@@ -433,12 +465,14 @@ namespace Aurora\Addon\WebUI{
 //!	boolean
 //!	@see Aurora::Addon::WebUI::OnlineStatus::LoginEnabled()
 		protected $LoginEnabled;
-//!	@see Aurora::Addon::WebUI::OnlineStatus::$LoginEnabled
 //!	@return boolean TRUE if logins are enabled, FALSE otherwise.
+//!	@see Aurora::Addon::WebUI::OnlineStatus::$LoginEnabled
 		public function LoginEnabled(){
 			return $this->LoginEnabled;
 		}
 
+//!	deduplication of code to convert arguments to Aurora::Addon::WebUI::OnlineStatus::__construct() to boolean.
+//!	@param mixed $val passed by reference
 		final protected static function maybe2bool(& $val){
 			if(is_integer($val) === true){
 				$val = ($val !== 0);
