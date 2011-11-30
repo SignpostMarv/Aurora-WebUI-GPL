@@ -6,6 +6,7 @@ namespace Aurora\Addon{
 	use UnexpectedValueException;
 
 	use Aurora\Framework\RegionFlags;
+	use Aurora\Services\Interfaces\User;
 
 //!	Now you might think this class should be a singleton loading config values from constants instead of a registry method, but Marv has plans. MUAHAHAHAHA.
 	class WebUI{
@@ -181,6 +182,29 @@ namespace Aurora\Addon{
 				throw new UnexpectedValueException('API result missing required properties: ' . implode(', ', $missing));
 			}
 			return new WebUI\OnlineStatus($result->Online, $result->LoginEnabled);
+		}
+
+//!	Determines whether or not the account has been authenticated/verified.
+/**
+*	@param mixed $uuid either a string UUID of the user we wish to check, or an instance of Aurora::Services::Interfaces::User
+*	@param boolean TRUE if the account has been authenticated/verified, FALSE otherwise.
+*/
+		public function Authenticated($uuid){
+			if($uuid instanceof User){
+				$uuid = $uuid->PrincipalID();
+			}
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID should be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('UUID supplied was not a valid UUID.');
+			}
+			$result = $this->makeCallToAPI('Authenticated', array('UUID'=>$uuid));
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_bool($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property was not of expected type.');
+			}
+			return $result->Verified;
 		}
 
 //!	Attempt to set the WebLoginKey for the specified user
