@@ -413,7 +413,7 @@ namespace Aurora\Addon\WebUI{
 
 			if(is_string($RegionID) === false){
 				throw new InvalidArgumentException('RegionID should be a string');
-			}else if(preg_match(Aurora\Addon\WebUI::regex_UUID, $RegionID) !== 1){
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $RegionID) !== 1){
 				throw new InvalidArgumentException('RegionID was not a valid UUID');
 			}else if(is_integer($HttpPort) === false){
 				throw new InvalidArgumentException('HttpPort should be an integer');
@@ -431,7 +431,7 @@ namespace Aurora\Addon\WebUI{
 				throw new InvalidArgumentException('RegionLocZ was not an integer');
 			}else if(is_string($EstateOwner) === false){
 				throw new InvalidArgumentException('EstateOwner was not a string');
-			}else if(preg_match(Aurora\Addon\WebUI::regex_UUID, $EstateOwner) !== 1){
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $EstateOwner) !== 1){
 				throw new InvalidArgumentException('EstateOwner was not a valid UUID');
 			}else if(is_integer($RegionSizeX) === false){
 				throw new InvalidArgumentException('RegionSizeX was not an integer');
@@ -445,7 +445,7 @@ namespace Aurora\Addon\WebUI{
 				throw new InvalidArgumentException('Flags was not a valid RegionFlags bitfield');
 			}else if(is_string($SessionID) === false){
 				throw new InvalidArgumentException('SessionID was not a string');
-			}else if(preg_match(Aurora\Addon\WebUI::regex_UUID, $SessionID) !== 1){
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $SessionID) !== 1){
 				throw new InvalidArgumentException('SessionID was not a valid UUID');
 			}
 
