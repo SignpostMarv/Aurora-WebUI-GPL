@@ -89,12 +89,14 @@ namespace Aurora\Addon{
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
 		}
 
-//!	Attempts a login.
+//!	Since admin login and normal login have the same response, we're going to use the same code for both here.
 /**
 *	@param string $username
 *	@param string $password
+*	@param boolean $asAdmin TRUE if attempt to login as admin, FALSE otherwise. defaults to FALSE.
+*	@return object instance of Aurora::Addon::WebUI::genUser
 */
-		public function Login($username, $password){
+		private function doLogin($username, $password, $asAdmin=false){
 			if(is_string($username) === false){
 				throw new InvalidArgumentException('Username must be string.');
 			}else if(trim($username) === ''){
@@ -105,7 +107,7 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Password was an empty string');
 			}
 			$password = '$1$' . md5($password); // this is required so we don't have to transmit the plaintext password.
-			$result = $this->makeCallToAPI('Login', array('Name' => $username, 'Password' => $password));
+			$result = $this->makeCallToAPI($asAdmin ? 'AdminLogin' : 'Login', array('Name' => $username, 'Password' => $password));
 			if(isset($result->Verified) === false){
 				throw new UnexpectedValueException('Could not determine if credentials were correct, API call was made but required response properties were missing');
 			}else if($result->Verified === false){
@@ -114,6 +116,26 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('API call was made, credentials were correct but required response properties were missing');
 			}
 			return WebUI\genUser::r($result->UUID, $result->FirstName, $result->LastName); // we're leaving validation up to the genUser class.
+		}
+
+//!	Attempts a login as a normal user.
+/**
+*	@param string $username
+*	@param string $password
+*	@return object instance of Aurora::Addon::WebUI::genUser
+*/
+		public function Login($username, $password){
+			return $this->doLogin($username, $password);
+		}
+
+//!	Attempts to login as an admin user.
+/**
+*	@param string $username
+*	@param string $password
+*	@return object instance of Aurora::Addon::WebUI::genUser
+*/
+		public function AdminLogin($username, $password){
+			return $this->doLogin($username, $password, true);
 		}
 
 //!	Determines whether the specified username exists in the AuroraSim database.
