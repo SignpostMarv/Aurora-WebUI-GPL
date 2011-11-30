@@ -14,7 +14,7 @@ namespace Aurora\Addon{
 
 //!	This is protected because we're going to use a registry method to access it.
 /**
-*	The WIREDUX_PASSWORD constant is never used without being run through md5(), so we immediately do this on instantiation.
+*	The WIREDUX_PASSWORD constant is never used without being passed as an md5() hash, so we immediately do this on instantiation.
 *	@param string $serviceURL WebUI API end point.
 *	@param string $password WebUI API password
 */
@@ -87,6 +87,33 @@ namespace Aurora\Addon{
 				return $result;
 			}
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
+		}
+
+//!	Attempts a login.
+/**
+*	@param string $username
+*	@param string $password
+*/
+		public function Login($username, $password){
+			if(is_string($username) === false){
+				throw new InvalidArgumentException('Username must be string.');
+			}else if(trim($username) === ''){
+				throw new InvalidArgumentException('Username was an empty string');
+			}else if(is_string($password) === false){
+				throw new InvalidArgumentException('Password must be a string');
+			}else if(trim($password) === ''){
+				throw new InvalidArgumentException('Password was an empty string');
+			}
+			$password = '$1$' . md5($password); // this is required so we don't have to transmit the plaintext password.
+			$result = $this->makeCallToAPI('Login', array('Name' => $username, 'Password' => $password));
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Could not determine if credentials were correct, API call was made but required response properties were missing');
+			}else if($result->Verified === false){
+				throw new InvalidArgumentException('Credentials incorrect');
+			}else if(isset($result->UUID, $result->FirstName, $result->LastName) === false){
+				throw new InvalidArgumentException('API call was made, credentials were correct but required response properties were missing');
+			}
+			return WebUI\genUser::r($result->UUID, $result->FirstName, $result->LastName); // we're leaving validation up to the genUser class.
 		}
 
 //!	Determines whether the specified username exists in the AuroraSim database.
@@ -500,6 +527,92 @@ namespace Aurora\Addon\WebUI{
 			if(is_integer($val) === true){
 				$val = ($val !== 0);
 			}
+		}
+	}
+
+//!	abstract implementation
+	abstract class abstractUser implements Interfaces\User{
+
+//!	protected constructor, should be hidden behind factory or registry methods. Assumes properties were already set.
+		protected function __construct(){
+			if(is_string($this->PrincipalID) === false){
+				throw new InvalidArgumentException('User UUID must be a string.');
+			}else if(preg_match(Aurora\Addon\WebUI::regex_UUID, $this->PrincipalID) === false){
+				throw new InvalidArgumentException('User UUID was not a valid UUID.');
+			}else if(is_string($this->FirstName) === false){
+				throw new InvalidArgumentException('User first must be a string.');
+			}else if(trim($this->FirstName) === ''){
+				throw new InvalidArgumentException('User first name must not be an empty string.');
+			}else if(is_string($this->LastName) === false){ // last names can be an empty string
+				throw new InvalidArgumentException('User last name must be a string.');
+			}
+			$this->PrincipalID = strtolower($this->PrincipalID);
+		}
+
+//!	string UUID
+//!	@see Aurora::Addon::WebUI::abstractUser::PrincipalID()
+		protected $PrincipalID;
+//!	@see Aurora::Addon::WebUI::abstractUser::$PrincipalID
+		public function PrincipalID(){
+			return $this->PrincipalID;
+		}
+
+//!	string First Name
+//!	@see Aurora::Addon::WebUI::abstractUser::FirstName()
+		protected $FirstName;
+//!	@see Aurora::Addon::WebUI::abstractUser::$FirstName
+		public function FirstName(){
+			return $this->FirstName;
+		}
+
+//!	string Last Name
+//!	@see Aurora::Addon::WebUI::abstractUser::LastName()
+		protected $LastName;
+//!	@see Aurora::Addon::WebUI::abstractUser::$LastName
+		public function LastName(){
+			return $this->LastName;
+		}
+	}
+
+//!	Lightweight generated user.
+	class genUser extends abstractUser{
+//!	Since this is a generated class, we need to override the parent constructor to set the properties, then call back to it.
+/**
+*	@param string $uuid Corresponds to Aurora::Services::Interfaces::User::PrincipalID()
+*	@param string $first Corresponds to Aurora::Services::Interfaces::User::FirstName()
+*	@param string $last Corresponds to Aurora::Services::Interfaces::User::LastName()
+*/
+		protected function __construct($uuid, $first, $last){
+			$this->PrincipalID = $uuid;
+			$this->FirstName   = $first;
+			$this->LastName    = $last;
+		}
+
+//!	Since this is a generated class for non-unique entities, we're going to use a registry method.
+/**
+*	We're going to validate the UUID here, but leave the first/last name up to the class constructor, since we use the UUID as the registry key.
+*	@param string $uuid Corresponds to Aurora::Services::Interfaces::User::PrincipalID()
+*	@param string $first Corresponds to Aurora::Services::Interfaces::User::FirstName()
+*	@param string $last Corresponds to Aurora::Services::Interfaces::User::LastName()
+*	@return object instance of Aurora::Addon::WebUI::genUser
+*/
+		public static function r($uuid, $first=null, $last=null){
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('User UUID must be a string.');
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $uuid) === false){
+				throw new InvalidArgumentException('User UUID was not a valid UUID.');
+			}
+			$uuid = strtolower($uuid);
+			static $registry = array();
+			if(isset($registry[$uuid]) === false){
+				if(isset($first,$last) === false){
+					throw new InvalidArgumentException('Cannot return an instance by UUID alone, user was never set.');
+				}
+				$registry[$uuid] = new static($uuid, $first, $last);
+			}else if($registry[$uuid]->FirstName() !== $first || $registry[$uuid]->LastName() !== $last){ // assume a call was made to Aurora::Addon::WebUI::ChangeName()
+				$registry[$uuid] = new static($uuid, $first, $last);
+			}
+			return $registry[$uuid];
 		}
 	}
 }
