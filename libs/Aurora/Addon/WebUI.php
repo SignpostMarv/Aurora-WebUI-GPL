@@ -661,5 +661,96 @@ namespace Aurora\Addon\WebUI{
 			return $registry[$uuid];
 		}
 	}
+
+//!	GridUserInfo class. Returned by Aurora::Addon::WebUI::GetGridUserInfo()
+	class GridUserInfo extends genUser{
+
+//!	We need to add in some more properties and validation since we're extending another class.
+/**
+*	@param string $uuid UUID for the user
+*	@param string $name the user's name.
+*	@param string $homeUUID the UUID of the user's home region.
+*	@param string $homeName the name of the user's home region.
+*	@param string $onlineStatus TRUE if the user is currently online, FALSE otherwise.
+*	@param string $email either a valid email address or an empty string.
+*/
+		protected function __construct($uuid, $name, $homeUUID, $homeName, $onlineStatus, $email){
+			if(is_string($name) === false){
+				throw new InvalidArgumentException('Name must be a string.');
+			}else if(trim($name) === ''){
+				throw new InvalidArgumentException('Name cannot be an empty string.');
+			}else if(is_string($homeUUID) === false){
+				throw new InvalidArgumentException('Home region UUID must be a string.');
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $homeUUID) !== 1){
+				throw new InvalidArgumentException('Home region UUID was not a valid UUID.');
+			}else if(is_string($homeName) === false){
+				throw new InvalidArgumentException('Home region name must be a string.');
+			}else if(trim($homeName) === ''){
+				throw new InvalidArgumentException('Home region name cannot be an empty string.');
+			}else if(is_bool($onlineStatus) === false){
+				throw new InvalidArgumentException('Online status must be a boolean.');
+			}else if(is_string($email) === false){
+				throw new InvalidArgumentException('Email address must be string.');
+			}else if($email !== '' && is_email($email) === false){
+				throw new InvalidArgumentException('Email address not valid.');
+			}
+			
+			$firstName = explode(' ', $name);
+			$lastName = array_pop($firstName);
+			if($lastName === $name){
+				$lastName = '';
+				$firstName = $name;
+			}else{
+				$firstName = implode(' ', $firstName); // this is to future proof first names with multiple spaces.
+			}
+
+			$this->HomeUUID = $homeUUID;
+			$this->HomeName = $homeName;
+			$this->Online   = $Online;
+			$this->Email    = $email;
+			$this->Name     = $name;
+			parent::__construct($uuid, $firstName, $lastName);
+		}
+
+//!	Since this is a generated class for non-unique entities, we're going to use a registry method.
+/**
+*	@param string $uuid UUID for the user
+*	@param string $name the user's name.
+*	@param string $homeUUID the UUID of the user's home region.
+*	@param string $homeName the name of the user's home region.
+*	@param string $onlineStatus TRUE if the user is currently online, FALSE otherwise.
+*	@param string $email either a valid email address or an empty string.
+*	@return object instance of Aurora::Addon::WebUI::GridUserInfo
+*/
+		public static function r($uuid, $name=null, $homeUUID=null, $homeName=null, $onlineStatus=null, $email=null){
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $uuid) === false){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}else if((isset($name) || isset($homeUUID) || isset($homeName) || isset($onlineStatus) || isset($email)) && isset($name, $homeUUID, $homeName, $onlineStatus, $email) === false){
+				throw new InvalidArgumentException('If the grid info of the user has changed, all info must be specified.');
+			}
+			$uuid = strtolower($uuid);
+			static $registry = array();
+			if(isset($registry[$uuid]) === false){
+				if(isset($name, $homeUUID, $homeName, $onlineStatus, $email) === false){
+					throw new InvalidArgumentException('Cannot return grid info for user by UUID, grid info has not been set.');
+				}
+				$registry[$uuid] = new static($uuid, $name, $homeUUID, $homeName, $onlineStatus, $email);
+			}else if(isset($name, $homeUUID, $homeName, $onlineStatus, $email) === true){
+				$info = $registry[$uuid];
+				if(
+					$info->Name()         !== $name         ||
+					$info->HomeUUID()     !== $homeUUID     ||
+					$info->HomeName()     !== $homeName     ||
+					$info->OnlineStatus() !== $onlineStatus ||
+					$info->Email()        !== $email
+				){
+					$registry[$uuid] = new static($uuid, $name, $homeUUID, $homeName, $onlineStatus, $email);
+				}
+			}
+			return $registry[$uuid];
+		}
+	}
 }
 ?>
