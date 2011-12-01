@@ -115,6 +115,104 @@ namespace Aurora\Addon{
 			return $result->Verified;
 		}
 
+//!	Attempts to create an account with the specified details.
+/**
+*	@param string $Name desired account name.
+*	@param string $Password plain text password (we hash it before sending)
+*	@param string $Email optional, must be valid email address or an empty string if none specified
+*	@param string $HomeRegion optional, must be a valid region name or an empty string if none specified
+*	@param integer $userLevel
+*	@param string $RLDOB User's date of birth.
+*	@param string $RLFirstName User's first name.
+*	@param string $RLLastName Can be an empty string to support mononyms.
+*	@param string $RLAddress Postal address
+*	@param string $RLCity City
+*	@param string $RLZip Zip/Postal code
+*	@param string $RLCountry Country of origin
+*	@param string $RLIP IP Address
+*	@return object An instance of Aurora::Addon::WebUI::GridUserInfo corresponding to the UUID returned by the API end point.
+*/
+		public function CreateAccount($Name, $Password, $Email='', $HomeRegion='', $userLevel=0, $RLDOB='1970-01-01', $RLFirstName='', $RLLastName='', $RLAddress='', $RLCity='', $RLZip='', $RLCountry='', $RLIP=''){
+			if(is_string($userLevel) === true && ctype_digit($userLevel) === true){
+				$userLevel = (integer)$userLevel;
+			}
+
+			if(is_string($Name) === false){
+				throw new InvalidArgumentException('Username must be a string.');
+			}else if($this->CheckIfUserExists($Name) === true){
+				throw new InvalidArgumentException('That username has already been taken.');
+			}else if(is_string($Password) === false){
+				throw new InvalidArgumentException('Password must be a string.');
+			}else if(strlen($Password) < 8){
+				throw new InvalidArgumentException('Password must be longer than 8 characters.');
+			}else if(is_string($Email) === false){
+				throw new InvalidArgumentException('Email address must be a string.');
+			}else if($Email !== '' && is_email($Email) === false){
+				throw new InvalidArgumentException('Email address was specified but was found to be invalid.');
+			}else if(is_string($HomeRegion) === false){
+				throw new InvalidArgumentException('Home Region must be a string.');
+			}else if(is_integer($userLevel) === false){
+				throw new InvalidArgumentException('User Level must be an integer.');
+			}else if($userLevel < 0){
+				throw new InvalidArgumentException('User Level must be greater than or equal to zero.');
+			}else if(is_string($RLDOB) === false){
+				throw new InvalidArgumentException('User Date of Birth must be a string.');
+			}else if(strtotime($RLDOB) === false){
+				throw new InvalidArgumentException('User Date of Birth was not valid.');
+			}else if(is_string($RLFirstName) === false){
+				throw new InvalidArgumentException('User RL First name must be a string.');
+			}else if(trim($RLFirstName) === ''){
+				throw new InvalidArgumentException('User RL First name must not be an empty string.');
+			}else if(is_string($RLLastName) === false){
+				throw new InvalidArgumentException('User RL Last name must be a string.');
+			}else if(is_string($RLAddress) === false){
+				throw new InvalidArgumentException('User RL Address must be a string.');
+			}else if(is_string($RLCity) === false){
+				throw new InvalidArgumentException('User RL City must be a string.');
+			}else if(is_string($RLZip) === false){
+				throw new InvalidArgumentException('User RL Zip code must be a string.');
+			}else if(is_string($RLCountry) === false){
+				throw new InvalidArgumentException('User RL Country must be a string.');
+			}else if(is_string($RLIP) === false){
+				throw new InvalidArgumentException('User RL IP Address must be a string.');
+			}
+
+			$Name        = trim($Name);
+			$Password    = '$1$' . md5($Password);
+			$RLDOB      = date('Y-m-d', strtotime($RLDOB));
+			$RLFirstName = trim($RLFirstName);
+			$RLLastName  = trim($RLLastName);
+			$RLAddress   = trim($RLAddress);
+			$RLCity      = trim($RLCity);
+			$RLZip       = trim($RLZip);
+			$RLCountry   = trim($RLCountry);
+			$RLIP        = trim($RLIP);
+
+			$result = $this->makeCallToAPI('CreateAccount', array(
+				'Name'         => $Name,
+				'PasswordHash' => $Password,
+				'RLDOB'        => $RLDOB,
+				'RLFirstName'  => $RLFirstName,
+				'RLLastName'   => $RLLastName,
+				'RLAddress'    => $RLAddress,
+				'RLCity'       => $RLCity,
+				'RLZip'        => $RLZip,
+				'RLCountry'    => $RLCountry,
+				'RLIP'         => $RLIP
+			));
+
+			if(isset($result->UUID) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_string($result->UUID) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property is of incorrect type.');
+			}else if(preg_match(self::regex_UUID, $result->UUID) === false){
+				throw new UnexpectedValueException('Call to API was successful, but UUID response was not a valid UUID.');
+			}else if($result->UUID === '00000000-0000-0000-0000-000000000000'){
+				throw new RuntimeException('Call to API was successful but registration failed.');
+			}
+			return $this->GetGridUserInfo($result->UUID);
+		}
+
 //!	Since admin login and normal login have the same response, we're going to use the same code for both here.
 /**
 *	@param string $username
