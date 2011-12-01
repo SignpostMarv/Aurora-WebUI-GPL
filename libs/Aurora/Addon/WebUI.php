@@ -207,6 +207,28 @@ namespace Aurora\Addon{
 			return $result->Verified;
 		}
 
+//!	Get the GetGridUserInfo for the specified user.
+/**
+*	@param mixed $uuid either a string UUID of the user we wish to check, or an instance of Aurora::Services::Interfaces::User
+*	@return object Aurora::Addon::WebUI::GridUserInfo
+*/
+		public function GetGridUserInfo($uuid){
+			if($uuid instanceof User){
+				$uuid = $uuid->PrincipalID();
+			}
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID should be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('UUID supplied was not a valid UUID.');
+			}
+			$result = $this->makeCallToAPI('GetGridUserInfo', array('UUID'=>$uuid));
+			if(isset($result->UUID, $result->HomeUUID, $result->HomeName, $result->Online, $result->Email, $result->Name, $result->FirstName, $result->LastName) === false){
+				throw new InvalidArgumentException('Call to API was successful, but required response properties were missing.');
+			}
+			// this is where we get lazy and leave validation up to the GridUserInfo class.
+			return	WebUI\GridUserInfo::r($result->UUID, $result->Name, $result->HomeUUID, $result->HomeName, $result->Online, $result->Email);
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
@@ -685,7 +707,7 @@ namespace Aurora\Addon\WebUI{
 				throw new InvalidArgumentException('Home region UUID was not a valid UUID.');
 			}else if(is_string($homeName) === false){
 				throw new InvalidArgumentException('Home region name must be a string.');
-			}else if(trim($homeName) === ''){
+			}else if($homeUUID !== '00000000-0000-0000-0000-000000000000' && trim($homeName) === ''){
 				throw new InvalidArgumentException('Home region name cannot be an empty string.');
 			}else if(is_bool($onlineStatus) === false){
 				throw new InvalidArgumentException('Online status must be a boolean.');
@@ -706,7 +728,7 @@ namespace Aurora\Addon\WebUI{
 
 			$this->HomeUUID = $homeUUID;
 			$this->HomeName = $homeName;
-			$this->Online   = $Online;
+			$this->Online   = $onlineStatus;
 			$this->Email    = $email;
 			$this->Name     = $name;
 			parent::__construct($uuid, $firstName, $lastName);
@@ -743,7 +765,7 @@ namespace Aurora\Addon\WebUI{
 					$info->Name()         !== $name         ||
 					$info->HomeUUID()     !== $homeUUID     ||
 					$info->HomeName()     !== $homeName     ||
-					$info->OnlineStatus() !== $onlineStatus ||
+					$info->Online() !== $onlineStatus ||
 					$info->Email()        !== $email
 				){
 					$registry[$uuid] = new static($uuid, $name, $homeUUID, $homeName, $onlineStatus, $email);
@@ -751,6 +773,47 @@ namespace Aurora\Addon\WebUI{
 			}
 			return $registry[$uuid];
 		}
+
+//!	string user name
+//!	@see Aurora::Addon::WebUI::GridUserInfo::Name()
+		protected $Name;
+//!	@see Aurora::Addon::WebUI::GridUserInfo::$Name
+		public function Name(){
+			return $this->Name;
+		}
+
+//!	string user home region UUID
+//!	@see Aurora::Addon::WebUI::GridUserInfo::HomeUUID()
+		protected $HomeUUID;
+//!	@see Aurora::Addon::WebUI::GridUserInfo::$HomeUUID
+		public function HomeUUID(){
+			return $this->HomeUUID;
+		}
+
+//!	string user home region name
+//!	@see Aurora::Addon::WebUI::GridUserInfo::HomeName()
+		protected $HomeName;
+//!	@see Aurora::Addon::WebUI::GridUserInfo::$HomeName
+		public function HomeName(){
+			return $this->HomeName;
+		}
+
+//!	boolean TRUE if Online, FALSE otherwise
+//!	@see Aurora::Addon::WebUI::GridUserInfo::Online()
+		protected $Online;
+//!	@see Aurora::Addon::WebUI::GridUserInfo::$Online
+		public function Online(){
+			return $this->Online;
+		}
+
+//!	string user email
+//!	@see Aurora::Addon::WebUI::GridUserInfo::Email()
+		protected $Email;
+//!	@see Aurora::Addon::WebUI::GridUserInfo::$Email
+		public function Email(){
+			return $this->Email;
+		}
+		
 	}
 }
 ?>
