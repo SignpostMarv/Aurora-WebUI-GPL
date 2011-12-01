@@ -153,8 +153,8 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Home Region must be a string.');
 			}else if(is_integer($userLevel) === false){
 				throw new InvalidArgumentException('User Level must be an integer.');
-			}else if($userLevel < 0){
-				throw new InvalidArgumentException('User Level must be greater than or equal to zero.');
+			}else if($userLevel < -1){
+				throw new InvalidArgumentException('User Level must be greater than or equal to minus one.');
 			}else if(is_string($RLDOB) === false){
 				throw new InvalidArgumentException('User Date of Birth must be a string.');
 			}else if(strtotime($RLDOB) === false){
