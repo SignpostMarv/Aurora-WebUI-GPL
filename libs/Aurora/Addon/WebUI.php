@@ -536,7 +536,6 @@ namespace Aurora\Addon\WebUI{
 				if(isset($result->SessionID) === false){
 					$missing[] = 'SessionID';
 				}
-				var_dump($result);
 				throw new InvalidArgumentException('Missing required properties: ' . implode(', ', $missing));
 			}
 			return new static($result->uuid, $result->serverHttpPort, $result->serverURI, $result->regionName, $result->regionType, $result->locX, $result->locY, $result->locZ, $result->EstateOwner, $result->sizeX, $result->sizeY, $result-> sizeZ, $result->Flags, $result->SessionID);
