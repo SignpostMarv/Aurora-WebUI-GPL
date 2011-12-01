@@ -90,6 +90,31 @@ namespace Aurora\Addon{
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
 		}
 
+//!	Determines whether the specified username exists in the AuroraSim database.
+/**
+*	@param string $name the username we want to check exists
+*	@return boolean TRUE if the user exists, FALSE otherwise.
+*	@see Aurora::Addon::WebUI::makeCallToAPI()
+*/
+		public function CheckIfUserExists($name){
+			if(is_string($name) === false){
+				throw new InvalidArgumentException('Name should be a string');
+			}
+			$result = $this->makeCallToAPI('CheckIfUserExists', array('Name'=>$name));
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Verified property was not set on API result');
+			}else if(is_bool($result->Verified) === false){
+				if(is_string($result->Verified) === true){
+					$result = strtolower($result->Verified);
+					if($result === 'true' || $result === 'false'){
+						return ($result === 'true');
+					}
+				}
+				throw new UnexpectedValueException('Verified property from API result should be a boolean or boolean as string (true/false)');
+			}
+			return $result->Verified;
+		}
+
 //!	Since admin login and normal login have the same response, we're going to use the same code for both here.
 /**
 *	@param string $username
@@ -137,31 +162,6 @@ namespace Aurora\Addon{
 */
 		public function AdminLogin($username, $password){
 			return $this->doLogin($username, $password, true);
-		}
-
-//!	Determines whether the specified username exists in the AuroraSim database.
-/**
-*	@param string $name the username we want to check exists
-*	@return boolean TRUE if the user exists, FALSE otherwise.
-*	@see Aurora::Addon::WebUI::makeCallToAPI()
-*/
-		public function CheckIfUserExists($name){
-			if(is_string($name) === false){
-				throw new InvalidArgumentException('Name should be a string');
-			}
-			$result = $this->makeCallToAPI('CheckIfUserExists', array('Name'=>$name));
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Verified property was not set on API result');
-			}else if(is_bool($result->Verified) === false){
-				if(is_string($result->Verified) === true){
-					$result = strtolower($result->Verified);
-					if($result === 'true' || $result === 'false'){
-						return ($result === 'true');
-					}
-				}
-				throw new UnexpectedValueException('Verified property from API result should be a boolean or boolean as string (true/false)');
-			}
-			return $result->Verified;
 		}
 
 //!	Determines the online status of the grid and whether logins are enabled.
