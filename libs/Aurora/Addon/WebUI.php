@@ -327,6 +327,37 @@ namespace Aurora\Addon{
 			return	WebUI\GridUserInfo::r($result->UUID, $result->Name, $result->HomeUUID, $result->HomeName, $result->Online, $result->Email);
 		}
 
+//!	Save email address, set user level to zero.
+/**
+*	@param mixed $uuid either a string UUID or an instance of Aurora::Services::Interfaces::User of the user we wish to save the email address for.
+*	@param string $email email address.
+*	@return boolean TRUE if successful, FALSE otherwise.
+*/
+		public function SaveEmail($uuid, $email){
+			if($uuid instanceof User){
+				$uuid = $uuid->PrincipalID();
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid)!== 1){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}else if(is_string($email) === false){
+				throw new InvalidArgumentException('Email address must be a string.');
+			}else if(is_email($email) === false){
+				throw new InvalidArgumentException('Email address was not valid.');
+			}
+
+			$result = $this->makeCallToAPI('SaveEmail', array('UUID' => $uuid, 'Email' => $email));
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_bool($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
+			}
+
+			return $result->Verified;
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
