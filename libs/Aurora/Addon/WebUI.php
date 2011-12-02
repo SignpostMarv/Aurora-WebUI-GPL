@@ -358,6 +358,45 @@ namespace Aurora\Addon{
 			return $result->Verified;
 		}
 
+//!	Change account name.
+/**
+*	@param mixed $uuid either a string UUID or an instance of Aurora::Services::Interfaces::User of the user we wish to change the name for.
+*	@param string $name new name
+*/
+		public function ChangeName($uuid, $name){
+			if($uuid instanceof User){
+				$uuid = $uuid->PrincipalID();
+			}
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid)!== 1){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}else if(is_string($name) === false){
+				throw new InvalidArgumentException('Name must be a string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Name cannot be an empty string.');
+			}
+
+			if($this->GetGridUserInfo($uuid)->Name() === $name){ // if the name is already the same, we're not going to bother making the call.
+				return true;
+			}
+
+			$result = $this->makeCallToAPI('ChangeName', array('UUID' => $uuid, 'Name' => $name));
+			if(isset($result->Verified, $result->Stored) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_bool($result->Verified) === false || is_bool($result->Stored) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
+			}else if($result->Verified === true && $result->Stored === false){
+				throw new RuntimeException('Call to API was successful, but name change was not stored by the server.');
+			}
+
+			return $result->Verified;
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
