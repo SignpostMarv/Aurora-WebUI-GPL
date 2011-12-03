@@ -888,6 +888,16 @@ namespace Aurora\Addon\WebUI{
 		public function LastName(){
 			return $this->LastName;
 		}
+
+//!	This is for child classes that won't have their own implementation
+/**
+*	@return string
+*	@see Aurora::Addon::WebUI::abstractUser::FirstName()
+*	@see Aurora::Addon::WebUI::abstractUser::LastName()
+*/
+		public function Name(){
+			return trim($this->FirstName() . ' ' . $this->LastName()); // we use trim in case Aurora::Addon::WebUI::abstractUser::LastName() is an empty string.
+		}
 	}
 
 //!	Lightweight generated user.
