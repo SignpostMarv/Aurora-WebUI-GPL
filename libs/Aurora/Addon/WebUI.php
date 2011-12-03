@@ -654,6 +654,32 @@ namespace Aurora\Addon{
 			return new WebUI\AvatarArchives($archives);
 		}
 
+
+		public function DeleteUser($uuid){
+			if($uuid instanceof WebUI\abstractUser){
+				$uuid = $uuid->PrincipalID();
+			}
+			if(is_string($uuid) === true){
+				$uuid = trim($uuid);
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) === false){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}
+
+			$result = $this->makeCallToAPI('DeleteUser', array('UserID' => $uuid));
+
+			if(isset($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
+			}else if(is_bool($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
+			}
+
+			return $result->Finished;
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
