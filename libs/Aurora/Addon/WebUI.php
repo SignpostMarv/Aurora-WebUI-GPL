@@ -564,6 +564,59 @@ namespace Aurora\Addon{
 			return WebUI\UserProfile::r($account->PrincipalID, $account->Name, $account->Email, $account->Created, $allowPublish, $maturePublish, $wantToMask, $wantToText, $canDoMask, $canDoText, $languages, $image, $aboutText, $firstLifeImage, $firstLifeAboutText, $webURL, $displayName, $account->PartnerUUID, $visible, $customType, $notes, $RLName, $RLAddress, $RLZip, $RLCity, $RLCountry);
 		}
 
+
+		public function EditUser($uuid, $name=null, $email='', WebUI\RLInfo $RLInfo=null){
+			if($uuid instanceof WebUI\abstractUser){
+				if(is_null($name) === true){
+					$name = $uuid->Name();
+				}
+				$uuid = $uuid->PrincipalID();
+			}
+			if(is_string($name)){
+				$name = trim($name);
+			}
+			if(is_string($email)){
+				$email = trim($email);
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) === false){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}else if(is_string($name) === false){
+				throw new InvalidArgumentException('Name must be a string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Account name cannot be an empty string.');
+			}else if(is_string($email) === false){
+				throw new InvalidArgumentException('Email address must be a string.');
+			}else if($email !== '' && is_email($email) === false){
+				throw new InvalidArgumentException('Email address was not valid.');
+			}
+
+			$data = array(
+				'UserID' => $uuid,
+				'Name'   => $name,
+				'Email'  => $email
+			);
+			if($RLInfo instanceof WebUI\RLInfo){
+				foreach($RLInfo as $k=>$v){
+					$data[$k] = $v;
+				}
+			}
+
+			$result = $this->makeCallToAPI('EditUser', $data);
+
+			if(isset($result->agent, $result->account) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
+			}else if(is_bool($result->agent) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
+			}else if(is_bool($result->account) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.',1);
+			}
+
+			return ($result->agent && $result->account);
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
@@ -616,6 +669,10 @@ namespace Aurora\Addon{
 //!	Code specific to the WebUI
 namespace Aurora\Addon\WebUI{
 	use InvalidArgumentException;
+
+	use Countable;
+	use Iterator;
+	use IteratorAggregate;
 
 	use Aurora\Services\Interfaces;
 	use Aurora\Framework\RegionFlags;
@@ -1519,7 +1576,7 @@ namespace Aurora\Addon\WebUI{
 	}
 
 //!	Encapsulating real-life/meatspace info in a class so that Aurora::Addon::WebUI::UserProfile::RLInfo() can simply return NULL to indicate the absence of such information.
-	class RLInfo{
+	class RLInfo implements IteratorAggregate{
 //!	public constructor
 /**
 *	Although it's likely this information will be unique, until it becomes used repeatedly inside a single workflow,
@@ -1600,6 +1657,57 @@ namespace Aurora\Addon\WebUI{
 				$this->City(),
 				$this->Country()
 			)));
+		}
+
+//!	@return object an instance of Aurora::Addon::WebUI::RLInfoIterator corresponding to this object
+		public function getIterator(){
+			return RLInfoIterator::r($this);
+		}
+	}
+
+	class RLInfoIterator implements Iterator, Countable{
+		protected $data;
+		protected function __construct(RLInfo $RLInfo){
+			$this->data = array(
+				'RLName'    => $RLInfo->Name(),
+				'RLAddress' => $RLInfo->Address(),
+				'RLZip'     => $RLInfo->Zip(),
+				'RLCity'    => $RLInfo->City(),
+				'RLCountry' => $RLInfo->Country()
+			);
+		}
+
+		public static function r(RLInfo $RLInfo){
+			static $registry = array();
+			$hash = spl_object_hash($RLInfo);
+			if(isset($registry[$hash]) === false){
+				$registry[$hash] = new static($RLInfo);
+			}
+			return $registry[$hash];
+		}
+
+		public function current(){
+			return current($this->data);
+		}
+
+		public function key(){
+			return key($this->data);
+		}
+
+		public function next(){
+			next($this->data);
+		}
+
+		public function rewind(){
+			reset($this->data);
+		}
+
+		public function valid(){
+			return $this->key() !== null;
+		}
+
+		public function count(){
+			return count($this->data);
 		}
 	}
 }
