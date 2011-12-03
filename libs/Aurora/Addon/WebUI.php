@@ -4,6 +4,7 @@ namespace Aurora\Addon{
 	use RuntimeException;
 	use InvalidArgumentException;
 	use UnexpectedValueException;
+	use LengthException;
 
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
@@ -144,7 +145,7 @@ namespace Aurora\Addon{
 			}else if(is_string($Password) === false){
 				throw new InvalidArgumentException('Password must be a string.');
 			}else if(strlen($Password) < 8){
-				throw new InvalidArgumentException('Password must be longer than 8 characters.');
+				throw new LengthException('Password cannot be less than 8 characters long.');
 			}else if(is_string($Email) === false){
 				throw new InvalidArgumentException('Email address must be a string.');
 			}else if($Email !== '' && is_email($Email) === false){
@@ -392,6 +393,42 @@ namespace Aurora\Addon{
 				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
 			}else if($result->Verified === true && $result->Stored === false){
 				throw new RuntimeException('Call to API was successful, but name change was not stored by the server.');
+			}
+
+			return $result->Verified;
+		}
+
+//!	Change password. NOTE: currently requires passwords to be sent to WebUI as plaintext.
+/**
+*	@param mixed $uuid either a string UUID or an instance of Aurora::Services::Interfaces::User of the user we wish to change the name for.
+*	@param mixed $oldPassword old password
+*	@param mixed $newPassword new password
+*/
+		public function ChangePassword($uuid, $oldPassword, $newPassword){
+			if($uuid instanceof User){
+				$uuid = $uuid->PrincipalID();
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}else if(is_string($oldPassword) === false){
+				throw new InvalidArgumentException('Old password must be a string.');
+			}else if(is_string($newPassword) === false){
+				throw new InvalidArgumentException('New password must be a string.');
+			}else if(trim($newPassword) === ''){
+				throw new InvalidArgumentException('New password cannot be an empty string.');
+			}else if(strlen($newPassword) < 8){
+				throw new LengthException('New password cannot be less than 8 characters long.');
+			}
+
+			$result = $this->makeCallToAPI('ChangePassword', array('UUID' => $uuid, 'Password' => $oldPassword, 'NewPassword' => $newPassword));
+
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_bool($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
 			}
 
 			return $result->Verified;
