@@ -192,6 +192,7 @@ namespace Aurora\Addon{
 			$result = $this->makeCallToAPI('CreateAccount', array(
 				'Name'         => $Name,
 				'PasswordHash' => $Password,
+				'Email'        => $Email,
 				'RLDOB'        => $RLDOB,
 				'RLFirstName'  => $RLFirstName,
 				'RLLastName'   => $RLLastName,
