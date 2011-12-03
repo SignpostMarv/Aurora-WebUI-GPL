@@ -434,6 +434,50 @@ namespace Aurora\Addon{
 			return $result->Verified;
 		}
 
+//!	Confirm the account name and email address (used by forgotten password activities)
+/**
+*	@param string $name Account name
+*	@param string $email Account email address
+*	@return boolean TRUE if successful, FALSE otherwise.
+*/
+		public function ConfirmUserEmailName($name, $email){
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+
+			if(is_string($name) === false){
+				throw new InvalidArgumentException('Name must be a string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Name cannot be an empty string.');
+			}else if(is_string($email) === false){
+				throw new InvalidArgumentException('Email address must be a string.');
+			}else if(is_email($email) === false){
+				throw new InvalidArgumentException('Email address is invalid.');
+			}
+
+			$result = $this->makeCallToAPI('ConfirmUserEmailName', array('Name' => $name, 'Email' => $email));
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
+			}else if(is_bool($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.',1);
+			}else if(isset($result->ErrorCode) === true && is_integer($result->ErrorCode) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.',2);
+			}else if(isset($result->ErrorCode) === true){
+				if($result->ErrorCode === 1){
+					throw new InvalidArgumentException('No account was found with the specified name.');
+				}else if($result->ErrorCode === 2){
+					throw new InvalidArgumentException('The specified account is disabled.');
+				}else if($result->ErrorCode === 3){
+					throw new InvalidArgumentException('The specified email address does not match the email address associated with the specified account.');
+				}else{
+					throw new UnexpectedValueException('Unknown error occurred when checking email address of specified account.');
+				}
+			}
+
+			return $result->Verified;
+		}
+
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
