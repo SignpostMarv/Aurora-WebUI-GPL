@@ -1606,7 +1606,6 @@ namespace Aurora\Addon\WebUI{
 			$this->City = trim($city);
 			$this->Country = trim($country);
 		}
-		
 
 //!	string meatspace name of account holder.
 //!	@see Aurora::Addon::WebUI::RLInfo::Name()
