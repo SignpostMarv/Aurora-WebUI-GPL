@@ -564,7 +564,6 @@ namespace Aurora\Addon{
 			return WebUI\UserProfile::r($account->PrincipalID, $account->Name, $account->Email, $account->Created, $allowPublish, $maturePublish, $wantToMask, $wantToText, $canDoMask, $canDoText, $languages, $image, $aboutText, $firstLifeImage, $firstLifeAboutText, $webURL, $displayName, $account->PartnerUUID, $visible, $customType, $notes, $RLName, $RLAddress, $RLZip, $RLCity, $RLCountry);
 		}
 
-
 		public function EditUser($uuid, $name=null, $email='', WebUI\RLInfo $RLInfo=null){
 			if($uuid instanceof WebUI\abstractUser){
 				if(is_null($name) === true){
