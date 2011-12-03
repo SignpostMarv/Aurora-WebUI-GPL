@@ -630,7 +630,7 @@ namespace Aurora\Addon{
 
 			$archives = array();
 			foreach($result->names as $k=>$v){
-				$archives[] = new WebUI\basicAvatarArchive($v, $snapshot[$v]);
+				$archives[] = new WebUI\basicAvatarArchive($v, $result->snapshot[$k]);
 			}
 
 			return new WebUI\AvatarArchives($archives);
