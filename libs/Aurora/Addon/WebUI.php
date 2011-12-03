@@ -479,6 +479,12 @@ namespace Aurora\Addon{
 		}
 
 //!	Attempt to get the profile object for the specified user.
+/**
+*	If $name is an instance of Aurora::Addon::WebUI::abstractUser, $uuid will be set to Aurora::Addon::WebUI::abstractUser::PrincipalID() and $name will be set to an empty string.
+*	@param mixed $name Either a string of the account name, or an instance of Aurora::Addon::WebUI::abstractUser
+*	@param string $uuid Account UUID
+*	@return object instance of Aurora::Addon::WebUI::UserProfile
+*/
 		public function GetProfile($name='', $uuid='00000000-0000-0000-0000-000000000000'){
 			if($name instanceof WebUI\abstractUser){
 				$uuid = $name->PrincipalID();
@@ -564,6 +570,15 @@ namespace Aurora\Addon{
 			return WebUI\UserProfile::r($account->PrincipalID, $account->Name, $account->Email, $account->Created, $allowPublish, $maturePublish, $wantToMask, $wantToText, $canDoMask, $canDoText, $languages, $image, $aboutText, $firstLifeImage, $firstLifeAboutText, $webURL, $displayName, $account->PartnerUUID, $visible, $customType, $notes, $RLName, $RLAddress, $RLZip, $RLCity, $RLCountry);
 		}
 
+//!	Attempt to edit the account name, email address and real-life info.
+/**
+*	If $uuid is an instance of Aurora::Addon::WebUI::abstractUser, $name is set to Aurora::Addon::WebUI::abstractUser::Name() and $uuid is set to Aurora::Addon::WebUI::abstractUser::PrincipalID()
+*	@param mixed $uuid either the account ID or an instance of Aurora::Addon::WebUI::abstractUser
+*	@param mixed either a string of the account name or NULL when $uuid is an instance of Aurora::Addon::WebUI::abstractUser
+*	@param string $email Email address for the account
+*	@param mixed either an instance of Aurora::Addon::WebUI::RLInfo or NULL
+*	@return boolean TRUE if successful, FALSE otherwise. Also returns FALSE if the operation was partially successful.
+*/
 		public function EditUser($uuid, $name=null, $email='', WebUI\RLInfo $RLInfo=null){
 			if($uuid instanceof WebUI\abstractUser){
 				if(is_null($name) === true){
@@ -616,7 +631,10 @@ namespace Aurora\Addon{
 			return ($result->agent && $result->account);
 		}
 
-
+//!	Attempt to fetch the public avatar archives.
+/**
+*	@return an instance of Aurora::Addon::WebUI::AvatarArchives corresponding to the result returned by the API end point.
+*/
 		public function GetAvatarArchives(){
 			$result = $this->makeCallToAPI('GetAvatarArchives');
 
