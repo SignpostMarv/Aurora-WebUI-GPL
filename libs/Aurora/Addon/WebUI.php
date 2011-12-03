@@ -616,6 +616,26 @@ namespace Aurora\Addon{
 			return ($result->agent && $result->account);
 		}
 
+
+		public function GetAvatarArchives(){
+			$result = $this->makeCallToAPI('GetAvatarArchives');
+
+			if(isset($result->names, $result->snapshot) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_array($result->names) === false || is_array($result->snapshot) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were of an unexpected type.');
+			}else if(count($result->names) !== count($result->snapshot)){
+				throw new LengthException('Call to API was successful, but the number of names did not match the number of snapshots');
+			}
+
+			$archives = array();
+			foreach($result->names as $k=>$v){
+				$archives[] = new WebUI\basicAvatarArchive($v, $snapshot[$v]);
+			}
+
+			return new WebUI\AvatarArchives($archives);
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
@@ -1662,6 +1682,7 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
+//!	This is Iterator here could be considered pure laziness.
 	class RLInfoIterator implements Iterator, Countable{
 		protected $data;
 		protected function __construct(RLInfo $RLInfo){
@@ -1681,6 +1702,96 @@ namespace Aurora\Addon\WebUI{
 				$registry[$hash] = new static($RLInfo);
 			}
 			return $registry[$hash];
+		}
+
+		public function current(){
+			return current($this->data);
+		}
+
+		public function key(){
+			return key($this->data);
+		}
+
+		public function next(){
+			next($this->data);
+		}
+
+		public function rewind(){
+			reset($this->data);
+		}
+
+		public function valid(){
+			return $this->key() !== null;
+		}
+
+		public function count(){
+			return count($this->data);
+		}
+	}
+
+//!	basic stub class for individual avatar archives.
+	class basicAvatarArchive{
+
+//!	We're not going to use a registry method here now (although we may in the future), so we're leaving the constructor as a public method.
+/**
+*	@param string $name Name of the archive
+*	@param string $snapshot UUID of a texture that shows off this archive.
+*/
+		public function __construct($name, $snapshot){
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+
+			if(is_string($name) === false){
+				throw new InvalidArgumentException('Name must be a string.');
+			}else if(is_string($snapshot) === false){
+				throw new InvalidArgumentException('Snapshot must be a string.');
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $snapshot) !== 1){
+				throw new InvalidArgumentException('Snapshot was not a valid UUID.');
+			}
+
+			$this->Name = $name;
+			$this->Snapshot = $snapshot;
+		}
+
+//!	string Name of the archive
+//!	@see Aurora::Addon::WebUI::basicAvatarArchive::Name()
+		protected $Name;
+//!	@see Aurora::Addon::WebUI::basicAvatarArchive::$Name
+		public function Name(){
+			return $this->Name;
+		}
+
+//!	string UUID of a texture that shows off this archive
+//!	@see Aurora::Addon::WebUI::basicAvatarArchive::Snapshot()
+		protected $Snapshot;
+//!	@see Aurora::Addon::WebUI::basicAvatarArchive::$Snapshot
+		public function Snapshot(){
+			return $this->Snapshot;
+		}
+	}
+
+//!	Iterator for instances of Aurora::Addon::WebUI::basicAvatarArchive
+	class AvatarArchives implements Iterator, Countable{
+
+//!	array holds the instances of Aurora::Addon::WebUI::basicAvatarArchive
+		protected $data = array();
+
+//!	public constructor
+/**
+*	Since Aurora::Addon::WebUI::AvatarArchives does not implement methods for appending values, calling the constructor with no arguments is a shorthand means of indicating there are no avatar archives available.
+*	@param mixed $archives an array of Aurora::Addon::WebUI::basicAvatarArchive instances or NULL
+*/
+		public function __construct(array $archives=null){
+			if(isset($archives) === true){
+				foreach($archives as $v){
+					if(($v instanceof basicAvatarArchive) === false){
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::basicAvatarArchive should be included in the array passed to Aurora::Addon::WebUI::AvatarArchives::__construct()');
+					}
+				}
+				reset($archives);
+				$this->data = $archives;
+			}
 		}
 
 		public function current(){
