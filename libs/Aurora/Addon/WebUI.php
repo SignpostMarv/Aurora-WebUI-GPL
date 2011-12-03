@@ -665,7 +665,6 @@ namespace Aurora\Addon{
 	}
 }
 
-
 //!	Code specific to the WebUI
 namespace Aurora\Addon\WebUI{
 	use InvalidArgumentException;
