@@ -855,6 +855,31 @@ namespace Aurora\Addon{
 			return new WebUI\AbuseReports($results);
 		}
 
+//!	Attempts to mark the specified Abuse Report as complete
+/**
+*	@param mixed $abuseReport Either an integer corresponding to Aurora::Addon::WebUI::AbuseReport::Number() or an instance of Aurora::Addon::WebUI::AbuseReport
+*	@return boolean TRUE on success, FALSE on failure (usually because the specified abuse report doesn't exist).
+*/
+		public function AbuseReportMarkComplete($abuseReport){
+			if($abuseReport instanceof WebUI\AbuseReport){
+				$abuseReport = $abuseReport->Number();
+			}
+
+			if(is_integer($abuseReport) === false){
+				throw new InvalidArgumentException('Abuse report number must be specified as integer.');
+			}
+
+			$result = $this->makeCallToAPI('AbuseReportMarkComlete', array('Number' => $abuseReport));
+
+			if(isset($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful, but API required response properties was missing.');
+			}else if(is_bool($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful, but API required response property was of unexpected type.');
+			}
+
+			return $result->Finished;
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
