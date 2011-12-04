@@ -821,6 +821,40 @@ namespace Aurora\Addon{
 			return new WebUI\SearchUserResults($results);
 		}
 
+//!	Attempt to fetch all Abuse Reports.
+/**
+*	@param integer $start start point for abuse reports
+*	@param integer $count maximum number of abuse reports to retrieve
+*	@param boolean $active TRUE to get open abuse reports, FALSE to get closed abuse reports
+*/
+		public function GetAbuseReports($start=0, $count=25, $active=true){
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be an integer.');
+			}else if(is_integer($count) === false){
+				throw new InvalidArgumentException('Maximum abuse report count must be an integer.');
+			}else if(is_bool($active) === false){
+				throw new InvalidArgumentException('Activity flag must be a boolean.');
+			}
+
+			$result = $this->makeCallToAPI('GetAbuseReports', array('Start' => $start, 'Count' => $count, 'Active' => $active));
+
+			if(isset($result->AbuseReports) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_array($result->AbuseReports) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
+			}
+
+			$results = array();
+			foreach($result->AbuseReports as $AR){
+				if(isset($AR->Number, $AR->Details, $AR->Location, $AR->UserName, $AR->Summary, $AR->Active, $AR->AssignedTo, $AR->Category, $AR->Checked, $AR->Notes, $AR->ObjectName, $AR->ObjectPosition, $AR->ObjectUUID, $AR->RegionName, $AR->ReporterName, $AR->Screenshot) === false){
+					throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
+				}
+				$results[] = WebUI\AbuseReport::r($AR->Number, $AR->Details, $AR->Location, $AR->UserName, $AR->Summary, $AR->Active, $AR->AssignedTo, $AR->Category, $AR->Checked, $AR->Notes, $AR->ObjectName, $AR->ObjectPosition, $AR->ObjectUUID, $AR->RegionName, $AR->ReporterName, $AR->Screenshot);
+			}
+
+			return new WebUI\AbuseReports($results);
+		}
+
 //!	Attempt to set the WebLoginKey for the specified user
 /**
 *	@param string $for UUID of the desired user to specify a WebLoginKey for.
@@ -2084,7 +2118,7 @@ namespace Aurora\Addon\WebUI{
 			return $this->Created;
 		}
 
-//!	integr bitfield of user flags
+//!	integer bitfield of user flags
 //!	@see Aurora::Addon::WebUI::SearchUser::UserFlags()
 		protected $UserFlags;
 //!	@see Aurora::Addon::WebUI::SearchUser::$UserFlags
