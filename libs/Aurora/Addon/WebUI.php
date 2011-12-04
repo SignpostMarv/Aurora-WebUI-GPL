@@ -953,6 +953,27 @@ namespace Aurora\Addon{
 			}
 			return $response;
 		}
+
+//!	object an instance of Aurora::Addon::WebUI::GridInfo
+		protected $GridInfo;
+//!	Processes should not be long-lasting, so we only fetch this once.
+		public function get_grid_info(){
+			if(isset($this->GridInfo) === false){
+				$result = $this->makeCallToAPI('get_grid_info');
+				if(isset($result->GridInfo) === false){
+					throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+				}else if(is_object($result->GridInfo) === false){
+					throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
+				}
+			}
+
+			$this->GridInfo = WebUI\GridInfo::f();
+			foreach($result->GridInfo as $k=>$v){
+				$this->GridInfo[$k] = $v;
+			}
+
+			return $this->GridInfo;
+		}
 	}
 }
 
@@ -2497,12 +2518,31 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
-//!	Long-term goal of Aurora-WebUI-GPL is to support multiple grids on a single website, so we need an iterator to hold all the configs.
-	class Configs extends abstractIterator implements ArrayAccess{
+//!	class for Write-Once-Read-Many implementations of ArrayAccess
+	abstract class WORM extends abstractIterator implements ArrayAccess{
 
-//!	protected constructor, hidden behind a singleton method.
+//!	protected constructor, hidden behind a singleton, factory or registry method.
 		protected function __construct(){
 		}
+
+
+		public function offsetExists($offset){
+			return isset($offset, $this->data[$offset]);
+		}
+
+
+		public function offsetGet($offset){
+			return isset($this[$offset]) ? $this->data[$offset] : null;
+		}
+
+
+		public function offsetUnset($offset){
+			throw new BadMethodCallException('data cannot be unset.');
+		}
+	}
+
+//!	Long-term goal of Aurora-WebUI-GPL is to support multiple grids on a single website, so we need an iterator to hold all the configs.
+	class Configs extends WORM{
 
 //!	singleton method.
 /**
@@ -2527,14 +2567,6 @@ namespace Aurora\Addon\WebUI{
 			return static::i()->offsetGet(0);
 		}
 
-		public function offsetExists($offset){
-			return isset($offset, $this->data[$offset]);
-		}
-
-		public function offsetGet($offset){
-			return isset($this[$offset]) ? $this->data[$offset] : null;
-		}
-
 		public function offsetSet($offset, $value){
 			if(($value instanceof \Aurora\Addon\WebUI) === false){
 				throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI can be added to instances of Aurora::Addon::WebUI::Configs');
@@ -2550,9 +2582,27 @@ namespace Aurora\Addon\WebUI{
 
 			$this->data[$offset] = $value;
 		}
+	}
 
-		public function offsetUnset($offset){
-			throw new BadMethodCallException('Configs cannot be unset.');
+	class GridInfo extends WORM{
+
+//!	factory method
+		public static function f(){
+			return new static();
+		}
+
+		public function offsetSet($offset, $value){
+			if(is_string($offset) === false){
+				throw new InvalidArgumentException('Offsets must be strings.');
+			}else if(ctype_graph($offset) === false){
+				throw new InvalidArgumentException('Offsets cannot have whitespace.');
+			}else if(is_scalar($value) === false){
+				throw new InvalidArgumentException('Values must be scalar.');
+			}else if(isset($this[$offset]) === true){
+				throw new InvalidArgumentException('That offset already exists.');
+			}
+
+			$this->data[$offset] = $value;
 		}
 	}
 }
