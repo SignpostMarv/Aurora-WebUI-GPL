@@ -18,17 +18,10 @@
 			'Bob'
 		);
 	}else{
-		try{
-			$user = $WebUI->Login(
-				'Tester EditUser',
-				'testpass'
-			);
-		}catch(Exception $e){
-			$user = $WebUI->Login(
-				'Tester EditUser',
-				'testpass'
-			);
-		}
+		$user = $WebUI->Login(
+			'Tester EditUser',
+			'testpass'
+		);
 	}
 
 	var_dump(
