@@ -687,7 +687,6 @@ namespace Aurora\Addon{
 			return $result->Finished;
 		}
 
-
 //!	Attempts to ban a user permanently or temporarily
 /**
 *	If $uuid is an instance of Aurora::Addon::WebUI::abstractUser, $uuid is set to Aurora::Addon::WebUI::abstractUser::PrincipalID()
@@ -770,6 +769,56 @@ namespace Aurora\Addon{
 			}
 
 			return $result->Finished;
+		}
+
+//!	Attempt to search for users
+/**
+*	@param mixed $start either an integer start point for results, or $query when we're being lazy.
+*	@param integer $end end point for results
+*	@param string $query search filter
+*	@return object an instance of Aurora::Addon::WebUI::SearchUserResults
+*/
+		public function FindUsers($start=0, $end=25, $query=''){
+			if(is_string($start) === true){
+				if(ctype_digit($start) === true){
+					$start = (integer)$start;
+				}else if($query === ''){
+					$query = $start;
+					$start = 0;
+				}
+			}
+			if(is_string($end) === true && ctype_digit($end) === true){
+				$end = (integer)$end;
+			}
+			if(is_string($query) === true){
+				$query = trim($query);
+			}
+
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be an integer.');
+			}else if(is_integer($end) === false){
+				throw new InvalidArgumentException('End point must be an integer.');
+			}else if(is_string($query) === false){
+				throw new InvalidArgumentException('Query filter must be a string.');
+			}
+
+			$result = $this->makeCallToAPI('FindUsers', array('Start', 'End', 'Query'));
+
+			if(isset($result->Users) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
+			}else if(is_array($result->Users) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
+			}
+
+			$results = array();
+			foreach($result->Users as $userdata){
+				if(isset($userdata->PrincipalID, $userdata->UserName, $userdata->Created, $userdata->UserFlags) === false){
+					throw new UnexpectedValueException('Call to API was successful but required response sub-properties were missing.');
+				}
+				$results = WebUI\SearchUser::r($userdata->PrincipalID, $userdata->UserName, $userdata->Created, $userdata->UserFlags);
+			}
+
+			return new WebUI\SearchUserResults($results);
 		}
 
 //!	Attempt to set the WebLoginKey for the specified user
@@ -1387,6 +1436,7 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
+//!	UserProfile class. Returned by Aurora::Addon::WebUI::GetProfile()
 	class UserProfile extends commonUser{
 
 //!	We need to add in some more properties and validation since we're extending another class.
@@ -1818,27 +1868,9 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
-//!	This is Iterator here could be considered pure laziness.
-	class RLInfoIterator implements Iterator, Countable{
-		protected $data;
-		protected function __construct(RLInfo $RLInfo){
-			$this->data = array(
-				'RLName'    => $RLInfo->Name(),
-				'RLAddress' => $RLInfo->Address(),
-				'RLZip'     => $RLInfo->Zip(),
-				'RLCity'    => $RLInfo->City(),
-				'RLCountry' => $RLInfo->Country()
-			);
-		}
-
-		public static function r(RLInfo $RLInfo){
-			static $registry = array();
-			$hash = spl_object_hash($RLInfo);
-			if(isset($registry[$hash]) === false){
-				$registry[$hash] = new static($RLInfo);
-			}
-			return $registry[$hash];
-		}
+	abstract class abstractIterator implements Iterator, Countable{
+//!	array holds the instances of Aurora::Addon::WebUI::SearchUser
+		protected $data = array();
 
 		public function current(){
 			return current($this->data);
@@ -1862,6 +1894,61 @@ namespace Aurora\Addon\WebUI{
 
 		public function count(){
 			return count($this->data);
+		}
+	}
+
+	abstract class abstractUserIterator extends abstractIterator{
+
+//!	array holds the instances of Aurora::Addon::WebUI::abstractUser
+		protected $data = array();
+
+//!	public constructor
+/**
+*	Since Aurora::Addon::WebUI::abstractUserIterator does not implement methods for appending values, calling the constructor with no arguments is a shorthand means of indicating there are no abstract users available.
+*	@param mixed $archives an array of Aurora::Addon::WebUI::abstractUser instances or NULL
+*/
+		public function __construct(array $archives=null){
+			if(isset($archives) === true){
+				foreach($archives as $v){
+					if(($v instanceof abstractUser) === false){
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::abstractUser should be included in the array passed to Aurora::Addon::WebUI::abstractUserIterator::__construct()');
+					}
+				}
+				reset($archives);
+				$this->data = $archives;
+			}
+		}
+	}
+
+//!	This is Iterator here could be considered pure laziness.
+	class RLInfoIterator extends abstractIterator{
+
+//!	this gets hidden behind a registry method.
+/**
+*	@param object $RLInfo an instance of Aurora::Addon::WebUI::RLInfo
+*/
+		protected function __construct(RLInfo $RLInfo){
+			$this->data = array(
+				'RLName'    => $RLInfo->Name(),
+				'RLAddress' => $RLInfo->Address(),
+				'RLZip'     => $RLInfo->Zip(),
+				'RLCity'    => $RLInfo->City(),
+				'RLCountry' => $RLInfo->Country()
+			);
+		}
+
+//!	Registry method.
+/**
+*	@param object $RLInfo an instance of Aurora::Addon::WebUI::RLInfo
+*	@return object instance of Aurora::Addon::WebUI::RLInfoIterator
+*/
+		public static function r(RLInfo $RLInfo){
+			static $registry = array();
+			$hash = spl_object_hash($RLInfo);
+			if(isset($registry[$hash]) === false){
+				$registry[$hash] = new static($RLInfo);
+			}
+			return $registry[$hash];
 		}
 	}
 
@@ -1908,10 +1995,7 @@ namespace Aurora\Addon\WebUI{
 	}
 
 //!	Iterator for instances of Aurora::Addon::WebUI::basicAvatarArchive
-	class AvatarArchives implements Iterator, Countable{
-
-//!	array holds the instances of Aurora::Addon::WebUI::basicAvatarArchive
-		protected $data = array();
+	class AvatarArchives extends abstractIterator{
 
 //!	public constructor
 /**
@@ -1929,29 +2013,107 @@ namespace Aurora\Addon\WebUI{
 				$this->data = $archives;
 			}
 		}
+	}
 
-		public function current(){
-			return current($this->data);
+//!	SearchUser class. Included in result returned by Aurora::Addon::WebUI::FindUsers()
+	class SearchUser extends abstractUser{
+
+//!	We need to add in some more properties and validation since we're extending another class.
+/**
+*	@param string $uuid Account UUID
+*	@param string $name Account name
+*	@param integer $created unix timestamp of when the account was created
+*	@param integer $userFlags bitfield of user flags
+*/
+		protected function __construct($uuid, $name, $created, $userFlags){
+			if(is_integer($created) === false){
+				throw new InvalidArgumentException('Created timestamp must be an integer.');
+			}else if(is_integer($userFlags) === false){
+				throw new InvalidArgumentException('User Flags must be an integer.');
+			}
+
+			$this->Created   = $created;
+			$this->UserFlags = $userFlags;
+
+			$firstName = explode(' ', $name);
+			$lastName = array_pop($firstName);
+			if($lastName === $name){
+				$lastName = '';
+				$firstName = $name;
+			}else{
+				$firstName = implode(' ', $firstName); // this is to future proof first names with multiple spaces.
+			}
+
+			parent::__construct($uuid, $firstName, $lastName);
 		}
 
-		public function key(){
-			return key($this->data);
+//!	Registry method.
+/**
+*	@param string $uuid Account UUID
+*	@param string $name Account name
+*	@param integer $created unix timestamp of when the account was created
+*	@param integer $userFlags bitfield of user flags
+*/
+		public static function r($uuid, $name=null, $created=null, $userFlags=null){
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $uuid) === false){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}
+
+			$uuid = strtolower($uuid);
+			static $registry = array();
+			$create = (isset($registry[$uuid]) === false);
+
+			if($create === false && isset($name, $created, $userFlags) === true){
+				$user = $registry[$uuid];
+				$create = ($user->Name() !== $name || $user->Created() !== $created || $user->UserFlags !== $userFlags);
+			}else if($created === true && isset($name, $created, $userFlags) === false){
+				throw new InvalidArgumentException('Cannot create an instance of Aurora::Addon::WebUI::SearchUser if no information is specified.');
+			}
+
+			if($create){
+				$registry[$uuid] = new static($uuid, $name, $created, $userFlags);
+			}
+
+			return $registry[$uuid];
 		}
 
-		public function next(){
-			next($this->data);
+//!	integer unix timestamp of when the account was created.
+//!	@see Aurora::Addon::WebUI::SearchUser::Created()
+		protected $Created;
+//!	@see Aurora::Addon::WebUI::SearchUser::$Created
+		public function Created(){
+			return $this->Created;
 		}
 
-		public function rewind(){
-			reset($this->data);
+//!	integr bitfield of user flags
+//!	@see Aurora::Addon::WebUI::SearchUser::UserFlags()
+		protected $UserFlags;
+//!	@see Aurora::Addon::WebUI::SearchUser::$UserFlags
+		public function UserFlags(){
+			return $this->UserFlags;
 		}
+	}
 
-		public function valid(){
-			return $this->key() !== null;
-		}
+//!	SearchUserResults iterator. Returned by Aurora::Addon::WebUI::FindUsers
+	class SearchUserResults extends abstractUserIterator{
 
-		public function count(){
-			return count($this->data);
+//!	public constructor
+/**
+*	Since Aurora::Addon::WebUI::SearchUserResults does not implement methods for appending values, calling the constructor with no arguments is a shorthand means of indicating there are no search users available.
+*	@param mixed $archives an array of Aurora::Addon::WebUI::SearchUser instances or NULL
+*/
+		public function __construct(array $users=null){
+			if(isset($users) === true){
+				foreach($users as $v){
+					if(($v instanceof SearchUser) === false){
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::SearchUser should be included in the array passed to Aurora::Addon::WebUI::SearchUserResults::__construct()');
+					}
+				}
+				reset($users);
+				$this->data = $users;
+			}
 		}
 	}
 }
