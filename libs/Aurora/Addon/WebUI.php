@@ -654,7 +654,12 @@ namespace Aurora\Addon{
 			return new WebUI\AvatarArchives($archives);
 		}
 
-
+//!	Attempt to delete the user
+/**
+*	If $uuid is an instance of Aurora::Addon::WebUI::abstractUser, $uuid is set to Aurora::Addon::WebUI::abstractUser::PrincipalID()
+*	@param mixed $uuid Either an account UUID, or an instance of Aurora::Addon::WebUI::abstractUser
+*	@return boolean Should always return TRUE
+*/
 		public function DeleteUser($uuid){
 			if($uuid instanceof WebUI\abstractUser){
 				$uuid = $uuid->PrincipalID();
