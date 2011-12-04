@@ -6,6 +6,8 @@ namespace Aurora\Addon{
 	use UnexpectedValueException;
 	use LengthException;
 
+	use DateTime;
+
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
 
@@ -675,6 +677,91 @@ namespace Aurora\Addon{
 			}
 
 			$result = $this->makeCallToAPI('DeleteUser', array('UserID' => $uuid));
+
+			if(isset($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
+			}else if(is_bool($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
+			}
+
+			return $result->Finished;
+		}
+
+
+//!	Attempts to ban a user permanently or temporarily
+/**
+*	If $uuid is an instance of Aurora::Addon::WebUI::abstractUser, $uuid is set to Aurora::Addon::WebUI::abstractUser::PrincipalID()
+*	If $until is an instance of DateTime, $until is set to DateTime::format('c')
+*	@param mixed $uuid Either an account UUID, or an instance of Aurora::Addon::WebUI::abstractUser
+*	@param mixed $until Either NULL (in which case it's a permanent ban) or if a temporary ban should be an instance of DateTime or a date string.
+*	@return boolean
+*/
+		public function BanUser($uuid, $until=null){
+			if($uuid instanceof WebUI\abstractUser){
+				$uuid = $uuid->PrincipalID();
+			}
+			if($until instanceof DateTime){
+				$until = $until->format('c');
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('UUID was not a valid UUID.');
+			}else if(isset($until) === true){
+				if(is_string($until) === false){
+					throw new InvalidArgumentException('temporary ban date must be a string.');
+				}else if(strtotime($until) === false){
+					throw new InvalidArgumentException('temporary ban date must be a valid date.');
+				}
+			}
+
+			$result = $this->makeCallToAPI(isset($until) ? 'TempBanUser' : 'BanUser', array('UserID' => $uuid, 'BannedUntil' => $until));
+
+			if(isset($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
+			}else if(is_bool($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
+			}
+
+			return $result->Finished;
+		}
+
+//!	Attempts to temporarily ban a user.
+/**
+*	This method is only here for completeness, in practice Aurora::Addon::WebUI::BanUser() should be called with $until specified
+*	If $uuid is an instance of Aurora::Addon::WebUI::abstractUser, $uuid is set to Aurora::Addon::WebUI::abstractUser::PrincipalID()
+*	If $until is an instance of DateTime, $until is set to DateTime::format('c')
+*	@param mixed $uuid Either an account UUID, or an instance of Aurora::Addon::WebUI::abstractUser
+*	@param mixed $until should be an instance of DateTime or a date string.
+*	@return boolean
+*/
+		public function TempBanUser($uuid, $until){
+			if(isset($until) === false){
+				throw new InvalidArgumentException('Temporary ban time must be specified.');
+			}
+
+			return $this->BanUser($uuid, $until);
+		}
+
+//!	Attempts to unban a user.
+/**
+*	If $uuid is an instance of Aurora::Addon::WebUI::abstractUser, $uuid is set to Aurora::Addon::WebUI::abstractUser::PrincipalID()
+*	@param mixed $uuid Either an account UUID, or an instance of Aurora::Addon::WebUI::abstractUser
+*	@return boolean
+*/
+		public function UnBanUser($uuid){
+			if($uuid instanceof WebUI\abstractUser){
+				$uuid = $uuid->PrincipalID();
+			}
+
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('UUID must be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('UUID must be a valid UUID.');
+			}
+
+			$result = $this->makeCallToAPI('UnBanUser', array('UserID' => $uuid));
 
 			if(isset($result->Finished) === false){
 				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
