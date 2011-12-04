@@ -866,10 +866,38 @@ namespace Aurora\Addon{
 			}
 
 			if(is_integer($abuseReport) === false){
-				throw new InvalidArgumentException('Abuse report number must be specified as integer.');
+				throw new InvalidArgumentException('Abuse report number must be specified as an integer.');
 			}
 
-			$result = $this->makeCallToAPI('AbuseReportMarkComlete', array('Number' => $abuseReport));
+			$result = $this->makeCallToAPI('AbuseReportMarkComplete', array('Number' => $abuseReport));
+
+			if(isset($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful, but API required response properties was missing.');
+			}else if(is_bool($result->Finished) === false){
+				throw new UnexpectedValueException('Call to API was successful, but API required response property was of unexpected type.');
+			}
+
+			return $result->Finished;
+		}
+
+//!	Attempt to update the notes for the specified abuse report
+/**
+*	@param mixed $abuseReport Either an integer corresponding to Aurora::Addon::WebUI::AbuseReport::Number() or an instance of Aurora::Addon::WebUI::AbuseReport
+*	@param string $notes Notes on the abuse report
+*	@return boolean TRUE on success, FALSE on failure (usually because the specified abuse report doesn't exist).
+*/
+		public function AbuseReportSaveNotes($abuseReport, $notes){
+			if($abuseReport instanceof WebUI\AbuseReport){
+				$abuseReport = $abuseReport->Number();
+			}
+
+			if(is_integer($abuseReport) === false){
+				throw new InvalidArgumentException('Abuse report number must be specified as an integer.');
+			}else if(is_string($notes) === false){
+				throw new InvalidArgumentException('Abuse report notes must be specified as a string.');
+			}
+
+			$result = $this->makeCallToAPI('AbuseReportSaveNotes', array('Number' => $abuseReport, 'Notes' => trim($notes)));
 
 			if(isset($result->Finished) === false){
 				throw new UnexpectedValueException('Call to API was successful, but API required response properties was missing.');
