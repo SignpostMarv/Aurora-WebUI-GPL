@@ -959,10 +959,12 @@ namespace Aurora\Addon{
 //!	Code specific to the WebUI
 namespace Aurora\Addon\WebUI{
 	use InvalidArgumentException;
+	use BadMethodCallException;
 
 	use Countable;
 	use Iterator;
 	use IteratorAggregate;
+	use ArrayAccess;
 
 	use Aurora\Services\Interfaces;
 	use Aurora\Framework\RegionFlags;
@@ -2492,6 +2494,65 @@ namespace Aurora\Addon\WebUI{
 				reset($ARs);
 				$this->data = $ARs;
 			}
+		}
+	}
+
+//!	Long-term goal of Aurora-WebUI-GPL is to support multiple grids on a single website, so we need an iterator to hold all the configs.
+	class Configs extends abstractIterator implements ArrayAccess{
+
+//!	protected constructor, hidden behind a singleton method.
+		protected function __construct(){
+		}
+
+//!	singleton method.
+/**
+*	@return object an instance of Aurora::Addon::WebUI::Configs
+*/
+		public static function i(){
+			static $instance;
+			if(isset($instance) === false){
+				$instance = new static();
+			}
+			return $instance;
+		}
+
+//!	Shorthand method for getting the default instance of Aurora::Addon::WebUI without having to call Aurora::Addon::WebUI::reset() all the time.
+/**
+*	@return object an instance of Aurora::Addon::WebUI
+*/
+		public static function d(){
+			if(static::i()->offsetExists(0) === false){
+				throw new BadMethodCallException('No configs have been set.');
+			}
+			return static::i()->offsetGet(0);
+		}
+
+		public function offsetExists($offset){
+			return isset($offset, $this->data[$offset]);
+		}
+
+		public function offsetGet($offset){
+			return isset($this[$offset]) ? $this->data[$offset] : null;
+		}
+
+		public function offsetSet($offset, $value){
+			if(($value instanceof \Aurora\Addon\WebUI) === false){
+				throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI can be added to instances of Aurora::Addon::WebUI::Configs');
+			}else if(isset($offset) === true && is_integer($offset) === false){
+				throw new InvalidArgumentException('Only integer offsets allowed.');
+			}
+
+			$offset = isset($offset) ? $offset : $this->count();
+
+			if(isset($this[$offset]) === true){
+				throw new InvalidArgumentException('Configs cannot be overwritten.');
+			}
+
+			$this->data[$offset] = $value;
+		}
+
+		public function offsetUnset($offset){
+			throw new BadMethodCallException('Configs cannot be unset.');
 		}
 	}
 }

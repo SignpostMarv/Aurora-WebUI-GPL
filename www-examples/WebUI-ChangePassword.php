@@ -1,15 +1,12 @@
 <?php
-	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
-	header('Content-Type: text/plain');
-	require_once('../libs/load.php');
-	$WebUI = Aurora\Addon\WebUI::r(
-		'http://localhost:8007/WIREDUX',
-		'Password'
-	);
+namespace{
+	require_once('../config.php');
+
+	use Aurora\Addon\WebUI\Configs;
 
 	$password = 'testpass';
-	if($WebUI->CheckIfUserExists('Tester ChangePassword') === false){
-		$user = $WebUI->CreateAccount(
+	if(Configs::d()->CheckIfUserExists('Tester ChangePassword') === false){
+		$user = Configs::d()->CreateAccount(
 			'Tester ChangePassword',
 			$password,
 			'foo@example.com',
@@ -20,14 +17,14 @@
 		);
 	}else{
 		try{
-			$user = $WebUI->Login(
+			$user = Configs::d()->Login(
 				'Tester ChangePassword',
 				$password
 			);
 			$newPassword = 'passtest';
 		}catch(Exception $e){
 			$password = 'passtest';
-			$user = $WebUI->Login(
+			$user = Configs::d()->Login(
 				'Tester ChangePassword',
 				$password
 			);
@@ -37,10 +34,11 @@
 
 	var_dump(
 		$user,
-		$WebUI->ChangePassword(
+		Configs::d()->ChangePassword(
 			$user, // this could be a UUID string instead of an instance of WebUI::GridUserInfo
 			$password,
 			$newPassword
 		)
 	);
+}
 ?>

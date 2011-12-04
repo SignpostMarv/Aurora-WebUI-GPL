@@ -1,9 +1,10 @@
 <?php
-	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
-	header('Content-Type: text/plain');
-	require_once('../libs/load.php');
-	print_r(Aurora\Addon\WebUI::r(
-		'http://localhost:8007/WIREDUX',
-		'Password'
-	)->OnlineStatus());
+namespace{
+	require_once('../config.php');
+
+	use Aurora\Addon\WebUI\Configs;
+	var_dump(
+		Configs::d()->OnlineStatus()
+	);
+}
 ?>

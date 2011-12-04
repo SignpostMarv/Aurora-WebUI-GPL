@@ -1,14 +1,11 @@
 <?php
-	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
-	header('Content-Type: text/plain');
-	require_once('../libs/load.php');
-	$WebUI = Aurora\Addon\WebUI::r(
-		'http://localhost:8007/WIREDUX',
-		'Password'
-	);
+namespace{
+	require_once('../config.php');
 
-	if($WebUI->CheckIfUserExists('Tester BanUser') === false){
-		$user = $WebUI->CreateAccount(
+	use Aurora\Addon\WebUI\Configs;
+
+	if(Configs::d()->CheckIfUserExists('Tester BanUser') === false){
+		$user = Configs::d()->CreateAccount(
 			'Tester BanUser',
 			'testpass',
 			'foo@example.com',
@@ -18,13 +15,14 @@
 			'Bob'
 		);
 	}else{
-		$user = $WebUI->Login(
+		$user = Configs::d()->Login(
 			'Tester BanUser',
 			'testpass'
 		);
 	}
 
 	var_dump(
-		$WebUI->UnBanUser($user)
+		Configs::d()->UnBanUser($user)
 	);
+}
 ?>

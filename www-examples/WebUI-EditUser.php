@@ -1,14 +1,12 @@
 <?php
-	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
-	header('Content-Type: text/plain');
-	require_once('../libs/load.php');
-	$WebUI = Aurora\Addon\WebUI::r(
-		'http://localhost:8007/WIREDUX',
-		'Password'
-	);
+namespace{
+	require_once('../config.php');
 
-	if($WebUI->CheckIfUserExists('Tester EditUser') === false){
-		$user = $WebUI->CreateAccount(
+	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebUI\RLInfo;
+
+	if(Configs::d()->CheckIfUserExists('Tester EditUser') === false){
+		$user = Configs::d()->CreateAccount(
 			'Tester EditUser',
 			'testpass',
 			'foo@example.com',
@@ -18,18 +16,18 @@
 			'Bob'
 		);
 	}else{
-		$user = $WebUI->Login(
+		$user = Configs::d()->Login(
 			'Tester EditUser',
 			'testpass'
 		);
 	}
 
 	var_dump(
-		$WebUI->EditUser(
+		Configs::d()->EditUser(
 			$user, // this could be a UUID string instead of an instance of WebUI::abstractUser
 			$user->Name(),
 			'bar@example.com',
-			new Aurora\Addon\WebUI\RLInfo(
+			new RLInfo(
 				'',
 				'',
 				'',
@@ -37,14 +35,14 @@
 				''
 			)
 		),
-		$WebUI->GetProfile(
+		Configs::d()->GetProfile(
 			$user
 		),
-		$WebUI->EditUser(
+		Configs::d()->EditUser(
 			$user, // this could be a UUID string instead of an instance of WebUI::abstractUser
 			$user->Name(),
 			'bar@example.com',
-			new Aurora\Addon\WebUI\RLInfo(
+			new RLInfo(
 				'Sherlock Holmes',
 				'221b Baker Street',
 				'NW1 6XE',
@@ -52,8 +50,9 @@
 				'England'
 			)
 		),
-		$WebUI->GetProfile(
+		Configs::d()->GetProfile(
 			$user
 		)
 	);
+}
 ?>

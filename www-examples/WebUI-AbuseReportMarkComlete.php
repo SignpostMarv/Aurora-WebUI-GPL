@@ -1,12 +1,11 @@
 <?php
-	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
-	header('Content-Type: text/plain');
-	require_once('../libs/load.php');
-	$WebUI = Aurora\Addon\WebUI::r(
-		'http://localhost:8007/WIREDUX',
-		'Password'
-	);
+namespace{
+	require_once('../config.php');
+
+	use Aurora\Addon\WebUI\Configs;
+
 	var_dump(
-		$WebUI->AbuseReportMarkComplete(1)
+		Configs::d()->AbuseReportMarkComplete(1)
 	);
+}
 ?>
