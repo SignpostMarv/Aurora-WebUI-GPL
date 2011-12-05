@@ -6,5 +6,9 @@ Although starting off with modifying Aurora WebUI to run under php5, it became c
 
 www-examples is not for public consumption. It's intended as a developer-only "live" reference to test API calls. DO NOT PLACE ON A PUBLIC WEB SERVER.
 
+## utils
+
+minify.sh uses the YUI compressor which is available from http://yuilibrary.com/download/yuicompressor/
+
 ## Contributors
 SignpostMarv
