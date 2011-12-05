@@ -965,11 +965,11 @@ namespace Aurora\Addon{
 				}else if(is_object($result->GridInfo) === false){
 					throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
 				}
-			}
 
-			$this->GridInfo = WebUI\GridInfo::f();
-			foreach($result->GridInfo as $k=>$v){
-				$this->GridInfo[$k] = $v;
+				$this->GridInfo = WebUI\GridInfo::f();
+				foreach($result->GridInfo as $k=>$v){
+					$this->GridInfo[$k] = $v;
+				}
 			}
 
 			return $this->GridInfo;
