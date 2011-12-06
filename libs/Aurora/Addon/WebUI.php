@@ -957,7 +957,7 @@ namespace Aurora\Addon{
 //!	object an instance of Aurora::Addon::WebUI::GridInfo
 		protected $GridInfo;
 //!	Processes should not be long-lasting, so we only fetch this once.
-		public function get_grid_info(){
+		public function get_grid_info($info=null){
 			if(isset($this->GridInfo) === false){
 				$result = $this->makeCallToAPI('get_grid_info');
 				if(isset($result->GridInfo) === false){
@@ -972,7 +972,7 @@ namespace Aurora\Addon{
 				}
 			}
 
-			return $this->GridInfo;
+			return (isset($info) && is_string($info) && ctype_graph($info)) ? $this->GridInfo[$info] : $this->GridInfo;
 		}
 	}
 }
