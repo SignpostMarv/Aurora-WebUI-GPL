@@ -26,7 +26,7 @@ namespace Aurora\Addon\WebUI\plugins{
 		Configs::i()->rewind();
 		
 		do_action('before_grid_selector', $section, $currentGrid);
-		echo '<form method=post action=?select-grid class="', esc_attr(apply_filters('grid_selector_class', 'grid-selector')),'">';
+		echo '<form method=post action=?select-grid class="', esc_attr(implode(' ', array_unique(array_merge(array('grid-selector'), apply_filters('grid_selector_class', array()))))),'">';
 		do_action('pre_grid_selector_fieldset', $section, $currentGrid);
 		echo '<fieldset>';
 		echo '<label for="grid_selector_', esc_attr($gridSelector++), '">',__('Select Grid'),'</label>';
@@ -38,9 +38,17 @@ namespace Aurora\Addon\WebUI\plugins{
 		echo '</select><button type=submit>',esc_html(__('Submit')),'</button></fieldset>';
 		do_action('post_grid_selector_fieldset', $section, $currentGrid);
 		echo '</form>';
-		do_action('after_grid_select', $section, $currentGrid);
+		do_action('after_grid_selector', $section, $currentGrid);
+	}
+
+	function grid_selector_class_gridCount(array $classNames){
+		if(Configs::i()->count() >= 2){
+			$classNames[] = 'multi';
+		}
+		return $classNames;
 	}
 
 	add_action('grid_selector', __NAMESPACE__ . '\grid_selector', 10, 2);
+	add_filter('grid_selector_class', __NAMESPACE__ . '\grid_selector_class_gridCount', 10, 1);
 }
 ?>
