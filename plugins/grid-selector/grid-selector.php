@@ -19,7 +19,6 @@ namespace Aurora\Addon\WebUI\plugins{
 *	@param object instance of Aurora::Addon::WebUI corresponding to the currently selected grid.
 */
 	function grid_selector($section = '', WebUI $currentGrid = null){
-		static $gridSelector = 0;
 		if(isset($currentGrid) === false){
 			$currentGrid = Configs::d();
 		}
@@ -29,8 +28,8 @@ namespace Aurora\Addon\WebUI\plugins{
 		echo '<form method=post action=?select-grid class="', esc_attr(implode(' ', array_unique(array_merge(array('grid-selector'), apply_filters('grid_selector_class', array()))))),'">';
 		do_action('pre_grid_selector_fieldset', $section, $currentGrid);
 		echo '<fieldset>';
-		echo '<label for="grid_selector_', esc_attr($gridSelector++), '">',__('Select Grid'),'</label>';
-		echo '<select class=grids id="grid_selector_',esc_attr($gridSelector),'" name=grid>';
+		echo '<h1>',__('Select Grid'),'</h1>';
+		echo '<select class=grids name=grid>';
 		foreach(Configs::i() as $k=>$WebUI){
 			$gridInfo = $WebUI->get_grid_info();
 			echo '<option value="', esc_attr($k),'"',(($WebUI == $currentGrid) ? ' selected ' : ''),'>',esc_html(apply_filters('grid_selector_grid_nick',isset($gridInfo['gridnick']) ? $gridInfo['gridnick'] : 'AuroraSim')),'</option>';
