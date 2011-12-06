@@ -15,5 +15,8 @@ namespace{
 		'http://localhost:8007/WIREDUX',
 		'Password'
 	);
+
+	Globals::i()->baseURI = 'http://localhost/';
+	Globals::i()->WebUI = Configs::d(); // the idea here is to later use session/user-preference data to dynamically change this
 }
 ?>
