@@ -38,7 +38,7 @@ namespace Aurora\Addon\WebUI\plugins{
 		echo '</select><button type=submit>',esc_html(__('Submit')),'</button></fieldset>';
 		do_action('post_grid_selector_fieldset', $section, $currentGrid);
 		echo '</form>';
-		do_action('after_grid_select', $section, $currentGrid);
+		do_action('after_grid_selector', $section, $currentGrid);
 	}
 
 	add_action('grid_selector', __NAMESPACE__ . '\grid_selector', 10, 2);
