@@ -13,6 +13,8 @@
 	<hgroup>
 		<h1><?php echo esc_html(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridname'))); ?></h1>
 		<h2><?php echo esc_html(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridnick'))); ?> - <?php echo esc_html(__('Powered by AuroraSim')); ?></h2>
+	</hgroup>
+<?php do_action('grid_selector'); ?>
 </header>
 <?php
 	do_action('webui_footer');

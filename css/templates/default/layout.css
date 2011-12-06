@@ -46,3 +46,8 @@ footer{
 	padding: .2em 1em ;
 	border-radius: .25em ;
 }
+
+.grid-selector h1{
+	display: inline ;
+	font-size: 1em ;
+}
