@@ -6,7 +6,6 @@ namespace{
 
 	require_once('libs/load.php');
 
-	use IHateGlobals as Globals;
 	use Aurora\Addon\WebUI;
 	use Aurora\Addon\WebUI\Configs;
 

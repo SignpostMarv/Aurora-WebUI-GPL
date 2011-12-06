@@ -13,21 +13,21 @@ namespace{
 //!	Class used for globally-available stuff, because a) define and const only support scalar values, and b) the global operate is ugly.
 /**
 *	We're making this "final" for semantic reasons.
-*	The suggested usage is to alias IHateGlobals to Globals (or G, or whatever you want, really) then:
+*	The suggested usage is:
 *	Globals::i()->foo = 'bar'; echo Globals::i()->foo;
-*	Globals::i()->baz = function(){ return 'bat'; }; echo Globals::i()->bat();
+*	Globals::i()->baz = function(){ return 'bat'; }; echo Globals::i()->baz();
 */
-	final class IHateGlobals{
+	final class Globals{
 
 //!	We're going to use a singelton method, so we need to make the constructor non-public.
 		private function __construct(){}
 
-//!	Returns an instance of IHateGlobals via a singelton pattern.
+//!	Returns an instance of Globals via a singelton pattern.
 /**
 *	Marv's habit here is to use single-letter method names for singelton (i), registry (r) and factory (f) methods.
 *	Although in this scheme singelton should probably have "s" instead of "i", what we're returning is the sole instance of a class (emphasis on instance).
 *	The instance is held as a static variable inside the method because we want to ensure it's not interfered with by other methods.
-*	@return object an instance of IHateGlobals
+*	@return object an instance of Globals
 */
 		final public static function i(){
 			static $instance;
@@ -100,16 +100,16 @@ namespace{
 			return call_user_func_array($this->data[$name], $arguments);
 		}
 
-//!	Wraps to IHateGlobals::__call()
+//!	Wraps to Globals::__call()
 /**
 *	@param string $name
 *	@param array $arguments
 */
 		final public static function __callStatic($name, array $arguments){
-			if(self::i()->__isset($name) === false){ // The reason why we're not just passing straight to IHateGlobals::__call() is in the event IHateGlobals::__callStatic() is called directly- one could put an invalid value in $name.
+			if(self::i()->__isset($name) === false){ // The reason why we're not just passing straight to Globals::__call() is in the event Globals::__callStatic() is called directly- one could put an invalid value in $name.
 				throw new BadMethodCallException('The requested method does not exist.');
 			}
-			return self::i()->__call($name, $arguments); // if $name is actually present, assume it was a valid property- otherwise it would not have been able to have been set to begin with- and jump to IHateGlobals::__call()
+			return self::i()->__call($name, $arguments); // if $name is actually present, assume it was a valid property- otherwise it would not have been able to have been set to begin with- and jump to Globals::__call()
 		}
 	}
 }
