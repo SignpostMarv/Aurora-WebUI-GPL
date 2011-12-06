@@ -16,3 +16,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 Options -Indexes
+
+FileETag MTime Size
+
+# BEGIN JS & CSS handler
+<IfModule mod_headers.c>
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+<FilesMatch "\.css\.gz$">
+	Header set Content-Encoding "gzip"
+	Header set Content-Type "text/css"
+	Header set Vary "Accept-Encoding"
+</FilesMatch>
+RewriteCond %{DOCUMENT_ROOT}/$1.gz -f
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteRule ^(.*) /$1.gz [L]
+</IfModule>
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+RedirectMatch 404 \.gz$
+</IfModule>
+# END JS & CSS handler

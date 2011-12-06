@@ -1,0 +1,48 @@
+html{
+	width: 90% ;
+	margin-top: 1em ;
+	margin-bottom: 1em ;
+	margin-left: auto ;
+	margin-right: auto ;
+}
+
+body{
+	font-family: sans-serif ;
+	padding: 1em ;
+	border-radius: .5em ;
+}
+
+header{
+	border: 1px solid ;
+	padding: .2em 1em ;
+	margin-bottom: 1em ;
+	border-radius: .25em ;
+}
+header hgroup{
+	font-weight: bolder ;
+}
+
+h1{
+	font-size: 1.6em ;
+}
+h2{
+	font-size: 1.5em ;
+}
+h3{
+	font-size: 1.4em ;
+}
+h4{
+	font-size: 1.25em;
+}
+h5{
+	font-size: 1.2em ;
+}
+h6{
+	font-size: 1.1em ;
+}
+
+footer{
+	border: 1px solid ;
+	padding: .2em 1em ;
+	border-radius: .25em ;
+}
