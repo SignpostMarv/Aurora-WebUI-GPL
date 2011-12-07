@@ -14,8 +14,16 @@
 		<h1><?php echo esc_html(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridname'))); ?></h1>
 		<h2><?php echo esc_html(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridnick'))); ?> - <?php echo esc_html(__('Powered by AuroraSim')); ?></h2>
 	</hgroup>
-<?php do_action('grid_selector'); ?>
+	<nav id="main-nav">
+		<ul>
+			<?php echo wp_kses(apply_filters('main_nav_links', implode('',array('<li><a href="' . esc_attr(Globals::i()->baseURI) . '">Home</a></li>'))), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
+			<li><?php do_action('grid_selector'); ?></li>
+		</ul>
+	</nav>
 </header>
+<div id="main-content">
+
+</div>
 <?php
 	do_action('webui_footer');
 ?>
