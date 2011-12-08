@@ -7,13 +7,13 @@
 namespace OpenMetaverse{
 
 //!	Transposition of the Enum to be used by Aurora::Addon::WebUI::FriendInfo
-	class FriendsRights{
+	class FriendRights{
 
 //!	integer The avatar has no rights
 		const None = 0;
 
 //!	integer The avatar can see the online status of the target avatar
-		const CanSeeOnline = 0;
+		const CanSeeOnline = 1;
 
 //!	integer The avatar can see the location of the target avatar on the map
 		const CanSeeOnMap = 2;
