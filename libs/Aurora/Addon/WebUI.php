@@ -2706,10 +2706,23 @@ namespace Aurora\Addon\WebUI{
 
 	pomo::i()->load_textdomain('default', 'languages/en-GB.mo');	
 
-
+//!	Class to be used for holding friendInfo data
+/**
+*	extends Aurora::Addon::WebUI::abstractUserHasName so instances of the class can be more flexibly used.
+*/
 	class FriendInfo extends abstractUserHasName{
 
-
+//!	We want to hide this behind a registry method so the constructor needs to be protected
+/**
+*	@param object $with An instance of Aurora::Addon::WebUI::abstractUser corresponding to the user that the instantiated user is friends with.
+*	@param string $uuid the UUID of the user that $with is friends with.
+*	@param string $name the Name of the user that $with is friends with.
+*	@param integer $myFlags bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by $with to the user this instance is representing.
+*	@param integer $theirFlags bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to $with
+*	@see Aurora::Addon::WebUI::FriendInfo::$With
+*	@see Aurora::Addon::WebUI::FriendInfo::$MyFlags
+*	@see Aurora::Addon::WebUI::FriendInfo::$TheirFlags
+*/
 		protected function __construct(abstractUser $with, $uuid, $name, $myFlags, $theirFlags){
 			if(is_string($myFlags) === true && ctype_digit($myFlags) === true){
 				$myFlags = (integer)$myFlags;
@@ -2731,11 +2744,20 @@ namespace Aurora\Addon\WebUI{
 			}
 
 			$this->With       = $with;
-			$this->myFlags    = $myFlags;
-			$this->theirFlags = $theirFlags;
+			$this->MyFlags    = $myFlags;
+			$this->TheirFlags = $theirFlags;
 		}
 
-
+//!	Registry method
+/**
+*	Caches instances of Aurora::Addon::WebUI::FriendInfo, refreshing objects only when necessary.
+*	@param object $with An instance of Aurora::Addon::WebUI::abstractUser corresponding to the user that the instantiated user is friends with.
+*	@param string $uuid the UUID of the user that $with is friends with.
+*	@param mixed $name NULL for shorthand fetching of the cached object or string the Name of the user that $with is friends with.
+*	@param mixed $myFlags NULL for shorthand fetching of the cached object or integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by $with to the user this instance is representing.
+*	@param mixed $theirFlags NULL for shorthand fetching of the cached object or integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to $with
+*	@return object instance of Aurora::Addon::WebUI::FriendInfo
+*/
 		public static function r(abstractUser $with, $uuid, $name=null, $myFlags=null, $theirFlags=null){
 			static $registry = array();
 			if(isset($registry[$with->PrincipalID()]) === false){
@@ -2765,29 +2787,36 @@ namespace Aurora\Addon\WebUI{
 			return $registry[$with->PrincipalID()][$uuid];
 		}
 
-
+//!	object instance of Aurora::Addon::WebUI::abstractUser indicating who this object is friends with.
+//!	@see Aurora::Addon::WebUI::FriendInfo::With()
 		protected $With;
+//!	@see Aurora::Addon::WebUI::FriendInfo::$With
 		public function With(){
 			return $this->With;
 		}
 
 
-		protected $myFlags;
-		public function myFlags(){
-			return $this->myFlags;
+//!	integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by Aurora::Addon::WebUI::FriendInfo::With() to the user this instance is representing.
+//!	@see Aurora::Addon::WebUI::FriendInfo::MyFlags()
+		protected $MyFlags;
+//!	@see Aurora::Addon::WebUI::FriendInfo::$MyFlags
+		public function MyFlags(){
+			return $this->MyFlags;
 		}
 
-
-		protected $theirFlags;
-		public function theirFlags(){
-			return $this->theirFlags;
+//!	integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to Aurora::Addon::WebUI::FriendInfo::With()
+//!	@see Aurora::Addon::WebUI::FriendInfo::TheirFlags()
+		protected $TheirFlags;
+//!	@see Aurora::Addon::WebUI::FriendInfo::$TheirFlags
+		public function TheirFlags(){
+			return $this->TheirFlags;
 		}
 	}
 
-
+//!	Iterator for instances of Aurora::Addon::WebUI::FriendInfo
 	class FriendsList extends abstractUserIterator{
 
-
+//!	restricts the contents of Aurora::Addon::WebUI::FriendsList::$data to instances of Aurora::Addon::WebUI::FriendInfo
 		public function __construct(array $friendInfo=null){
 			if(isset($friendInfos) === true){
 				foreach($friendInfo as $v){

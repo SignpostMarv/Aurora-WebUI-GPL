@@ -1,8 +1,27 @@
 <?php
-//!	This file loads all the code for the Aurora goodness.
-/**
-*	@author SignpostMarv
-*/
+//!	@file libs/Aurora/load.php
+//!	@brief This file loads all the code for the Aurora goodness.
+//!	@author SignpostMarv
+
+//!	Code from libOMV, taken from visible metadata
+namespace OpenMetaverse{
+
+//!	Transposition of the Enum to be used by Aurora::Addon::WebUI::FriendInfo
+	class FriendsRights{
+
+//!	integer The avatar has no rights
+		const None = 0;
+
+//!	integer The avatar can see the online status of the target avatar
+		const CanSeeOnline = 0;
+
+//!	integer The avatar can see the location of the target avatar on the map
+		const CanSeeOnMap = 2;
+
+//!	integer The avatar can modify the ojects of the target avatar
+		const CanModifyObjects = 4;
+	}
+}
 
 //!	working in the global namespace here
 namespace{
