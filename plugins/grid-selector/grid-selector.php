@@ -10,13 +10,13 @@ Author URI: https://github.com/SignpostMarv/
 
 namespace Aurora\Addon\WebUI\plugins{
 
-	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\WebUI;
+	use Aurora\Addon\WebUI\Configs;
 
 //!	Spits out a grid selection box.
 /**
 *	@param string $section site section
-*	@param object instance of Aurora::Addon::WebUI corresponding to the currently selected grid.
+*	@param mixed $currentGrid NULL or instance of Aurora::Addon::WebUI corresponding to the currently selected grid.
 */
 	function grid_selector($section = '', WebUI $currentGrid = null){
 		if(isset($currentGrid) === false){
