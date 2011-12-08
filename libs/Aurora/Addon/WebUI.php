@@ -975,7 +975,11 @@ namespace Aurora\Addon{
 			return (isset($info) && is_string($info) && ctype_graph($info)) ? $this->GridInfo[$info] : $this->GridInfo;
 		}
 
-
+//!	returns the friends list for the specified user.
+/**
+*	@param mixed $forUser Either a UUID string or an instance of Aurora::Addon::WebUI::abstractUser
+*	@return object instance of Aurora::Addon::WebUI::FriendsList
+*/
 		public function GetFriends($forUser){
 			if(($forUser instanceof WebUI\abstractUser) === false){
 				if(is_string($forUser) === false){
@@ -997,7 +1001,7 @@ namespace Aurora\Addon{
 				}
 			}
 
-			return $response;
+			return new WebUI\FriendsList($response);
 		}
 	}
 }
@@ -2717,8 +2721,8 @@ namespace Aurora\Addon\WebUI{
 *	@param object $with An instance of Aurora::Addon::WebUI::abstractUser corresponding to the user that the instantiated user is friends with.
 *	@param string $uuid the UUID of the user that $with is friends with.
 *	@param string $name the Name of the user that $with is friends with.
-*	@param integer $myFlags bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by $with to the user this instance is representing.
-*	@param integer $theirFlags bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to $with
+*	@param integer $myFlags bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to $with
+*	@param integer $theirFlags bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by $with to the user this instance is representing.
 *	@see Aurora::Addon::WebUI::FriendInfo::$With
 *	@see Aurora::Addon::WebUI::FriendInfo::$MyFlags
 *	@see Aurora::Addon::WebUI::FriendInfo::$TheirFlags
@@ -2754,8 +2758,8 @@ namespace Aurora\Addon\WebUI{
 *	@param object $with An instance of Aurora::Addon::WebUI::abstractUser corresponding to the user that the instantiated user is friends with.
 *	@param string $uuid the UUID of the user that $with is friends with.
 *	@param mixed $name NULL for shorthand fetching of the cached object or string the Name of the user that $with is friends with.
-*	@param mixed $myFlags NULL for shorthand fetching of the cached object or integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by $with to the user this instance is representing.
-*	@param mixed $theirFlags NULL for shorthand fetching of the cached object or integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to $with
+*	@param mixed $myFlags NULL for shorthand fetching of the cached object or integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to $with
+*	@param mixed $theirFlags NULL for shorthand fetching of the cached object or integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by $with to the user this instance is representing.
 *	@return object instance of Aurora::Addon::WebUI::FriendInfo
 */
 		public static function r(abstractUser $with, $uuid, $name=null, $myFlags=null, $theirFlags=null){
@@ -2796,7 +2800,7 @@ namespace Aurora\Addon\WebUI{
 		}
 
 
-//!	integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by Aurora::Addon::WebUI::FriendInfo::With() to the user this instance is representing.
+//!	integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to Aurora::Addon::WebUI::FriendInfo::With()
 //!	@see Aurora::Addon::WebUI::FriendInfo::MyFlags()
 		protected $MyFlags;
 //!	@see Aurora::Addon::WebUI::FriendInfo::$MyFlags
@@ -2804,7 +2808,7 @@ namespace Aurora\Addon\WebUI{
 			return $this->MyFlags;
 		}
 
-//!	integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by the user this instance is representing to Aurora::Addon::WebUI::FriendInfo::With()
+//!	integer bitfield of OpenMetaverse::FriendRights constants corresponding to rights granted by Aurora::Addon::WebUI::FriendInfo::With() to the user this instance is representing.
 //!	@see Aurora::Addon::WebUI::FriendInfo::TheirFlags()
 		protected $TheirFlags;
 //!	@see Aurora::Addon::WebUI::FriendInfo::$TheirFlags
@@ -2818,7 +2822,7 @@ namespace Aurora\Addon\WebUI{
 
 //!	restricts the contents of Aurora::Addon::WebUI::FriendsList::$data to instances of Aurora::Addon::WebUI::FriendInfo
 		public function __construct(array $friendInfo=null){
-			if(isset($friendInfos) === true){
+			if(isset($friendInfo) === true){
 				foreach($friendInfo as $v){
 					if(($v instanceof FriendInfo) === false){
 						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::FriendInfo should be included in the array passed to Aurora::Addon::WebUI::FriendsList::__construct()');
