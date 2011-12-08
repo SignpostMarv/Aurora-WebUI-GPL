@@ -802,7 +802,7 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Query filter must be a string.');
 			}
 
-			$result = $this->makeCallToAPI('FindUsers', array('Start', 'End', 'Query'));
+			$result = $this->makeCallToAPI('FindUsers', array('Start'=>$start, 'End'=>$end, 'Query'=>$query));
 
 			if(isset($result->Users) === false){
 				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
@@ -815,7 +815,7 @@ namespace Aurora\Addon{
 				if(isset($userdata->PrincipalID, $userdata->UserName, $userdata->Created, $userdata->UserFlags) === false){
 					throw new UnexpectedValueException('Call to API was successful but required response sub-properties were missing.');
 				}
-				$results = WebUI\SearchUser::r($userdata->PrincipalID, $userdata->UserName, $userdata->Created, $userdata->UserFlags);
+				$results[] = WebUI\SearchUser::r($userdata->PrincipalID, $userdata->UserName, $userdata->Created, $userdata->UserFlags);
 			}
 
 			return new WebUI\SearchUserResults($results);
@@ -973,6 +973,31 @@ namespace Aurora\Addon{
 			}
 
 			return (isset($info) && is_string($info) && ctype_graph($info)) ? $this->GridInfo[$info] : $this->GridInfo;
+		}
+
+
+		public function GetFriends($forUser){
+			if(($forUser instanceof WebUI\abstractUser) === false){
+				if(is_string($forUser) === false){
+					throw new InvalidArgumentException('forUser must be a string.');
+				}else if(preg_match(self::regex_UUID, $forUser) !== 1){
+					throw new InvalidArgumentException('forUser must be a valid UUID.');
+				}
+				$forUser = $this->GetProfile('', $forUser);
+			}
+
+			$result = $this->makeCallToAPI('GetFriends', array('UserID' => $forUser->PrincipalID()));
+			$response = array();
+			if(isset($result->Friends) === true){
+				foreach($result->Friends as $v){
+					if(isset($v->PrincipalID, $v->Name, $v->MyFlags, $v->TheirFlags) === false){
+						throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
+					}
+					$response[] = WebUI\FriendInfo::r($forUser, $v->PrincipalID, $v->Name, $v->MyFlags, $v->TheirFlags);
+				}
+			}
+
+			return $response;
 		}
 	}
 }
@@ -1312,10 +1337,10 @@ namespace Aurora\Addon\WebUI{
 		protected function __construct(){
 			if(is_string($this->PrincipalID) === false){
 				throw new InvalidArgumentException('User UUID must be a string.');
-			}else if(preg_match(Aurora\Addon\WebUI::regex_UUID, $this->PrincipalID) === false){
+			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $this->PrincipalID) === false){
 				throw new InvalidArgumentException('User UUID was not a valid UUID.');
 			}else if(is_string($this->FirstName) === false){
-				throw new InvalidArgumentException('User first must be a string.');
+				throw new InvalidArgumentException('User first name must be a string.');
 			}else if(trim($this->FirstName) === ''){
 				throw new InvalidArgumentException('User first name must not be an empty string.');
 			}else if(is_string($this->LastName) === false){ // last names can be an empty string
@@ -1356,6 +1381,25 @@ namespace Aurora\Addon\WebUI{
 */
 		public function Name(){
 			return trim($this->FirstName() . ' ' . $this->LastName()); // we use trim in case Aurora::Addon::WebUI::abstractUser::LastName() is an empty string.
+		}
+	}
+
+	abstract class abstractUserHasName extends abstractUser{
+		protected function __construct($uuid, $name){
+			$firstName = explode(' ', $name);
+			$lastName = array_pop($firstName);
+			if($lastName === $name){
+				$lastName = '';
+				$firstName = $name;
+			}else{
+				$firstName = implode(' ', $firstName); // this is to future proof first names with multiple spaces.
+			}
+
+			$this->PrincipalID = $uuid;
+			$this->FirstName   = $firstName;
+			$this->LastName    = $lastName;
+
+			parent::__construct();
 		}
 	}
 
@@ -2126,7 +2170,7 @@ namespace Aurora\Addon\WebUI{
 	}
 
 //!	SearchUser class. Included in result returned by Aurora::Addon::WebUI::FindUsers()
-	class SearchUser extends abstractUser{
+	class SearchUser extends abstractUserHasName{
 
 //!	We need to add in some more properties and validation since we're extending another class.
 /**
@@ -2144,17 +2188,7 @@ namespace Aurora\Addon\WebUI{
 
 			$this->Created   = $created;
 			$this->UserFlags = $userFlags;
-
-			$firstName = explode(' ', $name);
-			$lastName = array_pop($firstName);
-			if($lastName === $name){
-				$lastName = '';
-				$firstName = $name;
-			}else{
-				$firstName = implode(' ', $firstName); // this is to future proof first names with multiple spaces.
-			}
-
-			parent::__construct($uuid, $firstName, $lastName);
+			parent::__construct($uuid, $name);
 		}
 
 //!	Registry method.
@@ -2671,5 +2705,100 @@ namespace Aurora\Addon\WebUI{
 	}
 
 	pomo::i()->load_textdomain('default', 'languages/en-GB.mo');	
+
+
+	class FriendInfo extends abstractUserHasName{
+
+
+		protected function __construct(abstractUser $with, $uuid, $name, $myFlags, $theirFlags){
+			if(is_string($myFlags) === true && ctype_digit($myFlags) === true){
+				$myFlags = (integer)$myFlags;
+			}
+			if(is_string($theirFlags) === true && ctype_digit($theirFlags) === true){
+				$theirFlags = (integer)$theirFlags;
+			}
+
+			parent::__construct($uuid, $name);
+
+			if($this->PrincipalID() === $with->PrincipalID()){
+				throw new InvalidArgumentException('User cannot be friends with themselves.');
+			}
+
+			if(is_integer($myFlags) === false){
+				throw new InvalidArgumentException('Flags must be an integer.');
+			}else if(is_integer($theirFlags) === false){
+				throw new InvalidArgumentException('Flags must be an integer.');
+			}
+
+			$this->With       = $with;
+			$this->myFlags    = $myFlags;
+			$this->theirFlags = $theirFlags;
+		}
+
+
+		public static function r(abstractUser $with, $uuid, $name=null, $myFlags=null, $theirFlags=null){
+			static $registry = array();
+			if(isset($registry[$with->PrincipalID()]) === false){
+				$registry[$with->PrincipalID()] = array();
+			}
+
+			$create = (isset($registry[$with->PrincipalID()][$uuid]) === false);
+
+			if($create === true && isset($name, $myFlags, $theirFlags) === false){
+				throw new InvalidArgumentException('Cannot return cached FriendInfo object, object has not been created.');
+			}else if($create === false){
+				$_myFlags    = (integer)$myFlags;
+				$_theirFlags = (integer)$theirFlags;
+
+				$FriendInfo = $registry[$with->PrincipalID()][$uuid];
+
+				$create = (
+					$FriendInfo->MyFlags() !== $_myFlags ||
+					$FriendInfo->TheirFlags() !== $_theirFlags
+				);
+			}
+
+			if($create === true){
+				$registry[$with->PrincipalID()][$uuid] = new static($with, $uuid, $name, $myFlags, $theirFlags);
+			}
+
+			return $registry[$with->PrincipalID()][$uuid];
+		}
+
+
+		protected $With;
+		public function With(){
+			return $this->With;
+		}
+
+
+		protected $myFlags;
+		public function myFlags(){
+			return $this->myFlags;
+		}
+
+
+		protected $theirFlags;
+		public function theirFlags(){
+			return $this->theirFlags;
+		}
+	}
+
+
+	class FriendsList extends abstractUserIterator{
+
+
+		public function __construct(array $friendInfo=null){
+			if(isset($friendInfos) === true){
+				foreach($friendInfo as $v){
+					if(($v instanceof FriendInfo) === false){
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::FriendInfo should be included in the array passed to Aurora::Addon::WebUI::FriendsList::__construct()');
+					}
+				}
+				reset($friendInfo);
+				$this->data = $friendInfo;
+			}
+		}
+	}
 }
 ?>
