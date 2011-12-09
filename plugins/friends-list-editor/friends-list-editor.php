@@ -69,7 +69,9 @@ namespace Aurora\Addon\WebUI\plugins{
 		do_action('after_friends_list_editor_tbody', $friendsList);
 		echo '</table>';
 		do_action('after_friends_list_editor_table', $friendsList);
-		echo '</fieldset><fieldset class=buttons><button type=submit>',esc_html(__('Submit')),'</button></fieldset>';
+		echo '</fieldset><fieldset class=buttons>',wp_kses(apply_filters('friends_list_editor_buttons',
+			'<button class=submit type=submit>' . esc_html(__('Submit')) . '</button>'
+		, $friendsList), array('button'=>array('type'=>array(),'class'=>array()))),'</fieldset>';
 		echo '</form>';
 		do_action('after_friends_list_editor', $friendsList);
 	}
