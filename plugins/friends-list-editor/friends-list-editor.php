@@ -23,6 +23,9 @@ namespace Aurora\Addon\WebUI\plugins{
 *	@param mixed $currentGrid NULL or instance of Aurora::Addon::WebUI corresponding to the currently selected grid.
 */
 	function friends_list_editor(FriendsList $friendsList, WebUI $currentGrid=null){
+		static $editor = 0;
+		++$editor;
+
 		$friendsList->rewind();
 		if(isset($currentGrid) === false){
 			$currentGrid = Configs::d();
@@ -54,10 +57,12 @@ namespace Aurora\Addon\WebUI\plugins{
 			$canMapThem          = ($friendInfo->MyFlags()    & FriendRights::CanSeeOnMap);
 			$canEditTheirObjects = ($friendInfo->MyFlags()    & FriendRights::CanModifyObjects);
 			
-			$isOnline         = $canSeeThemOnline ? $currentGrid->GetGridUserInfo($friendInfo)->Online() : false;
+			$isOnline            = $canSeeThemOnline ? $currentGrid->GetGridUserInfo($friendInfo)->Online() : false;
+
+			$nameID              = 'friends-editor-' . $editor . '-' . $friendInfo->PrincipalID();
 			echo '<tr>',
 				'<td class=online-status online-status-',esc_attr($isOnline ? 'true' : 'false'),'>',esc_html(__($isOnline ? 'Online' : 'Offline')),'</td>',
-				'<th scope=row class=name>',esc_html($friendInfo->Name()),'</th>',
+				'<th scope=row class=name><label for="',esc_attr($nameID),'">',esc_html($friendInfo->Name()),'</label><input id="',esc_attr($nameID),'" type=checkbox name="',esc_attr('remove[' . $friendInfo->PrincipalID() . ']'),'"></th>',
 				'<td class=see-me-online><input type=checkbox name="see-me-online[',esc_attr($friendInfo->PrincipalID()),']"',($canSeeMeOnline ? ' checked ' : ''),'></td>',
 				'<td class=map-me><input type=checkbox name="map-me[',esc_attr($friendInfo->PrincipalID()),']"',($canMapMe ? ' checked ' : ''),'></td>',
 				'<td class=edit-my-objects><input type=checkbox name="edit-my-objects[',esc_attr($friendInfo->PrincipalID()),']"',($canEditMyObjects ? ' checked ' : ''),'></td>',
@@ -70,7 +75,8 @@ namespace Aurora\Addon\WebUI\plugins{
 		echo '</table>';
 		do_action('after_friends_list_editor_table', $friendsList);
 		echo '</fieldset><fieldset class=buttons>',wp_kses(apply_filters('friends_list_editor_buttons',
-			'<button class=submit type=submit>' . esc_html(__('Submit')) . '</button>'
+			'<button class=submit type=submit>' . esc_html(__('Submit')) . '</button>' .
+			'<button class=remove type=submit>' . esc_html(__('Remove')) . '</button>'
 		, $friendsList), array('button'=>array('type'=>array(),'class'=>array()))),'</fieldset>';
 		echo '</form>';
 		do_action('after_friends_list_editor', $friendsList);
