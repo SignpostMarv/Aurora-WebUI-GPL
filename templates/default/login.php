@@ -1,7 +1,7 @@
 <?php
 	use Aurora\Addon\WebUI\Configs;
 
-	if($_SERVER['REQUEST_METHOD'] === 'POST'){	
+	if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST'){	
 		if(isset($_POST['username'], $_POST['password'], $_POST['grid']) === true && Configs::i()->offsetExists($_POST['grid']) === true){
 			Globals::i()->WebUI = Configs::i()->offsetGet($_POST['grid']);
 			$login = Globals::i()->WebUI->Login($_POST['username'], $_POST['password']);
