@@ -2,8 +2,15 @@
 require_once('../config.php');
 require_once('../plugins/load.php');
 
+use Aurora\Addon\WebUI\Configs;
+
 if(isset(Globals::i()->linkStyle) === false){
 	Globals::i()->linkStyle = 'query';
+}
+
+session_start();
+if(isset($_SESSION['loggedin']) === false){
+	$_SESSION['loggedin'] = array();
 }
 
 switch(Globals::i()->linkStyle){
@@ -22,6 +29,44 @@ switch(Globals::i()->linkStyle){
 	default:
 		Globals::i()->section = trim(isset($_GET['path']) ? $_GET['path'] : '');
 	break;
+}
+
+if($_SERVER['REQUEST_METHOD'] === 'POST'){
+	switch(Globals::i()->section){
+		case 'login':
+			if(isset($_POST['username'], $_POST['password'], $_POST['grid']) === true && Configs::i()->offsetExists($_POST['grid']) === true){
+				Globals::i()->WebUI = Configs::i()->offsetGet($_POST['grid']);
+				$login = Globals::i()->WebUI->Login($_POST['username'], $_POST['password']);
+				$_SESSION['loggedin'][$_POST['grid']] = $login;
+				header('Location: ' . Globals::i()->baseURI);
+				exit;
+			}
+		break;
+	}
+}
+
+if(isset(Globals::i()->WebUI) === false){
+	Globals::i()->WebUI = Configs::d();
+}
+
+if(Globals::i()->section === 'logout'){
+	if(Configs::i()->valueOffset(Globals::i()->WebUI) !== false && isset($_SESSION['loggedin'][Configs::i()->valueOffset(Globals::i()->WebUI)]) === true){
+		unset($_SESSION['loggedin'][Configs::i()->valueOffset(Globals::i()->WebUI)]);
+		session_regenerate_id(true);
+	}
+	header('Location: ' . Globals::i()->baseURI);
+	exit;
+}
+
+foreach(Configs::i() as $k=>$v){
+	if(Globals::i()->WebUI === $v && isset($_SESSION['loggedin'][$k]) === true){
+		Globals::i()->loggedIn   = true;
+		Globals::i()->loggedInAs = $_SESSION['loggedin'][$k];
+		break;
+	}
+}
+if(isset(Globals::i()->loggedIn) === false){
+	Globals::i()->loggedIn = false;
 }
 
 header('Content-Type: text/html');
