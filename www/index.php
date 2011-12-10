@@ -23,13 +23,13 @@ switch(Globals::i()->linkStyle){
 		if(substr($request,-1) === '/'){
 			$request = substr($request,0,-1);
 		}
-		Globals::i()->section = trim($request);
 	break;
 	case 'path':
 	default:
-		Globals::i()->section = trim(isset($_GET['path']) ? $_GET['path'] : '');
+		$request = trim(isset($_GET['path']) ? $_GET['path'] : '');
 	break;
 }
+Globals::i()->section = (trim($request) !== '') ? trim($request) : 'home';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
 	switch(Globals::i()->section){
@@ -70,8 +70,7 @@ if(isset(Globals::i()->loggedIn) === false){
 }
 
 header('Content-Type: text/html');
-
-$file = new SplFileInfo('../templates/default/' . ((Globals::i()->section === '') ? 'index' : str_replace('/','_',(strpos(Globals::i()->section, '_') === 0 ? substr(Globals::i()->section,1) : Globals::i()->section))) . '.php');
+$file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos(Globals::i()->section, '_') === 0 ? substr(Globals::i()->section,1) : Globals::i()->section))) . '.php');
 if($file->isFile() === true && $file->isReadable() === true){
 	require_once($file->getPathname()); // not implementing a proper template system yet.
 }else{
