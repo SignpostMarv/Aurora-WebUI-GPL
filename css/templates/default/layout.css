@@ -51,3 +51,14 @@ footer{
 	display: inline ;
 	font-size: 1em ;
 }
+
+form#registration label{
+	display: block ;
+	min-width: 10em ;
+	vertical-align: text-top ;
+	float: left ;
+	clear: left ;
+}
+form#registration ol li{
+	clear: both ;
+}
