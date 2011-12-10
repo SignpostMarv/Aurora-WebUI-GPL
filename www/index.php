@@ -69,7 +69,6 @@ if(isset(Globals::i()->loggedIn) === false){
 	Globals::i()->loggedIn = false;
 }
 
-header('Content-Type: text/html');
 $file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos(Globals::i()->section, '_') === 0 ? substr(Globals::i()->section,1) : Globals::i()->section))) . '.php');
 if($file->isFile() === true && $file->isReadable() === true){
 	require_once($file->getPathname()); // not implementing a proper template system yet.
