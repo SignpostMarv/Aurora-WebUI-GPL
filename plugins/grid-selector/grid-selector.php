@@ -23,7 +23,7 @@ namespace Aurora\Addon\WebUI\plugins{
 			$currentGrid = Configs::d();
 		}
 		Configs::i()->rewind();
-		
+
 		do_action('before_grid_selector', $section, $currentGrid);
 		echo '<form method=post action=?select-grid class="', esc_attr(implode(' ', array_unique(array_merge(array('grid-selector'), apply_filters('grid_selector_class', array()))))),'">';
 		do_action('pre_grid_selector_fieldset', $section, $currentGrid);
