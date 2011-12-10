@@ -8,6 +8,8 @@ namespace Aurora\Addon{
 
 	use DateTime;
 
+	use Globals;
+
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
 
@@ -192,19 +194,21 @@ namespace Aurora\Addon{
 			$RLIP        = trim($RLIP);
 
 			$result = $this->makeCallToAPI('CreateAccount', array(
-				'Name'         => $Name,
-				'PasswordHash' => $Password,
-				'Email'        => $Email,
-				'RLDOB'        => $RLDOB,
-				'RLFirstName'  => $RLFirstName,
-				'RLLastName'   => $RLLastName,
-				'RLAddress'    => $RLAddress,
-				'RLCity'       => $RLCity,
-				'RLZip'        => $RLZip,
-				'RLCountry'    => $RLCountry,
-				'RLIP'         => $RLIP
+				'Name'               => $Name,
+				'PasswordHash'       => $Password,
+				'Email'              => $Email,
+				'RLDOB'              => $RLDOB,
+				'RLFirstName'        => $RLFirstName,
+				'RLLastName'         => $RLLastName,
+				'RLAddress'          => $RLAddress,
+				'RLCity'             => $RLCity,
+				'RLZip'              => $RLZip,
+				'RLCountry'          => $RLCountry,
+				'RLIP'               => $RLIP,
+				'ActivationRequired' => (Globals::i()->registrationActivationRequired === true)
 			));
 
+			$ActivationToken = null;
 			if(isset($result->UUID) === false){
 				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
 			}else if(is_string($result->UUID) === false){
@@ -212,9 +216,20 @@ namespace Aurora\Addon{
 			}else if(preg_match(self::regex_UUID, $result->UUID) === false){
 				throw new UnexpectedValueException('Call to API was successful, but UUID response was not a valid UUID.');
 			}else if($result->UUID === '00000000-0000-0000-0000-000000000000'){
-				throw new RuntimeException('Call to API was successful but registration failed.');
+				throw new UnexpectedValueException('Call to API was successful but registration failed.');
+			}else if(Globals::i()->registrationActivationRequired === true){
+				if(isset($result->WebUIActivationToken) === false){
+				var_dump($result);
+					throw new UnexpectedValueException('Call to API was successful, but registration activation is required and the activation token was not found.');
+				}else if(is_string($result->WebUIActivationToken) === false){
+					throw new UnexpectedValueException('Call to API was successful, but activation token was of unexpected type.');
+				}else if(preg_match(self::regex_UUID, $result->WebUIActivationToken) !== 1){
+					throw new UnexpectedValueException('Call to API was successful, but activation token was not a valid UUID.');
+				}else{
+					$ActivationToken = $result->WebUIActivationToken;
+				}
 			}
-			return $this->GetGridUserInfo($result->UUID);
+			return array($this->GetGridUserInfo($result->UUID), $ActivationToken);
 		}
 
 //!	Since admin login and normal login have the same response, we're going to use the same code for both here.

@@ -4,7 +4,7 @@ namespace{
 
 	use Aurora\Addon\WebUI\Configs;
 
-	$user = Configs::d()->CreateAccount(
+	list($user) = Configs::d()->CreateAccount(
 		md5(uniqid('DeleteUser', true)) . ' TesterDeleteUser',
 		'testpass',
 		'foo@example.com',

@@ -6,7 +6,7 @@ namespace{
 
 	var_dump(
 		Configs::d()->CreateAccount(
-			'Newly Created',
+			'NewlyZomgWTFRSSBBQWOO Created',
 			'testpass',
 			'foo@example.com',
 			'AuroraTest',

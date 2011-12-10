@@ -6,7 +6,7 @@ namespace{
 	use Aurora\Addon\WebUI\RLInfo;
 
 	if(Configs::d()->CheckIfUserExists('Tester EditUser') === false){
-		$user = Configs::d()->CreateAccount(
+		list($user) = Configs::d()->CreateAccount(
 			'Tester EditUser',
 			'testpass',
 			'foo@example.com',

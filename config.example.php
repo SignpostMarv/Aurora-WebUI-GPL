@@ -19,5 +19,6 @@ namespace{
 	Globals::i()->baseURI = 'http://localhost/';
 	Globals::i()->linkStyle = 'query'; // mod_rewrite or query
 	Globals::i()->registrationPostalRequired = false; // TRUE if postal address info is required for registration, FALSE otherwise.
+	Globals::i()->registrationActivationRequired = false; // TRUE if activation is required for registration, FALSE otherwise. NOTE: we're not specifying activation method here for a reason.
 }
 ?>

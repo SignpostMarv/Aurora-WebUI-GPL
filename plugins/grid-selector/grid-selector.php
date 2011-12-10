@@ -45,7 +45,7 @@ namespace Aurora\Addon\WebUI\plugins{
 <?php
 	Configs::i()->rewind();
 	foreach(Configs::i() as $k=>$webui){ ?>
-					<option value="<?php echo esc_attr($k); ?>"<?php if($config === $webui){?> selected <?php } ?>><?php echo esc_html($webui->get_grid_info('gridnick')); ?></option>
+					<option value="<?php echo esc_attr($k); ?>"<?php if($currentGrid === $webui){?> selected <?php } ?>><?php echo esc_html($webui->get_grid_info('gridnick')); ?></option>
 <?php } ?>
 				</select>
 			</fieldset>

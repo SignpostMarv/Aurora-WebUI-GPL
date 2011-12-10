@@ -4,7 +4,7 @@ namespace{
 
 	use Aurora\Addon\WebUI\Configs;
 	
-	$user = Configs::d()->CreateAccount(
+	list($user) = Configs::d()->CreateAccount(
 		'Tester ChangeName',
 		'testpass',
 		'foo@example.com',

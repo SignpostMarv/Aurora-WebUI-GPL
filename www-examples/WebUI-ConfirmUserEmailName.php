@@ -6,7 +6,7 @@ namespace{
 
 	$password = 'testpass';
 	if(Configs::d()->CheckIfUserExists('Tester ConfirmUserEmailName') === false){
-		$user = Configs::d()->CreateAccount(
+		list($user) = Configs::d()->CreateAccount(
 			'Tester ConfirmUserEmailName',
 			'testpass',
 			'foo@example.com',

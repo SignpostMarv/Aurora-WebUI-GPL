@@ -5,7 +5,7 @@ namespace{
 	use Aurora\Addon\WebUI\Configs;
 
 	if(Configs::d()->CheckIfUserExists('Tester BanUser') === false){
-		$user = Configs::d()->CreateAccount(
+		list($user) = Configs::d()->CreateAccount(
 			'Tester BanUser',
 			'testpass',
 			'foo@example.com',
