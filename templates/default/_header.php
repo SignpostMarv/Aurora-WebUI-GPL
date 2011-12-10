@@ -19,8 +19,7 @@
 	<nav id="main-nav">
 		<ul>
 			<?php echo wp_kses(apply_filters('main_nav_links', 
-				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>' .
-				'<li><a href="' . esc_attr(Template\link('login')) . '">' . esc_html(__('Login')) . '</a></li>'
+				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>'
 			), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
 			<li><?php do_action('grid_selector'); ?></li>
 		</ul>
