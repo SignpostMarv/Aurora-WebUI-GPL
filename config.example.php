@@ -17,7 +17,6 @@ namespace{
 	);
 
 	Globals::i()->baseURI = 'http://localhost/';
-	Globals::i()->WebUI = Configs::d(); // the idea here is to later use session/user-preference data to dynamically change this
 	Globals::i()->linkStyle = 'query'; // mod_rewrite or query
 }
 ?>
