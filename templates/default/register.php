@@ -21,10 +21,25 @@
 					<li><label for=register-confirm-password><?php echo esc_html(__('Confirm Password')); ?>: </label><input id=register-confirm-password name=confirm-password type=password required pattern="^.{8}.*$"></li>
 					<li><label for=register-email><?php echo esc_html(__('Email')); ?>: </label><input id=register-email name=email type=email required></li>
 					<li><label for=register-confirm-email><?php echo esc_html(__('Confirm Email')); ?>: </label><input id=register-confirm-email name=confirm-email type=email required></li>
+					<li><label for=register-dob title="<?php echo esc_attr(__('Date of Birth')); ?>"><?php echo esc_html(__('D.O.B')); ?>: </label><input id=register-dob name=dob type=date required></li>
 				</ol>
 			</fieldset>
 <?php
 		do_action('post_register_account_fieldset', 'register');
+		do_action('pre_register_account_postal_fieldset', 'register');
+?>
+			<fieldset class=postal>
+				<legend><?php echo esc_html(__('Postal Information')); ?></legend>
+				<ol>
+					<li><label for=register-name><?php echo esc_html(__('Name')); ?>: </label><input id=register-name name=name></li>
+					<li><label for=register-address><?php echo esc_html(__('Address')); ?>: </label><textarea id=register-address rows=5 cols=20></textarea></li>
+					<li><label for=register-city><?php echo esc_html(__('City')); ?>: </label><input id=register-city name=city></li>
+					<li><label for=register-zip><?php echo esc_html(__('Postal Code')); ?>: </label><input id=register-zip name=zip></li>
+					<li><label for=register-country><?php echo esc_html(__('Country')); ?>: </label><input id=register-country name=country></li>
+				</ol>
+			</fieldset>
+<?php
+		do_action('post_register_account_postal_fieldset', 'register');
 ?>
 			<fieldset class=buttons>
 				<button type=submit><?php echo esc_html(__('Register')); ?></button>
