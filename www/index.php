@@ -48,9 +48,18 @@ if(isset(Globals::i()->loggedIn) === false){
 }
 
 $file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos(Globals::i()->section, '_') === 0 ? substr(Globals::i()->section,1) : Globals::i()->section))) . '.php');
+ob_start();
 if($file->isFile() === true && $file->isReadable() === true){
-	require_once($file->getPathname()); // not implementing a proper template system yet.
+	try{
+		require_once($file->getPathname()); // not implementing a proper template system yet.
+	}catch(Exception $e){
+		error_log(print_r($e,true));
+		ob_end_clean();
+		ob_start();
+		require_once('../templates/default/500.php');
+	}
 }else{
 	require_once('../templates/default/404.php');
 }
+ob_end_flush();
 ?>
