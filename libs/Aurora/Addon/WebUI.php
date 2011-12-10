@@ -2580,6 +2580,15 @@ namespace Aurora\Addon\WebUI{
 		public function offsetUnset($offset){
 			throw new BadMethodCallException('data cannot be unset.');
 		}
+
+//!	Attempts to return the offset on Aurora::Addon::WebUI::WORM::$data for $value if $value exists in the instance.
+/**
+*	@param mixed $value
+*	@return mixed FALSE if the value was not found, otherwise returns the offset.
+*/
+		public function valueOffset($value){
+			return array_search($value, $this->data);
+		}
 	}
 
 //!	Long-term goal of Aurora-WebUI-GPL is to support multiple grids on a single website, so we need an iterator to hold all the configs.
