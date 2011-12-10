@@ -26,7 +26,7 @@ switch(Globals::i()->linkStyle){
 
 header('Content-Type: text/html');
 
-$file = new SplFileInfo('../templates/default/' . ((Globals::i()->section === '') ? 'index' : str_replace('/','_',Globals::i()->section)) . '.php');
+$file = new SplFileInfo('../templates/default/' . ((Globals::i()->section === '') ? 'index' : str_replace('/','_',(strpos(Globals::i()->section, '_') === 0 ? substr(Globals::i()->section,1) : Globals::i()->section))) . '.php');
 if($file->isFile() === true && $file->isReadable() === true){
 	require_once($file->getPathname()); // not implementing a proper template system yet.
 }else{
