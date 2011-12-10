@@ -29,33 +29,11 @@ switch(Globals::i()->linkStyle){
 		$request = trim(isset($_GET['path']) ? $_GET['path'] : '');
 	break;
 }
-Globals::i()->section = (trim($request) !== '') ? trim($request) : 'home';
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-	switch(Globals::i()->section){
-		case 'login':
-			if(isset($_POST['username'], $_POST['password'], $_POST['grid']) === true && Configs::i()->offsetExists($_POST['grid']) === true){
-				Globals::i()->WebUI = Configs::i()->offsetGet($_POST['grid']);
-				$login = Globals::i()->WebUI->Login($_POST['username'], $_POST['password']);
-				$_SESSION['loggedin'][$_POST['grid']] = $login;
-				header('Location: ' . Globals::i()->baseURI);
-				exit;
-			}
-		break;
-	}
-}
+Globals::i()->section = (trim($request) !== '') ? trim($request) : 'home';
 
 if(isset(Globals::i()->WebUI) === false){
 	Globals::i()->WebUI = Configs::d();
-}
-
-if(Globals::i()->section === 'logout'){
-	if(Configs::i()->valueOffset(Globals::i()->WebUI) !== false && isset($_SESSION['loggedin'][Configs::i()->valueOffset(Globals::i()->WebUI)]) === true){
-		unset($_SESSION['loggedin'][Configs::i()->valueOffset(Globals::i()->WebUI)]);
-		session_regenerate_id(true);
-	}
-	header('Location: ' . Globals::i()->baseURI);
-	exit;
 }
 
 foreach(Configs::i() as $k=>$v){
