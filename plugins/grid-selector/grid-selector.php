@@ -27,17 +27,29 @@ namespace Aurora\Addon\WebUI\plugins{
 		do_action('before_grid_selector', $section, $currentGrid);
 		echo '<form method=post action=?select-grid class="', esc_attr(implode(' ', array_unique(array_merge(array('grid-selector'), apply_filters('grid_selector_class', array()))))),'">';
 		do_action('pre_grid_selector_fieldset', $section, $currentGrid);
-		echo '<fieldset>';
-		echo '<h1>',__('Select Grid'),'</h1>';
-		echo '<select class=grids name=grid>';
-		foreach(Configs::i() as $k=>$WebUI){
-			$gridInfo = $WebUI->get_grid_info();
-			echo '<option value="', esc_attr($k),'"',(($WebUI == $currentGrid) ? ' selected ' : ''),'>',esc_html(apply_filters('grid_selector_grid_nick',isset($gridInfo['gridnick']) ? $gridInfo['gridnick'] : 'AuroraSim')),'</option>';
-		}
-		echo '</select><button type=submit>',esc_html(__('Submit')),'</button></fieldset>';
+		do_action('grid_selector_fieldset', $currentGrid);
 		do_action('post_grid_selector_fieldset', $section, $currentGrid);
-		echo '</form>';
+		echo '<fieldset class=buttons><button type=submit>',esc_html(__('Submit')),'</button></fieldset>','</form>';
 		do_action('after_grid_selector', $section, $currentGrid);
+	}
+
+	function grid_selector_fieldset(WebUI $currentGrid){
+		if(isset($currentGrid) === false){
+			$currentGrid = Configs::d();
+		}
+		Configs::i()->rewind();
+?>
+			<fieldset class="<?php echo esc_attr(implode(' ', array_unique(array_merge(array('grid-selector'), apply_filters('grid_selector_class', array()))))); ?>">
+				<legend><?php echo esc_html(__('Select Grid')); ?></legend>
+				<select class=grids name=grid>
+<?php
+	Configs::i()->rewind();
+	foreach(Configs::i() as $k=>$webui){ ?>
+					<option value="<?php echo esc_attr($k); ?>"<?php if($config === $webui){?> selected <?php } ?>><?php echo esc_html($webui->get_grid_info('gridnick')); ?></option>
+<?php } ?>
+				</select>
+			</fieldset>
+<?php
 	}
 
 	function grid_selector_class_gridCount(array $classNames){
@@ -47,7 +59,8 @@ namespace Aurora\Addon\WebUI\plugins{
 		return $classNames;
 	}
 
+	add_action('grid_selector_fieldset', __NAMESPACE__ . '\grid_selector_fieldset');
 	add_action('grid_selector', __NAMESPACE__ . '\grid_selector', 10, 2);
-	add_filter('grid_selector_class', __NAMESPACE__ . '\grid_selector_class_gridCount', 10, 1);
+	add_filter('grid_selector_class', __NAMESPACE__ . '\grid_selector_class_gridCount');
 }
 ?>

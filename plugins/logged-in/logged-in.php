@@ -16,7 +16,14 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 
 
 	function main_nav_links($nav_links){
-		return $nav_links .= ((Globals::i()->loggedIn) ? '<li><a href="' . esc_attr(Template\link('logout')) . '">' . esc_html(__('Logout')) . '</a></li>' : '<li><a href="' . esc_attr(Template\link('login')) . '">' . esc_html(__('Login')) . '</a></li>');
+		if(Globals::i()->loggedIn){
+			return $nav_links . '<li><a href="' . esc_attr(Template\link('logout')) . '">' . esc_html(__('Logout')) . '</a></li>';
+		}else{
+			return $nav_links .
+				'<li><a href="' . esc_attr(Template\link('login')) . '">' . esc_html(__('Login')) . '</a></li>' .
+				'<li><a href="' . esc_attr(Template\link('register')) . '">' . esc_html(__('Register')) . '</a></li>'
+			;
+		}
 	}
 
 
