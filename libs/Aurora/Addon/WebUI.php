@@ -164,22 +164,24 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('User Date of Birth must be a string.');
 			}else if(strtotime($RLDOB) === false){
 				throw new InvalidArgumentException('User Date of Birth was not valid.');
-			}else if(is_string($RLFirstName) === false){
-				throw new InvalidArgumentException('User RL First name must be a string.');
-			}else if(trim($RLFirstName) === ''){
-				throw new InvalidArgumentException('User RL First name must not be an empty string.');
-			}else if(is_string($RLLastName) === false){
-				throw new InvalidArgumentException('User RL Last name must be a string.');
-			}else if(is_string($RLAddress) === false){
-				throw new InvalidArgumentException('User RL Address must be a string.');
-			}else if(is_string($RLCity) === false){
-				throw new InvalidArgumentException('User RL City must be a string.');
-			}else if(is_string($RLZip) === false){
-				throw new InvalidArgumentException('User RL Zip code must be a string.');
-			}else if(is_string($RLCountry) === false){
-				throw new InvalidArgumentException('User RL Country must be a string.');
 			}else if(is_string($RLIP) === false){
 				throw new InvalidArgumentException('User RL IP Address must be a string.');
+			}else if(Globals::i()->registrationPostalRequired === true){
+				if(is_string($RLFirstName) === false){
+					throw new InvalidArgumentException('User RL First name must be a string.');
+				}else if(trim($RLFirstName) === ''){
+					throw new InvalidArgumentException('User RL First name must not be an empty string.');
+				}else if(is_string($RLLastName) === false){
+					throw new InvalidArgumentException('User RL Last name must be a string.');
+				}else if(is_string($RLAddress) === false){
+					throw new InvalidArgumentException('User RL Address must be a string.');
+				}else if(is_string($RLCity) === false){
+					throw new InvalidArgumentException('User RL City must be a string.');
+				}else if(is_string($RLZip) === false){
+					throw new InvalidArgumentException('User RL Zip code must be a string.');
+				}else if(is_string($RLCountry) === false){
+					throw new InvalidArgumentException('User RL Country must be a string.');
+				}
 			}
 
 			$Name        = trim($Name);
