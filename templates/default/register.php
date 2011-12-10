@@ -5,13 +5,20 @@
 ?>
 	<section>
 		<h1><?php echo esc_html(__('Register')); ?></h1>
-		<form method=post>
+		<form id=registration method=post>
 <?php
-		do_action('pre_grid_selector_fieldset', 'register');
+	do_action('pre_grid_selector_fieldset', 'register');
+	if(Configs::i()->count() >= 2){
 		do_action('grid_selector_fieldset', Globals::i()->WebUI);
-		do_action('post_grid_selector_fieldset', 'register');
+	}else{
+?>
+		<input type=hidden name=grid value="<?php echo esc_attr(Configs::i()->valueOffset(Globals::i()->WebUI)); ?>">
+		<p><?php echo esc_html(sprintf(__('Grid: %1$s'), Globals::i()->WebUI->get_grid_info('gridnick'))); ?></p>
+<?php
+	}
+	do_action('post_grid_selector_fieldset', 'register');
 
-		do_action('pre_register_account_fieldset', 'register');
+	do_action('pre_register_account_fieldset', 'register');
 ?>
 			<fieldset class=account>
 				<legend><?php echo esc_html(__('Account Information')); ?></legend>
@@ -25,7 +32,9 @@
 				</ol>
 			</fieldset>
 <?php
-		do_action('post_register_account_fieldset', 'register');
+	do_action('post_register_account_fieldset', 'register');
+
+	if(Globals::i()->registrationPostalRequired === true){
 		do_action('pre_register_account_postal_fieldset', 'register');
 ?>
 			<fieldset class=postal>
@@ -40,6 +49,7 @@
 			</fieldset>
 <?php
 		do_action('post_register_account_postal_fieldset', 'register');
+	}
 ?>
 			<fieldset class=buttons>
 				<button type=submit><?php echo esc_html(__('Register')); ?></button>
