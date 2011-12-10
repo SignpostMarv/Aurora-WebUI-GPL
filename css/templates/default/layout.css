@@ -12,7 +12,7 @@ body{
 	border-radius: .5em ;
 }
 
-header hgroup, header nav{
+header hgroup, header nav, #main-content > section{
 	border: 1px solid ;
 	padding: .2em 1em ;
 	margin-bottom: 1em ;

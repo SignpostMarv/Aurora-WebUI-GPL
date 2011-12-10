@@ -2834,4 +2834,8 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 }
+
+namespace{
+	require_once('WebUI/Template.php');
+}
 ?>
