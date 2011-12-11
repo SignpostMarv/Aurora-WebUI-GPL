@@ -59,7 +59,7 @@ form fieldset{
 	padding-top: .5em ;
 	margin-bottom: 1em ;
 }
-form.grid-selector fieldset{
+form.grid-selector fieldset, nav form.grid-selector fieldset{
 	padding-top: 0 ;
 	margin-bottom: 0 ;
 }
@@ -73,4 +73,44 @@ form ol li label{
 }
 form ol li{
 	clear: both ;
+}
+
+nav li{
+	display: inline-block ;
+	position: relative ;
+	margin-left: .25em ;
+}
+nav li:first-child{
+	margin-left: 0 ;
+}
+nav li > ul{
+	display: none ;
+}
+nav li:hover > ul{
+	display: block ;
+	position: absolute ;
+	top: 1em ;
+	border: 1px solid ;
+	border-top-width: 0 ;
+	padding: .5em .25em .25em .5em ;
+}
+nav li li{
+	display: block ;
+}
+nav .grid-selector legend{
+	display: none ;
+}
+nav .grid-selector fieldset, nav .grid-selector fieldset.buttons button{
+	display: inline-block ;
+}
+
+th{
+	font-weight: bolder ;
+	padding: 0 .5em ;
+}
+table.regions-list tbody th{
+	text-align: right ;
+}
+table.regions-list td{
+	text-align: center ;
 }
