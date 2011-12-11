@@ -1,17 +1,48 @@
 <?php
+
+//	Defining exception classes in the top of the file for purposes of clarity.
+namespace Aurora\Addon\WebUI{
+
+//!	This interface exists purely to give client code the ability to detect all WebUI-specific exception classes in one go.
+//!	The purpose of this behaviour is that instances of Aurora::Addon::WebUI::Exception will be more or less "safe" for public consumption.
+	interface Exception{
+	}
+
+//!	WebUI-specific RuntimeException
+	class RuntimeException extends \RuntimeException implements Exception{
+	}
+
+//!	WebUI-specific InvalidArgumentException
+	class InvalidArgumentException extends \InvalidArgumentException implements Exception{
+	}
+
+//!	WebUI-specific UnexpectedValueException
+	class UnexpectedValueException extends \UnexpectedValueException implements Exception{
+	}
+
+//!	WebUI-specific LengthException
+	class LengthException extends \LengthException implements Exception{
+	}
+
+//!	WebUI-specific BadMethodCallException
+	class BadMethodCallException extends \BadMethodCallException implements Exception{
+	}
+}
+
+
 //!	Mimicking the layout of code in Aurora Sim here.
 namespace Aurora\Addon{
-	use RuntimeException;
-	use InvalidArgumentException;
-	use UnexpectedValueException;
-	use LengthException;
-
 	use DateTime;
 
 	use Globals;
 
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
+
+	use WebUI\RuntimeException;
+	use WebUI\InvalidArgumentException;
+	use WebUI\UnexpectedValueException;
+	use WebUI\LengthException;
 
 //!	Now you might think this class should be a singleton loading config values from constants instead of a registry method, but Marv has plans. MUAHAHAHAHA.
 	class WebUI{
@@ -1006,9 +1037,6 @@ namespace Aurora\Addon{
 
 //!	Code specific to the WebUI
 namespace Aurora\Addon\WebUI{
-	use InvalidArgumentException;
-	use BadMethodCallException;
-
 	use Countable;
 	use Iterator;
 	use IteratorAggregate;
