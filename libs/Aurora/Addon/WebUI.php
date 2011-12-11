@@ -221,7 +221,6 @@ namespace Aurora\Addon{
 				throw new UnexpectedValueException('Call to API was successful but registration failed.');
 			}else if(Globals::i()->registrationActivationRequired === true){
 				if(isset($result->WebUIActivationToken) === false){
-				var_dump($result);
 					throw new UnexpectedValueException('Call to API was successful, but registration activation is required and the activation token was not found.');
 				}else if(is_string($result->WebUIActivationToken) === false){
 					throw new UnexpectedValueException('Call to API was successful, but activation token was of unexpected type.');
@@ -323,6 +322,37 @@ namespace Aurora\Addon{
 			}else if(is_bool($result->Verified) === false){
 				throw new UnexpectedValueException('Call to API was successful, but required response property was not of expected type.');
 			}
+			return $result->Verified;
+		}
+
+//!	Attempts to activate the account via an activation token.
+/**
+*	@param string $username Account username
+*	@param string $password Account password
+*	@param string $token Activation token
+*/
+		public function ActivateAccount($username, $password, $token){
+			if(is_string($username) === false){
+				throw new InvalidArgumentException('Username must be a string.');
+			}else if($this->CheckIfUserExists($username) === false){
+				throw new InvalidArgumentException('Cannot activate a non-existant account.');
+			}else if(is_string($password) === false){
+				throw new InvalidArgumentException('Password must be a string.');
+			}else if(is_string($token) === false){
+				throw new InvalidArgumentException('Token must be a string.');
+			}else if(preg_match(self::regex_UUID, $token) !== 1){
+				throw new InvalidArgumentException('Token must be a valid UUID.');
+			}
+			$password = '$1$' . md5($password);
+
+			$result = $this->makeCallToAPI('ActivateAccount', array('UserName' => $username, 'PasswordHash' => $password, 'ActivationToken' => $token));
+
+			if(isset($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
+			}else if(is_bool($result->Verified) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
+			}
+
 			return $result->Verified;
 		}
 
