@@ -295,7 +295,7 @@ namespace Aurora\Addon{
 			if($result->Verified === false){
 				throw new InvalidArgumentException('Credentials incorrect');
 			}else if(isset($result->UUID, $result->FirstName, $result->LastName) === false){
-				throw new InvalidArgumentException('API call was made, credentials were correct but required response properties were missing');
+				throw new UnexpectedValueException('API call was made, credentials were correct but required response properties were missing');
 			}
 			return WebUI\genUser::r($result->UUID, $result->FirstName, $result->LastName); // we're leaving validation up to the genUser class.
 		}
