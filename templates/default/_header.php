@@ -21,7 +21,11 @@
 	<nav id="main-nav">
 		<ul>
 			<?php echo wp_kses(apply_filters('main_nav_links', 
-				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>'
+				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>' .
+				'<li>' . __('World') . '<ul>' .
+					'<li><a href="' . esc_attr(Template\link('/world/regions/')) . '">' . esc_html(__('Regions')) . '</a></li>' .
+				'</ul></li>'
+						
 			), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
 			<li><?php do_action('grid_selector'); ?></li>
 		</ul>
