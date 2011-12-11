@@ -968,7 +968,10 @@ namespace Aurora\Addon{
 *	@see Aurora::Addon::WebUI::makeCallToAPI()
 *	@see Aurora::Addon::WebUI::fromEndPointResult()
 */
-		public function GetRegions($flags){ // this doesn't work at the moment, there's a bug in the c# on the php5 branch of Aurora-WebUI
+		public function GetRegions($flags=null){ // this doesn't work at the moment, there's a bug in the c# on the php5 branch of Aurora-WebUI
+			if(isset($flags) === false){
+				$flags = RegionFlags::RegionOnline;
+			}
 			if(is_integer($flags) === false){
 				throw new InvalidArgumentException('RegionFlags argument should be supplied as integer.');
 			}else if($flags < 0){
