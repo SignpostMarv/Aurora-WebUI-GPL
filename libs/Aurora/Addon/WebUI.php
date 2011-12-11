@@ -39,10 +39,10 @@ namespace Aurora\Addon{
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
 
-	use WebUI\RuntimeException;
-	use WebUI\InvalidArgumentException;
-	use WebUI\UnexpectedValueException;
-	use WebUI\LengthException;
+	use Aurora\Addon\WebUI\RuntimeException;
+	use Aurora\Addon\WebUI\InvalidArgumentException;
+	use Aurora\Addon\WebUI\UnexpectedValueException;
+	use Aurora\Addon\WebUI\LengthException;
 
 //!	Now you might think this class should be a singleton loading config values from constants instead of a registry method, but Marv has plans. MUAHAHAHAHA.
 	class WebUI{
