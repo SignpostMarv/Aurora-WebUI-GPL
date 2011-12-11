@@ -67,7 +67,7 @@ namespace Aurora\Addon{
 *	@param array $arguments being lazy and future-proofing API methods that have no arguments.
 *	@return mixed All instances of do_post_request() in Aurora-WebUI that act upon the result call json_decode() on the $result prior to acting on it, so we save ourselves some time and execute json_decode() here.
 */
-		protected function makeCallToAPI($method, array $arguments=null){
+		protected function makeCallToAPI($method, array $arguments=null, array $expectedResponse){
 			if(is_string($method) === false || ctype_graph($method) === false){
 				throw new InvalidArgumentException('API method parameter was invalid.');
 			}
@@ -90,6 +90,26 @@ namespace Aurora\Addon{
 				if(is_object($result) === false){
 					throw new UnexpectedValueException('API result expected to be object, ' . gettype($result) . ' found.');
 				}
+				$exprsp = 0;
+				foreach($expectedResponse as $k=>$v){
+					++$exprsp;
+					if(property_exists($result, $k) === false){
+						throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.', $exprsp * 3);
+					}else if(in_array(gettype($result->{$k}), array_keys($v)) === false){
+						throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.', ($exprsp * 3) + 1);
+					}else if(count($v[gettype($result->{$k})]) > 0){
+						$validValue = false;
+						foreach($v[gettype($result->{$k})] as $possibleValue){
+							if($result->{$k} === $possibleValue){
+								$validValue = true;
+								break;
+							}
+						}
+						if($validValue === false){
+							throw new UnexpectedValueException('Call to API was successful, but required response property had an unexpected value.', ($exprsp * 3) + 2);
+						}
+					}
+				}
 				return $result;
 			}
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
@@ -105,19 +125,7 @@ namespace Aurora\Addon{
 			if(is_string($name) === false){
 				throw new InvalidArgumentException('Name should be a string');
 			}
-			$result = $this->makeCallToAPI('CheckIfUserExists', array('Name'=>$name));
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Verified property was not set on API result');
-			}else if(is_bool($result->Verified) === false){
-				if(is_string($result->Verified) === true){
-					$result = strtolower($result->Verified);
-					if($result === 'true' || $result === 'false'){
-						return ($result === 'true');
-					}
-				}
-				throw new UnexpectedValueException('Verified property from API result should be a boolean or boolean as string (true/false)');
-			}
-			return $result->Verified;
+			return $this->makeCallToAPI('CheckIfUserExists', array('Name'=>$name), array('Verified'=>array('boolean'=>array())))->Verified;
 		}
 
 //!	Attempts to create an account with the specified details.
@@ -195,6 +203,13 @@ namespace Aurora\Addon{
 			$RLCountry   = trim($RLCountry);
 			$RLIP        = trim($RLIP);
 
+			$expectedResponse = array(
+				'UUID' => array('string' => array())
+			);
+			if(Globals::i()->registrationActivationRequired === true){
+				$expectedResponse['WebUIActivationToken'] = array('string' => array());
+			}
+
 			$result = $this->makeCallToAPI('CreateAccount', array(
 				'Name'               => $Name,
 				'PasswordHash'       => $Password,
@@ -208,23 +223,15 @@ namespace Aurora\Addon{
 				'RLCountry'          => $RLCountry,
 				'RLIP'               => $RLIP,
 				'ActivationRequired' => (Globals::i()->registrationActivationRequired === true)
-			));
+			),	$expectedResponse);
 
 			$ActivationToken = null;
-			if(isset($result->UUID) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_string($result->UUID) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property is of incorrect type.');
-			}else if(preg_match(self::regex_UUID, $result->UUID) === false){
+			if(preg_match(self::regex_UUID, $result->UUID) === false){
 				throw new UnexpectedValueException('Call to API was successful, but UUID response was not a valid UUID.');
 			}else if($result->UUID === '00000000-0000-0000-0000-000000000000'){
 				throw new UnexpectedValueException('Call to API was successful but registration failed.');
 			}else if(Globals::i()->registrationActivationRequired === true){
-				if(isset($result->WebUIActivationToken) === false){
-					throw new UnexpectedValueException('Call to API was successful, but registration activation is required and the activation token was not found.');
-				}else if(is_string($result->WebUIActivationToken) === false){
-					throw new UnexpectedValueException('Call to API was successful, but activation token was of unexpected type.');
-				}else if(preg_match(self::regex_UUID, $result->WebUIActivationToken) !== 1){
+				if(preg_match(self::regex_UUID, $result->WebUIActivationToken) !== 1){
 					throw new UnexpectedValueException('Call to API was successful, but activation token was not a valid UUID.');
 				}else{
 					$ActivationToken = $result->WebUIActivationToken;
@@ -251,10 +258,10 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Password was an empty string');
 			}
 			$password = '$1$' . md5($password); // this is required so we don't have to transmit the plaintext password.
-			$result = $this->makeCallToAPI($asAdmin ? 'AdminLogin' : 'Login', array('Name' => $username, 'Password' => $password));
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Could not determine if credentials were correct, API call was made but required response properties were missing');
-			}else if($result->Verified === false){
+			$result = $this->makeCallToAPI($asAdmin ? 'AdminLogin' : 'Login', array('Name' => $username, 'Password' => $password), array(
+				'Verified'  => array('boolean'=>array())
+			));
+			if($result->Verified === false){
 				throw new InvalidArgumentException('Credentials incorrect');
 			}else if(isset($result->UUID, $result->FirstName, $result->LastName) === false){
 				throw new InvalidArgumentException('API call was made, credentials were correct but required response properties were missing');
@@ -288,17 +295,10 @@ namespace Aurora\Addon{
 *	@see Aurora::Addon::WebUI::makeCallToAPI()
 */
 		public function OnlineStatus(){
-			$result = $this->makeCallToAPI('OnlineStatus');
-			if(isset($result->Online, $result->LoginEnabled) === false){
-				$missing = array();
-				if(isset($result->Online) === false){
-					$missing[] = 'Online';
-				}
-				if(isset($result->LoginEnabled) === false){
-					$missing[] = 'LoginEnabled';
-				}
-				throw new UnexpectedValueException('API result missing required properties: ' . implode(', ', $missing));
-			}
+			$result = $this->makeCallToAPI('OnlineStatus', null, array(
+				'Online'       => array('boolean'=>array()),
+				'LoginEnabled' => array('boolean'=>array())
+			));
 			return new WebUI\OnlineStatus($result->Online, $result->LoginEnabled);
 		}
 
@@ -370,10 +370,16 @@ namespace Aurora\Addon{
 			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
 				throw new InvalidArgumentException('UUID supplied was not a valid UUID.');
 			}
-			$result = $this->makeCallToAPI('GetGridUserInfo', array('UUID'=>$uuid));
-			if(isset($result->UUID, $result->HomeUUID, $result->HomeName, $result->Online, $result->Email, $result->Name, $result->FirstName, $result->LastName) === false){
-				throw new InvalidArgumentException('Call to API was successful, but required response properties were missing.');
-			}
+			$result = $this->makeCallToAPI('GetGridUserInfo', array('UUID'=>$uuid), array(
+				'UUID'      => array('string'=>array()),
+				'HomeUUID'  => array('string'=>array()),
+				'HomeName'  => array('string'=>array()),
+				'Online'    => array('boolean'=>array()),
+				'Email'     => array('string'=>array()),
+				'Name'      => array('string'=>array()),
+				'FirstName' => array('string'=>array()),
+				'LastName'  => array('string'=>array())
+			));
 			// this is where we get lazy and leave validation up to the GridUserInfo class.
 			return	WebUI\GridUserInfo::r($result->UUID, $result->Name, $result->HomeUUID, $result->HomeName, $result->Online, $result->Email);
 		}
