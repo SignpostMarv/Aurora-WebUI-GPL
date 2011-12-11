@@ -12,9 +12,9 @@ body{
 	border-radius: .5em ;
 }
 
-header hgroup, header nav, #main-content > section{
+header hgroup, header nav, #main-content > section, footer{
 	border: 1px solid ;
-	padding: .2em 1em ;
+	padding: .2em 1em .5em ;
 	margin-bottom: 1em ;
 	border-radius: .25em ;
 }
@@ -41,10 +41,13 @@ h6{
 	font-size: 1.1em ;
 }
 
+p + h1, p + h2, p + h3, p + h4, p + h5, p + h6{
+	margin-top: .5em ;
+}
+
 footer{
-	border: 1px solid ;
-	padding: .2em 1em ;
-	border-radius: .25em ;
+	margin-bottom: 0 ;
+	padding-bottom: .25em ;
 }
 
 .grid-selector h1{
