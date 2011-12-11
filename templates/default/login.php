@@ -1,13 +1,24 @@
 <?php
+	use Aurora\Addon\WebUI\Exception;
+	use Aurora\Addon\WebUI\InvalidArgumentException;
 	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebUI\Template\FormProblem;
 
 	if(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST'){	
 		if(isset($_POST['username'], $_POST['password'], $_POST['grid']) === true && Configs::i()->offsetExists($_POST['grid']) === true){
 			Globals::i()->WebUI = Configs::i()->offsetGet($_POST['grid']);
-			$login = Globals::i()->WebUI->Login($_POST['username'], $_POST['password']);
-			$_SESSION['loggedin'][$_POST['grid']] = $login;
-			header('Location: ' . Globals::i()->baseURI);
-			exit;
+			$success = false;
+			try{
+				$login = Globals::i()->WebUI->Login($_POST['username'], $_POST['password']);
+				$success = true;
+			}catch(InvalidArgumentException $e){
+				FormProblem::i()->offsetSet('login-account-credentials',$e->getMessage());
+			}
+			if($success){
+				$_SESSION['loggedin'][$_POST['grid']] = $login;
+				header('Location: ' . Globals::i()->baseURI);
+				exit;
+			}
 		}
 	}
 

@@ -6,6 +6,10 @@ namespace Aurora\Addon\WebUI\Template{
 
 	use Globals;
 
+	use Aurora\Addon\WebUI;
+	use Aurora\Addon\WebUI\InvalidArgumentException;
+
+
 	function link($url){
 		$queryArgs = isset($queryArgs) ? $queryArgs : array();
 
@@ -39,6 +43,38 @@ namespace Aurora\Addon\WebUI\Template{
 		}
 
 		return $output;
+	}
+
+
+	class FormProblem extends WebUI\WORM{
+
+
+		public function offsetSet($offset, $value){
+			if(is_string($value) === true){
+				$value = trim($value);
+			}
+
+			if(is_string($offset) === false){
+				throw new InvalidArgumentException('FormProblem offsets must be strings.');
+			}else if(preg_match('/^[a-z][a-z0-9\-]+$/S', $offset) !== 1){
+				throw new InvalidArgumentException('FormProblem offset was invalid.');
+			}else if(is_string($value) === false){
+				throw new InvalidArgumentException('FormProblem value must be a string.');
+			}else if($value === ''){
+				throw new InvalidArgumentException('FormProblem value cannot be an empty string.');
+			}
+
+			$this->data[$offset] = $value;
+		}
+
+
+		public static function i(){
+			static $instance;
+			if(isset($instance) === false){
+				$instance = new static;
+			}
+			return $instance;
+		}
 	}
 }
 ?>

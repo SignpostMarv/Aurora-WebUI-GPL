@@ -14,6 +14,7 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 	use Globals;
 	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\WebUI\Template;
+	use Aurora\Addon\WebUI\Template\FormProblem;
 
 
 	function main_nav_links($nav_links){
@@ -30,11 +31,11 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 
 	function login_form(){
 ?>
-		<form method=post>
+		<form method=post id=login>
 <?php
 		do_action('pre_login_form_fieldset');
 ?>
-			<fieldset>
+			<fieldset id=login-grid-selector>
 				<legend><?php echo esc_html(__('Grid')); ?></legend>
 <?php	echo wp_kses(apply_filters('login_form_hidden_input', ''), array('input'=>array('type'=>array('hidden'), 'name'=>array(), 'value'=>array()))),"\n"; ?>
 				<select name=grid>
@@ -49,11 +50,14 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 		do_action('post_login_form_fieldset');
 		do_action('pre_account_credentials_fieldset');
 ?>
-			<fieldset>
+			<fieldset id=login-account-credentials>
 				<legend><?php echo esc_html(__('Account Credentials')); ?></legend>
+<?php	if(FormProblem::i()->offsetExists('login-account-credentials')){?>
+			<p class=problem><?php echo esc_html(FormProblem::i()->offsetGet('login-account-credentials')); ?></p>
+<?php	} ?>
 				<ol>
-					<li><label for=username><?php echo esc_html(__('Username')); ?>: </label><input id=username name=username<?php if(isset($_POST['username'])){ echo ' value="',esc_attr($_POST['username']),'" '; } ?>></li>
-					<li><label for=password><?php echo esc_html(__('Password')); ?>: </label><input id=password name=password type=password></li>
+					<li><label for=login-username><?php echo esc_html(__('Username')); ?>: </label><input id=login-username name=username required pattern="^[A-z]{1}[A-z0-9]*\ [A-z]{1}[A-z0-9]*$"<?php if(isset($_POST['username'])){ echo ' value="',esc_attr($_POST['username']),'" '; } ?>></li>
+					<li><label for=login-password><?php echo esc_html(__('Password')); ?>: </label><input id=login-password name=password type=password required pattern="^.{8}.*$"></li>
 				</ol>
 				<button type=submit><?php echo esc_html(__(apply_filters('login_form_button_login','Login'))); ?></button>
 			</fieldset>
