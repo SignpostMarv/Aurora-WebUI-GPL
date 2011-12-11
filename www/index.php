@@ -17,17 +17,18 @@ switch(Globals::i()->linkStyle){
 	case 'mod_rewrite':
 		$request = parse_url($_SERVER['REQUEST_URI']);
 		$request = $request['path'];
-		if(substr($request,0,1) === '/'){
-			$request = substr($request,1);
-		}
-		if(substr($request,-1) === '/'){
-			$request = substr($request,0,-1);
-		}
 	break;
 	case 'path':
 	default:
 		$request = trim(isset($_GET['path']) ? $_GET['path'] : '');
 	break;
+}
+
+if(substr($request,0,1) === '/'){
+	$request = substr($request,1);
+}
+if(substr($request,-1) === '/'){
+	$request = substr($request,0,-1);
 }
 
 Globals::i()->section = (trim($request) !== '') ? trim($request) : 'home';
