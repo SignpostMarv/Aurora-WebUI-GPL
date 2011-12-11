@@ -55,13 +55,22 @@ footer{
 	font-size: 1em ;
 }
 
-form#registration label{
+form fieldset{
+	padding-top: .5em ;
+	margin-bottom: 1em ;
+}
+form.grid-selector fieldset{
+	padding-top: 0 ;
+	margin-bottom: 0 ;
+}
+
+form ol li label{
 	display: block ;
 	min-width: 10em ;
 	vertical-align: text-top ;
 	float: left ;
 	clear: left ;
 }
-form#registration ol li{
+form ol li{
 	clear: both ;
 }

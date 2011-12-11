@@ -5,3 +5,8 @@ html{
 body{
 	background: #fff ;
 }
+
+form p.problem{
+	font-weight: bolder ;
+	color: #900 ;
+}
