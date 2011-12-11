@@ -4,7 +4,8 @@ namespace{
 
 	use Aurora\Addon\WebUI\Configs;
 
-	$password = 'testpass';
+	$password    = 'testpass';
+	$newPassword = 'passtest';
 	if(Configs::d()->CheckIfUserExists('Tester ChangePassword') === false){
 		list($user) = Configs::d()->CreateAccount(
 			'Tester ChangePassword',
@@ -21,7 +22,6 @@ namespace{
 				'Tester ChangePassword',
 				$password
 			);
-			$newPassword = 'passtest';
 		}catch(Exception $e){
 			$password = 'passtest';
 			$user = Configs::d()->Login(
