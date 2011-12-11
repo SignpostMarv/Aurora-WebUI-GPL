@@ -316,12 +316,9 @@ namespace Aurora\Addon{
 			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
 				throw new InvalidArgumentException('UUID supplied was not a valid UUID.');
 			}
-			$result = $this->makeCallToAPI('Authenticated', array('UUID'=>$uuid));
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_bool($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property was not of expected type.');
-			}
+			$result = $this->makeCallToAPI('Authenticated', array('UUID'=>$uuid), array(
+				'Verified' => array('boolean'=>array())
+			));
 			return $result->Verified;
 		}
 
@@ -345,13 +342,9 @@ namespace Aurora\Addon{
 			}
 			$password = '$1$' . md5($password);
 
-			$result = $this->makeCallToAPI('ActivateAccount', array('UserName' => $username, 'PasswordHash' => $password, 'ActivationToken' => $token));
-
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_bool($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('ActivateAccount', array('UserName' => $username, 'PasswordHash' => $password, 'ActivationToken' => $token), array(
+				'Verified' => array('boolean'=>array())
+			));
 
 			return $result->Verified;
 		}
@@ -371,14 +364,14 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('UUID supplied was not a valid UUID.');
 			}
 			$result = $this->makeCallToAPI('GetGridUserInfo', array('UUID'=>$uuid), array(
-				'UUID'      => array('string'=>array()),
-				'HomeUUID'  => array('string'=>array()),
-				'HomeName'  => array('string'=>array()),
+				'UUID'      => array('string' =>array()),
+				'HomeUUID'  => array('string' =>array()),
+				'HomeName'  => array('string' =>array()),
 				'Online'    => array('boolean'=>array()),
-				'Email'     => array('string'=>array()),
-				'Name'      => array('string'=>array()),
-				'FirstName' => array('string'=>array()),
-				'LastName'  => array('string'=>array())
+				'Email'     => array('string' =>array()),
+				'Name'      => array('string' =>array()),
+				'FirstName' => array('string' =>array()),
+				'LastName'  => array('string' =>array())
 			));
 			// this is where we get lazy and leave validation up to the GridUserInfo class.
 			return	WebUI\GridUserInfo::r($result->UUID, $result->Name, $result->HomeUUID, $result->HomeName, $result->Online, $result->Email);
@@ -405,12 +398,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Email address was not valid.');
 			}
 
-			$result = $this->makeCallToAPI('SaveEmail', array('UUID' => $uuid, 'Email' => $email));
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_bool($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('SaveEmail', array('UUID' => $uuid, 'Email' => $email), array(
+				'Verified' => array('boolean'=>array())
+			));
 
 			return $result->Verified;
 		}
@@ -442,12 +432,11 @@ namespace Aurora\Addon{
 				return true;
 			}
 
-			$result = $this->makeCallToAPI('ChangeName', array('UUID' => $uuid, 'Name' => $name));
-			if(isset($result->Verified, $result->Stored) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_bool($result->Verified) === false || is_bool($result->Stored) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
-			}else if($result->Verified === true && $result->Stored === false){
+			$result = $this->makeCallToAPI('ChangeName', array('UUID' => $uuid, 'Name' => $name), array(
+				'Verified' => array('boolean'=>array()),
+				'Stored'   => array('boolean'=>array())
+			));
+			if($result->Verified === true && $result->Stored === false){
 				throw new RuntimeException('Call to API was successful, but name change was not stored by the server.');
 			}
 
@@ -479,13 +468,9 @@ namespace Aurora\Addon{
 				throw new LengthException('New password cannot be less than 8 characters long.');
 			}
 
-			$result = $this->makeCallToAPI('ChangePassword', array('UUID' => $uuid, 'Password' => $oldPassword, 'NewPassword' => $newPassword));
-
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_bool($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('ChangePassword', array('UUID' => $uuid, 'Password' => $oldPassword, 'NewPassword' => $newPassword), array(
+				'Verified' => array('boolean'=>array())
+			));
 
 			return $result->Verified;
 		}
@@ -511,12 +496,10 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Email address is invalid.');
 			}
 
-			$result = $this->makeCallToAPI('ConfirmUserEmailName', array('Name' => $name, 'Email' => $email));
-			if(isset($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
-			}else if(is_bool($result->Verified) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.',1);
-			}else if(isset($result->ErrorCode) === true && is_integer($result->ErrorCode) === false){
+			$result = $this->makeCallToAPI('ConfirmUserEmailName', array('Name' => $name, 'Email' => $email), array(
+				'Verified'=>array('boolean'=>array())
+			));
+			if(isset($result->ErrorCode) === true && is_integer($result->ErrorCode) === false){
 				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.',2);
 			}else if(isset($result->ErrorCode) === true){
 				if($result->ErrorCode === 1){
@@ -553,11 +536,10 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Account UUID was not a valid UUID.');
 			}
 
-			$result = $this->makeCallToAPI('GetProfile', array('Name' => $name, 'UUID' => $uuid));
+			$result = $this->makeCallToAPI('GetProfile', array('Name' => $name, 'UUID' => $uuid), array(
+				'account'=> array('object'=>array())
+			));
 
-			if(isset($result->account) === false){
-				throw new InvalidArgumentException('Call to API was successful, but required response properties were missing.');
-			}
 			$account = $result->account;
 			
 			if(isset($account->Created, $account->Name, $account->PrincipalID, $account->Email, $account->PartnerUUID) === false){
@@ -673,15 +655,10 @@ namespace Aurora\Addon{
 				}
 			}
 
-			$result = $this->makeCallToAPI('EditUser', $data);
-
-			if(isset($result->agent, $result->account) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
-			}else if(is_bool($result->agent) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
-			}else if(is_bool($result->account) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.',1);
-			}
+			$result = $this->makeCallToAPI('EditUser', $data, array(
+				'agent'   => array('boolean'=>array()),
+				'account' => array('boolean'=>array())
+			));
 
 			return ($result->agent && $result->account);
 		}
@@ -691,13 +668,12 @@ namespace Aurora\Addon{
 *	@return an instance of Aurora::Addon::WebUI::AvatarArchives corresponding to the result returned by the API end point.
 */
 		public function GetAvatarArchives(){
-			$result = $this->makeCallToAPI('GetAvatarArchives');
+			$result = $this->makeCallToAPI('GetAvatarArchives', null, array(
+				'names'    => array('array'=>array()),
+				'snapshot' => array('array'=>array())
+			));
 
-			if(isset($result->names, $result->snapshot) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_array($result->names) === false || is_array($result->snapshot) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were of an unexpected type.');
-			}else if(count($result->names) !== count($result->snapshot)){
+			if(count($result->names) !== count($result->snapshot)){
 				throw new LengthException('Call to API was successful, but the number of names did not match the number of snapshots');
 			}
 
@@ -729,13 +705,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('UUID was not a valid UUID.');
 			}
 
-			$result = $this->makeCallToAPI('DeleteUser', array('UserID' => $uuid));
-
-			if(isset($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
-			}else if(is_bool($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('DeleteUser', array('UserID' => $uuid), array(
+				'Finished' => array('boolean'=>array())
+			));
 
 			return $result->Finished;
 		}
@@ -768,13 +740,9 @@ namespace Aurora\Addon{
 				}
 			}
 
-			$result = $this->makeCallToAPI(isset($until) ? 'TempBanUser' : 'BanUser', array('UserID' => $uuid, 'BannedUntil' => $until));
-
-			if(isset($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
-			}else if(is_bool($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI(isset($until) ? 'TempBanUser' : 'BanUser', array('UserID' => $uuid, 'BannedUntil' => $until), array(
+				'Finished' => array('boolean'=>array())
+			));
 
 			return $result->Finished;
 		}
@@ -813,13 +781,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('UUID must be a valid UUID.');
 			}
 
-			$result = $this->makeCallToAPI('UnBanUser', array('UserID' => $uuid));
-
-			if(isset($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
-			}else if(is_bool($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('UnBanUser', array('UserID' => $uuid), array(
+				'Finished' => array('boolean'=>array())
+			));
 
 			return $result->Finished;
 		}
@@ -855,13 +819,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Query filter must be a string.');
 			}
 
-			$result = $this->makeCallToAPI('FindUsers', array('Start'=>$start, 'End'=>$end, 'Query'=>$query));
-
-			if(isset($result->Users) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response properties were missing.');
-			}else if(is_array($result->Users) === false){
-				throw new UnexpectedValueException('Call to API was successful but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('FindUsers', array('Start'=>$start, 'End'=>$end, 'Query'=>$query), array(
+				'Users' => array('array'=>array())
+			));
 
 			$results = array();
 			foreach($result->Users as $userdata){
@@ -889,13 +849,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Activity flag must be a boolean.');
 			}
 
-			$result = $this->makeCallToAPI('GetAbuseReports', array('Start' => $start, 'Count' => $count, 'Active' => $active));
-
-			if(isset($result->AbuseReports) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}else if(is_array($result->AbuseReports) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('GetAbuseReports', array('Start' => $start, 'Count' => $count, 'Active' => $active), array(
+				'AbuseReports' => array('array'=>array())
+			));
 
 			$results = array();
 			foreach($result->AbuseReports as $AR){
@@ -922,13 +878,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Abuse report number must be specified as an integer.');
 			}
 
-			$result = $this->makeCallToAPI('AbuseReportMarkComplete', array('Number' => $abuseReport));
-
-			if(isset($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful, but API required response properties was missing.');
-			}else if(is_bool($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful, but API required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('AbuseReportMarkComplete', array('Number' => $abuseReport), array(
+				'Finished' => array('boolean'=>array())
+			));
 
 			return $result->Finished;
 		}
@@ -950,13 +902,9 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Abuse report notes must be specified as a string.');
 			}
 
-			$result = $this->makeCallToAPI('AbuseReportSaveNotes', array('Number' => $abuseReport, 'Notes' => trim($notes)));
-
-			if(isset($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful, but API required response properties was missing.');
-			}else if(is_bool($result->Finished) === false){
-				throw new UnexpectedValueException('Call to API was successful, but API required response property was of unexpected type.');
-			}
+			$result = $this->makeCallToAPI('AbuseReportSaveNotes', array('Number' => $abuseReport, 'Notes' => trim($notes)), array(
+				'Finished' => array('boolean'=>array())
+			));
 
 			return $result->Finished;
 		}
@@ -973,12 +921,10 @@ namespace Aurora\Addon{
 			}else if(preg_match(self::regex_UUID, $for) !== 1){
 				throw new InvalidArgumentException('Specified string was not a valid UUID');
 			}
-			$result = $this->makeCallToAPI('SetWebLoginKey', array('PrincipalID'=>$for));
-			if(isset($result->WebLoginKey) === false){
-				throw new UnexpectedValueException('WebLoginKey value not present on API result, API call was made but not successful.');
-			}else if(is_string($result->WebLoginKey) === false){
-				throw new UnexpectedValueException('WebLoginKey value present on API result, but value was not a string as expected.');
-			}else if(preg_match(self::regex_UUID, $result->WebLoginKey) !== 1){
+			$result = $this->makeCallToAPI('SetWebLoginKey', array('PrincipalID'=>$for), array(
+				'WebLoginKey' => array('string'=>array())
+			));
+			if(preg_match(self::regex_UUID, $result->WebLoginKey) !== 1){
 				throw new UnexpectedValueException('WebLoginKey value present on API result, but value was not a valid UUID.');
 			}
 			return $result->WebLoginKey;
@@ -999,9 +945,11 @@ namespace Aurora\Addon{
 			}else if(RegionFlags::isValid($flags) === false){ // Aurora::Framework::RegionFlags::isValid() does do a check for integerness, but we want to throw a different exception message if it is an integer.
 				throw new InvalidArgumentException('RegionFlags value is invalid, aborting call to API');
 			}
-			$result = $this->makeCallToAPI('GetRegions', array('RegionFlags'=>$flags));
+			$result = $this->makeCallToAPI('GetRegions', array('RegionFlags'=>$flags), array(
+				'Regions' => array('array'=>array())
+			));
 			$response = array();
-			foreach($result as $val){
+			foreach($result->Regions as $val){
 				$response[] = WebUI\GridRegion::fromEndPointResult($val);
 			}
 			return $response;
@@ -1012,12 +960,9 @@ namespace Aurora\Addon{
 //!	Processes should not be long-lasting, so we only fetch this once.
 		public function get_grid_info($info=null){
 			if(isset($this->GridInfo) === false){
-				$result = $this->makeCallToAPI('get_grid_info');
-				if(isset($result->GridInfo) === false){
-					throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-				}else if(is_object($result->GridInfo) === false){
-					throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.');
-				}
+				$result = $this->makeCallToAPI('get_grid_info', null, array(
+					'GridInfo' => array('object'=>array())
+				));
 
 				$this->GridInfo = WebUI\GridInfo::f();
 				foreach($result->GridInfo as $k=>$v){
@@ -1043,15 +988,15 @@ namespace Aurora\Addon{
 				$forUser = $this->GetProfile('', $forUser);
 			}
 
-			$result = $this->makeCallToAPI('GetFriends', array('UserID' => $forUser->PrincipalID()));
+			$result = $this->makeCallToAPI('GetFriends', array('UserID' => $forUser->PrincipalID()), array(
+				'Friends' => array('array'=>array())
+			));
 			$response = array();
-			if(isset($result->Friends) === true){
-				foreach($result->Friends as $v){
-					if(isset($v->PrincipalID, $v->Name, $v->MyFlags, $v->TheirFlags) === false){
-						throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
-					}
-					$response[] = WebUI\FriendInfo::r($forUser, $v->PrincipalID, $v->Name, $v->MyFlags, $v->TheirFlags);
+			foreach($result->Friends as $v){
+				if(isset($v->PrincipalID, $v->Name, $v->MyFlags, $v->TheirFlags) === false){
+					throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
 				}
+				$response[] = WebUI\FriendInfo::r($forUser, $v->PrincipalID, $v->Name, $v->MyFlags, $v->TheirFlags);
 			}
 
 			return new WebUI\FriendsList($response);
@@ -1261,6 +1206,7 @@ namespace Aurora\Addon\WebUI{
 				throw new InvalidArgumentException('SessionID was not a valid UUID');
 			}
 
+			$this->RegionID    = $RegionID;
 			$this->HttpPort    = $HttpPort;
 			$this->ServerURI   = $ServerURI;
 			$this->RegionName  = $RegionName;
