@@ -6,6 +6,9 @@
 
 namespace Aurora\Addon\WebUI{
 
+	use SeekableIterator;
+
+	use Aurora\Addon\WebUI;
 	use Aurora\Services\Interfaces;
 	use Aurora\Framework\RegionFlags;
 
@@ -264,6 +267,164 @@ namespace Aurora\Addon\WebUI{
 				throw new InvalidArgumentException('Missing required properties: ' . implode(', ', $missing));
 			}
 			return new static($result->uuid, $result->serverHttpPort, $result->serverURI, $result->regionName, $result->regionType, $result->locX, $result->locY, $result->locZ, $result->EstateOwner, $result->sizeX, $result->sizeY, $result-> sizeZ, $result->Flags, $result->SessionID);
+		}
+	}
+
+//!	Seekable iterator for instances of Aurora\Addon\WebUI GridRegion
+	class GetRegions extends WORM implements SeekableIterator{
+
+//!	object instance of Aurora::Addon::WebUI
+		private $WebUI;
+
+//!	integer Since we're allowing non-contiguous, delayed access to the region list, we need to pre-fetch the total size of the regions.
+		private $total;
+
+//!	integer Since we're allowing non-contiguous, delayed access to the region list, we need to store the Aurora::Framework::RegionFlags bitfield for future use.
+		private $flags;
+
+//!	We're hiding this behind a registry method.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI. Used to get instances of Aurora::Addon::WebUI::GridRegion that the instance wasn't instantiated with.
+*	@param integer $start specifies the index that $regions starts at, if specified.
+*	@param integer $total specifies the total number of regions in the grid.
+*	@param integer $flags bitfield of Aurora::Framework::RegionFlags values
+*	@param mixed $regions Either NULL or an array of Aurora::Addon::WebUI::GridRegion instances.
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, $flags=null, array $regions=null){
+			if(is_string($start) === true && ctype_digit($start) === true){
+				$start = (integer)$start;
+			}
+			if(is_string($total) === true && ctype_digit($total) === true){
+				$total = (integer)$total;
+			}
+			if(is_string($flags) === true && ctype_digit($flags) === true){
+				$flags = (integer)$flags;
+			}
+
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start must be an integer.');
+			}else if($start < 0){
+				throw new InvalidArgumentException('Start must be greater than or equal to zero.');
+			}else if(is_integer($total) === false){
+				throw new InvalidArgumentException('Total must be an integer.');
+			}else if($total < 0){
+				throw new InvalidArgumentException('Total must be greater than or equal to zero.');
+			}else if(is_integer($flags) === false){
+				throw new InvalidArgumentException('Region Flags must be an integer.');
+			}else if(RegionFlags::isValid($flags) === false){
+				throw new InvalidArgumentException('Region Flags was not a valid bitfield.');
+			}
+
+			$this->WebUI = $WebUI;
+			$this->total = $total;
+			$this->flags = $flags;
+
+			if(isset($regions) === true){
+				foreach($regions as $region){
+					if($regions instanceof GridRegion){
+						$this->data[$start++] = $region;
+					}else{
+						throw new InvalidArgumentException('Values of instantiated regions array must be instances of Aurora::Addon::WebUI::GridRegion');
+					}
+				}
+			}
+
+			$this->pos = $start;
+		}
+
+//!	registry array.
+		private static $registry = array();
+
+//!	registry method
+		public static function r(WebUI $WebUI, $flags, $start=0, $total=0, array $regions=null){
+			$hash = spl_object_hash($WebUI);
+
+			if(isset(static::$registry[$hash]) === false){
+				if(RegionFlags::isValid($flags) === false){
+					throw new InvalidArgumentException('Region Flags bitfield is invalid.');
+				}
+				if(isset(static::$registry[$hash][$flags]) === false){
+					static::$registry[$hash][$flags] = array();
+				}
+				if(isset($total, $flags) === false){
+					throw new BadMethodCallException('Cannot fetch instance of Aurora::Addon::WebUI::GetRegions from cache as it has not been created yet.');
+				}
+				static::$registry[$hash][$flags] = new static($WebUI, $start, $total, $flags, $regions);
+			}
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be an integer.');
+			}
+
+			static::$registry[$hash][$flags]->seek($start);
+			return static::$registry[$hash][$flags];
+		}
+
+//!	Determines whether we have something in the registry or not.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI
+*	@param integer $flags
+*	@return boolean TRUE if we have populated the registry array, FALSE otherwise.
+*/
+		public static function hasInstance(WebUI $WebUI, $flags){
+			$hash = spl_object_hash($WebUI);
+			return isset(static::$registry[$hash], static::$registry[$hash][$flags]);
+		}
+
+//!	integer cursor position
+		private $pos = 0;
+
+
+		public function offsetSet($offset, $value){
+			throw new BadMethodCallException('Instances of Aurora::Addon::WebUI::GetRegions cannot be modified from outside of the object scope.');
+		}
+
+
+		public function seek($to){
+			if(is_string($to) === true && ctype_digit($to) === true){
+				$to = (integer)$to;
+			}
+			if(is_integer($to) === true && $to < 0){
+				$to = abs($to) % $this->count();
+				$to = $this->count() - $to;
+			}
+
+			if(is_integer($to) === false){
+				throw new InvalidArgumentException('Seek point must be an integer.');
+			}else if($to >= $this->count()){
+				throw new LengthException('Cannot seek past Aurora::Addon::WebUI::GetRegions::count()');
+			}
+		}
+
+
+		public function count(){
+			return $this->total;
+		}
+
+
+		public function key(){
+			return ($this->pos < $this->count()) ? $this->pos : null;
+		}
+
+
+		public function valid(){
+			return ($this->key() !== null);
+		}
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetRegions::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::GridRegion
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GetRegions($this->flags, $start, 10, true);
+				foreach($results as $region){
+					$this->data[$start++] = $region;
+				}
+			}
+			return $this->data[$this->key()];
 		}
 	}
 }
