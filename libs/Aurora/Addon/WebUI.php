@@ -966,30 +966,56 @@ namespace Aurora\Addon{
 
 //!	Get a list of regions in the AuroraSim install that match the specified flags.
 /**
-*	@param integer A bitfield corresponding to constants in Aurora::Framework::RegionFlags
-*	@return array Currently returns an array, although may return a interface-specific Iterator in the future.
+*	@param integer $flags A bitfield corresponding to constants in Aurora::Framework::RegionFlags
+*	@param integer $start start point. If Aurora::Addon::WebUI::GetRegions is primed, then Aurora::Addon::WebUI::GetRegions::r() will auto-seek to start.
+*	@param mixed $count Either an integer for the maximum number of regions to fetch from the API end point in a single batch, or NULL to use the end point's default value.
+*	@param boolean $asArray
+*	@return mixed If $asArray is TRUE returns an array, otherwise returns an instance of Aurora::Addon::WebUI::GetRegions
 *	@see Aurora::Addon::WebUI::makeCallToAPI()
 *	@see Aurora::Addon::WebUI::fromEndPointResult()
+*	@see Aurora::Addon::WebUI::GetRegions::r()
 */
-		public function GetRegions($flags=null){ // this doesn't work at the moment, there's a bug in the c# on the php5 branch of Aurora-WebUI
+		public function GetRegions($flags=null, $start=0, $count=null, $asArray=false){
 			if(isset($flags) === false){
 				$flags = RegionFlags::RegionOnline;
 			}
-			if(is_integer($flags) === false){
+			if(is_bool($asArray) === false){
+				throw new InvalidArgumentException('asArray flag must be a boolean.');
+			}else if(is_integer($flags) === false){
 				throw new InvalidArgumentException('RegionFlags argument should be supplied as integer.');
 			}else if($flags < 0){
 				throw new InvalidArgumentException('RegionFlags cannot be less than zero');
 			}else if(RegionFlags::isValid($flags) === false){ // Aurora::Framework::RegionFlags::isValid() does do a check for integerness, but we want to throw a different exception message if it is an integer.
 				throw new InvalidArgumentException('RegionFlags value is invalid, aborting call to API');
+			}else if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be an integer.');
+			}else if(isset($count) === true){
+				if(is_integer($count) === false){
+					throw new InvalidArgumentException('Count must be an integer.');
+				}else if($count < 1){
+					throw new InvalidArgumentException('Count must be greater than zero.');
+				}
 			}
-			$result = $this->makeCallToAPI('GetRegions', array('RegionFlags'=>$flags), array(
-				'Regions' => array('array'=>array())
-			));
 			$response = array();
-			foreach($result->Regions as $val){
-				$response[] = WebUI\GridRegion::fromEndPointResult($val);
+			if($asArray === true || WebUI\GetRegions::hasInstance($this, $flags) === false){
+				$result = $this->makeCallToAPI('GetRegions', array(
+					'RegionFlags' => $flags,
+					'Start'       => $start,
+					'Count'       => $count
+				), array(
+					'Regions' => array('array'=>array()),
+					'Total'   => array('integer'=>array())
+				));
+				foreach($result->Regions as $val){
+					$response[] = WebUI\GridRegion::fromEndPointResult($val);
+				}
 			}
-			return $response;
+			if($asArray){
+				return $response;
+			}else{
+				$has = WebUI\GetRegions::hasInstance($this, $flags);
+				return WebUI\GetRegions::r($this, $flags, $start, $has ? null : $result->Total, $has ? null : $response);
+			}
 		}
 
 //!	object an instance of Aurora::Addon::WebUI::GridInfo
