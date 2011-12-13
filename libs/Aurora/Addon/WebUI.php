@@ -975,7 +975,7 @@ namespace Aurora\Addon{
 *	@see Aurora::Addon::WebUI::fromEndPointResult()
 *	@see Aurora::Addon::WebUI::GetRegions::r()
 */
-		public function GetRegions($flags=null, $start=0, $count=null, $asArray=false){
+		public function GetRegions($flags=null, $start=0, $count=null, $sortRegionName=null, $sortLocX=null, $sortLocY=null, $asArray=false){
 			if(isset($flags) === false){
 				$flags = RegionFlags::RegionOnline;
 			}
@@ -995,14 +995,31 @@ namespace Aurora\Addon{
 				}else if($count < 1){
 					throw new InvalidArgumentException('Count must be greater than zero.');
 				}
+			}else if(isset($sortRegionName) === true && is_bool($sortRegionName) === false){
+				throw new InvalidArgumentException('If set, the sort by region name flag must be a boolean.');
+			}else if(isset($sortLocX) === true && is_bool($sortLocX) === false){
+				throw new InvalidArgumentException('If set, the sort by x-axis flag must be a boolean.');
+			}else if(isset($sortLocY) === true && is_bool($sortLocY) === false){
+				throw new InvalidArgumentException('If set, the sort by y-axis flag must be a boolean.');
 			}
 			$response = array();
-			if($asArray === true || WebUI\GetRegions::hasInstance($this, $flags) === false){
-				$result = $this->makeCallToAPI('GetRegions', array(
-					'RegionFlags' => $flags,
-					'Start'       => $start,
-					'Count'       => $count
-				), array(
+			$input = array(
+				'RegionFlags' => $flags,
+				'Start'       => $start,
+				'Count'       => $count
+			);
+			if(isset($sortRegionName) === true){
+				$input['SortRegionName'] = $sortRegionName;
+			}
+			if(isset($sortLocX) === true){
+				$input['SortLocX'] = $sortLocX;
+			}
+			if(isset($sortLocY) === true){
+				$input['SortLocY'] = $sortLocY;
+			}
+			$has = WebUI\GetRegions::hasInstance($this, $flags, $sortRegionName, $sortLocX, $sortLocY);
+			if($asArray === true || WebUI\GetRegions::hasInstance($this, $flags, $sortRegionName, $sortLocX, $sortLocY) === false){
+				$result = $this->makeCallToAPI('GetRegions', $input, array(
 					'Regions' => array('array'=>array()),
 					'Total'   => array('integer'=>array())
 				));
@@ -1010,12 +1027,8 @@ namespace Aurora\Addon{
 					$response[] = WebUI\GridRegion::fromEndPointResult($val);
 				}
 			}
-			if($asArray){
-				return $response;
-			}else{
-				$has = WebUI\GetRegions::hasInstance($this, $flags);
-				return WebUI\GetRegions::r($this, $flags, $start, $has ? null : $result->Total, $has ? null : $response);
-			}
+
+			return $asArray ? $response : WebUI\GetRegions::r($this, $flags, $start, $has ? null : $result->Total, $sortRegionName, $sortLocX, $sortLocY, $response);
 		}
 
 //!	object an instance of Aurora::Addon::WebUI::GridInfo

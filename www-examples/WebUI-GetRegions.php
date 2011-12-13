@@ -7,6 +7,32 @@ namespace{
 	var_dump(
 		Configs::d()->getRegions(
 			Aurora\Framework\RegionFlags::RegionOnline
+		),
+		Configs::d()->getRegions(
+			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
+			10
+		),
+		Configs::d()->getRegions(
+			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
+			10,
+			true
+		),
+		Configs::d()->getRegions(
+			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
+			10,
+			true,
+			true
+		),
+		Configs::d()->getRegions(
+			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
+			10,
+			true,
+			true,
+			true
 		)
 	);
 }
