@@ -1,4 +1,5 @@
 <?php
+	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\WebUI\Template;
 
 	header('Content-Type: text/html');
@@ -27,7 +28,9 @@
 				'</ul></li>'
 						
 			), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
-			<li><?php do_action('grid_selector'); ?></li>
+<?php if(Configs::i()->count() > 1){ ?>
+			<li><?php do_action('grid_selector');?></li>
+<?php } ?>
 		</ul>
 	</nav>
 </header>
