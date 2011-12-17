@@ -443,6 +443,8 @@ namespace Aurora\Addon\WebUI{
 			}else if($to >= $this->count()){
 				throw new LengthException('Cannot seek past Aurora::Addon::WebUI::GetRegions::count()');
 			}
+
+			$this->pos = $to;
 		}
 
 
@@ -477,6 +479,7 @@ namespace Aurora\Addon\WebUI{
 			return $this->data[$this->key()];
 		}
 
+//!	advance the cursor
 		public function next(){
 			++$this->pos;
 		}
