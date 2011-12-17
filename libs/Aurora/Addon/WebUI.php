@@ -1077,6 +1077,60 @@ namespace Aurora\Addon{
 
 			return new WebUI\FriendsList($response);
 		}
+
+
+		public function GetGroups($start=0, $count=10, array $sort=null, array $boolFields=null){
+			$input = array(
+				'Start' => $start,
+				'Count' => $count
+			);
+			if(isset($sort) === true){
+				$input['Sort'] = $sort;
+			}
+			if(isset($boolFields) === true){
+				$input['BoolFields'] = $boolFields;
+			}
+
+			$result = $this->makeCallToAPI('GetGroups', $input, array(
+				'Start'  => array('integer'=>array()),
+				'Total'  => array('integer'=>array()),
+				'Groups' => array('array'=>array()),
+			));
+
+			$groups = array();
+			foreach($result->Groups as $group){
+				if(isset(
+					$group->GroupID,
+					$group->GroupName,
+					$group->Charter,
+					$group->GroupPicture,
+					$group->FounderID,
+					$group->MembershipFee,
+					$group->OpenEnrollment,
+					$group->ShowInList,
+					$group->AllowPublish,
+					$group->MaturePublish,
+					$group->OwnerRoleID
+				) === false){
+					throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
+				}
+				$groups[] = WebUI\GroupRecord::r(
+					$group->GroupID,
+					$group->GroupName,
+					$group->Charter,
+					$group->GroupPicture,
+					$group->FounderID,
+					$group->MembershipFee,
+					$group->OpenEnrollment,
+					$group->ShowInList,
+					$group->AllowPublish,
+					$group->MaturePublish,
+					$group->OwnerRoleID
+				);
+			}
+
+			return WebUI\GetGroupRecords::r($this, $result->Start, $result->Total, $sort, $boolFields, $groups);
+		}
 	}
 }
 
@@ -1086,6 +1140,7 @@ namespace{
 	require_once('WebUI/GridInfo.php');
 	require_once('WebUI/Regions.php');
 	require_once('WebUI/User.php');
+	require_once('WebUI/Group.php');
 
 	require_once('WebUI/AbuseReports.php');
 	require_once('WebUI/AvatarArchives.php');
