@@ -56,6 +56,7 @@ while(($file->isFile() === false || $file->isReadable() === false) && count($pat
 	$section = implode('/',$pathParts);
 	$file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos($section, '_') === 0 ? substr($section,1) : $section))) . '.php');
 }
+Globals::i()->sectionFile = $section;
 ob_start();
 if($file->isFile() === true && $file->isReadable() === true){
 	try{
