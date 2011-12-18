@@ -116,3 +116,16 @@ table.regions-list tbody th{
 table.regions-list td{
 	text-align: center ;
 }
+
+.world-group .vcard .logo{
+	width: 126px ;
+	height: 126px ;
+	padding: .5em ;
+	border: 1px solid ;
+}
+.world-group .vcard table{
+	margin-top: .5em ;
+}
+.world-group .vcard th{
+	text-align: right ;
+}

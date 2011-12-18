@@ -10,3 +10,8 @@ form p.problem{
 	font-weight: bolder ;
 	color: #900 ;
 }
+
+.world-group .vcard .logo{
+	background: #eee ;
+	border-color: #ccc ;
+}
