@@ -1101,7 +1101,11 @@ namespace Aurora\Addon{
 			return new WebUI\FriendsList($response);
 		}
 
-
+//!	Converts an instances of stdClass from Aurora::Addon::WebUI::GetGroups() and Aurora::Addon::WebUI::GetGroup() results to an instance of Aurora::Addon::WebUI::GroupRecord
+/**
+*	@param object $group instance of stdClass with group properties
+*	@return object corresponding instance of Aurora::Addon::WebUI::GroupRecord
+*/
 		private static function GroupResult2GroupRecord(\stdClass $group){
 			if(isset(
 				$group->GroupID,
@@ -1133,7 +1137,15 @@ namespace Aurora\Addon{
 			);
 		}
 
-
+//!	Gets an iterator for the number of groups specified, with optional filters.
+/**
+*	@param integer $start start point of iterator. negatives are supported (kinda).
+*	@param integer $count Maximum number of groups to fetch from the WebUI API end-point.
+*	@param array $sort optional array of field names for keys and booleans for values, indicating ASC and DESC sort orders for the specified fields.
+*	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
+*	@return object Aurora::Addon::WebUI::GetGroupRecords
+*	@see Aurora::Addon::WebUI::GetGroupRecords::r()
+*/
 		public function GetGroups($start=0, $count=10, array $sort=null, array $boolFields=null){
 			$input = array(
 				'Start' => $start,
@@ -1160,7 +1172,12 @@ namespace Aurora\Addon{
 			return WebUI\GetGroupRecords::r($this, $result->Start, $result->Total, $sort, $boolFields, $groups);
 		}
 
-
+//!	Fetches the specified group
+/**
+*	@param string $nameOrUUID Either a group UUID, or a group name.
+*	@return mixed either FALSE indicating no group was found, or an instance of Aurora::Addon::WebUI::GroupRecord
+*	@see Aurora::Addon::WebUI::GroupRecord::r()
+*/
 		public function GetGroup($nameOrUUID){
 			if(is_string($nameOrUUID) === true){
 				$nameOrUUID = trim($nameOrUUID);

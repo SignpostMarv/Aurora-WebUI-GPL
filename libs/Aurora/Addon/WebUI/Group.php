@@ -11,10 +11,23 @@ namespace Aurora\Addon\WebUI{
 	use Aurora\Addon\WebUI;
 	use Aurora\Framework;
 
-
+//!	Implementation of Aurora::Framework::GroupRecord
 	class GroupRecord implements Framework\GroupRecord{
 
-
+//!	We hide this behind a registry method.
+/**
+*	@param string $uuid group UUID
+*	@param string $name group name
+*	@param string $charter group charter
+*	@param string $insignia asset ID for group insignia
+*	@param string $founder user UUID for group founder
+*	@param integer $membershipFee fee required to join the group
+*	@param bool $openEnrollment TRUE if anyone can join, FALSE if they need to be invited.
+*	@param bool $showInList TRUE if shown in search, FALSE otherwise
+*	@param bool $allowPublish not too sure what this does, as I thought it was what $showInList was for.
+*	@param bool $maturePublish TRUE if group is mature-rated, FALSE otherwise.
+*	@param string $ownerRoleID UUID for owner role.
+*/
 		protected function __construct($uuid, $name, $charter, $insignia, $founder, $membershipFee, $openEnrollment, $showInList, $allowPublish, $maturePublish, $ownerRoleID){
 			if(is_string($name) === true){
 				$name = trim($name);
@@ -87,7 +100,21 @@ namespace Aurora\Addon\WebUI{
 			$this->OwnerRoleID    = $ownerRoleID;
 		}
 
-
+//!	We use a registry method since groups are uniquely identified by UUIDs
+/**
+*	@param string $uuid group UUID
+*	@param mixed $name group name
+*	@param mixed $charter group charter
+*	@param mixed $insignia asset ID for group insignia
+*	@param mixed $founder user UUID for group founder
+*	@param mixed $membershipFee fee required to join the group
+*	@param mixed $openEnrollment TRUE if anyone can join, FALSE if they need to be invited.
+*	@param mixed $showInList TRUE if shown in search, FALSE otherwise
+*	@param mixed $allowPublish not too sure what this does, as I thought it was what $showInList was for.
+*	@param mixed $maturePublish TRUE if group is mature-rated, FALSE otherwise.
+*	@param mixed $ownerRoleID UUID for owner role.
+*	@return object Aurora::Addon::WebUI::GroupRecord
+*/
 		public static function r($uuid, $name=null, $charter=null, $insignia=null, $founder=null, $membershipFee=null, $openEnrollment=null, $showInList=null, $allowPublish=null, $maturePublish=null, $ownerRoleID=null){
 			if(is_string($uuid) === false){
 				throw new InvalidArgumentException('Group ID should be a string.');
@@ -196,12 +223,21 @@ namespace Aurora\Addon\WebUI{
 //!	Groups iterator
 	class GetGroupRecords extends WebUI\abstractSeekableIterator{
 
-
+//!	mixed either NULL indicating no sort filters, or an array of field name keys and boolean values indicating sort order.
 		private $sort;
 
-
+//!	mixed either NULL indicating no boolean filters, or an array of field name keys and boolean values.
 		private $boolFields;
 
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI We need to specify this in case we want to iterate past the original set of results.
+*	@param integer $start initial cursor position
+*	@param integer $total Total number of results possible with specified filters
+*	@param array $sort optional array of field names for keys and booleans for values, indicating ASC and DESC sort orders for the specified fields.
+*	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
+*	@param array $groups if specified, should be an array of instances of Aurora::Addon::WebUI::GroupRecord that were pre-fetched with a call to the API end-point.
+*/
 		protected function __construct(WebUI $WebUI, $start=0, $total=0, array $sort=null, array $boolFields=null, array $groups=null){
 			parent::__construct($WebUI, $start, $total);
 			$this->sort = $sort;
@@ -218,7 +254,15 @@ namespace Aurora\Addon\WebUI{
 			}
 		}
 
-
+//! This is a registry method for a class that implements the SeekableIterator class, so we can save ourselves some API calls if we've already fetched some groups.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI We need to specify this in case we want to iterate past the original set of results.
+*	@param integer $start initial cursor position
+*	@param integer $total Total number of results possible with specified filters
+*	@param array $sort optional array of field names for keys and booleans for values, indicating ASC and DESC sort orders for the specified fields.
+*	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
+*	@param array $groups if specified, should be an array of instances of Aurora::Addon::WebUI::GroupRecord that were pre-fetched with a call to the API end-point.
+*/
 		public static function r(WebUI $WebUI, $start=0, $total=0, array $sort=null, array $boolFields=null, array $groups=null){
 			static $registry = array();
 			$hash1 = spl_object_hash($WebUI);
