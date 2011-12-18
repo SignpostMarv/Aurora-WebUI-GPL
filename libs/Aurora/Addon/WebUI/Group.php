@@ -242,6 +242,24 @@ namespace Aurora\Addon\WebUI{
 
 			return $registry[$hash1][$hash2][$hash3];
 		}
+
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetGroupRecords::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::GroupRecord
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GetRegions($start, 10, $this->sort, $this->boolFields);
+				foreach($results as $group){
+					$this->data[$start++] = $group;
+				}
+			}
+			return $this->data[$this->key()];
+		}
 	}
 }
 ?>
