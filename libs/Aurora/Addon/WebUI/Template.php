@@ -15,7 +15,7 @@ namespace Aurora\Addon\WebUI\Template{
 
 		$url = parse_url(Globals::i()->baseURI . $url);
 
-		$output = './';
+		$output = '';
 
 		if(substr($url['path'],0,1) === '/'){
 			$url['path'] = substr($url['path'],1);
@@ -32,7 +32,7 @@ namespace Aurora\Addon\WebUI\Template{
 			default:
 				$query = '';
 				if($url['path'] !== '/'){
-					$query = 'path=' . urlencode(substr($url['path'],1));
+					$query = 'path=' . urlencode($url['path']);
 				}
 				$url['query'] = empty($url['query']) ? $query : $url['query'] . '&amp;' . $query;
 			break;
