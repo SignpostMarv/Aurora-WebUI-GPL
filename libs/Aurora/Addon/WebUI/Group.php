@@ -253,7 +253,7 @@ namespace Aurora\Addon\WebUI{
 				return null;
 			}else if(isset($this->data[$this->key()]) === false){
 				$start   = $this->key();
-				$results = $this->WebUI->GetRegions($start, 10, $this->sort, $this->boolFields);
+				$results = $this->WebUI->GetGroups($start, 10, $this->sort, $this->boolFields);
 				foreach($results as $group){
 					$this->data[$start++] = $group;
 				}
