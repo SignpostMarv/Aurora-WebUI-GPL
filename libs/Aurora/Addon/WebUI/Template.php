@@ -26,7 +26,7 @@ namespace Aurora\Addon\WebUI\Template{
 
 		switch(Globals::i()->linkStyle){
 			case 'mod_rewrite':
-				$output .= substr($url['path'],1);
+				$output .= $url['path'];
 			break;
 			case 'query':
 			default:
