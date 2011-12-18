@@ -35,7 +35,8 @@
 	}
 
 	$boolEnroll = isset($_GET['be']) ? (bool)$_GET['be'] : null;
-	$boolList   = isset($_GET['bl']) ? (bool)$_GET['bl'] : null;
+//	$boolList   = isset($_GET['bl']) ? (bool)$_GET['bl'] : null;
+	$boolList   = true;
 	$boolPublic = isset($_GET['bp']) ? (bool)$_GET['bp'] : null;
 	$boolMature = isset($_GET['bm']) ? (bool)$_GET['bm'] : null;
 	$bool       = array();
