@@ -17,6 +17,9 @@ namespace Aurora\Addon\WebUI\Template{
 
 		$output = './';
 
+		if(substr($url['path'],0,1) === '/'){
+			$url['path'] = substr($url['path'],1);
+		}
 		if(substr($url['path'],-1) === '/'){
 			$url['path'] = substr($url['path'],0,-1);
 		}
