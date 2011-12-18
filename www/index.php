@@ -48,7 +48,14 @@ if(isset(Globals::i()->loggedIn) === false){
 	Globals::i()->loggedIn = false;
 }
 
-$file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos(Globals::i()->section, '_') === 0 ? substr(Globals::i()->section,1) : Globals::i()->section))) . '.php');
+$pathParts = explode('/', Globals::i()->section);
+$section = implode('/',$pathParts);
+$file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos($section, '_') === 0 ? substr($section,1) : $section))) . '.php');
+while(($file->isFile() === false || $file->isReadable() === false) && count($pathParts) > 1){
+	array_pop($pathParts);
+	$section = implode('/',$pathParts);
+	$file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos($section, '_') === 0 ? substr($section,1) : $section))) . '.php');
+}
 ob_start();
 if($file->isFile() === true && $file->isReadable() === true){
 	try{
