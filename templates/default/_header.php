@@ -23,8 +23,9 @@
 		<ul>
 			<?php echo wp_kses(apply_filters('main_nav_links', 
 				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>' .
-				'<li>' . __('World') . '<ul>' .
-					'<li><a href="' . esc_attr(Template\link('/world/regions/')) . '">' . esc_html(__('Regions')) . '</a></li>' .
+				'<li><a href="' . esc_attr(Template\link('world/')) . '">' . __('World') . '</a><ul>' .
+					'<li><a href="' . esc_attr(Template\link('world/regions/')) . '">' . esc_html(__('Regions')) . '</a></li>' .
+					'<li><a href="' . esc_attr(Template\link('world/groups/')) . '">' . esc_html(__('Groups')) . '</a></li>' .
 				'</ul></li>'
 						
 			), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
