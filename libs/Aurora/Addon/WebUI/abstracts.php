@@ -151,7 +151,7 @@ namespace Aurora\Addon\WebUI{
 
 			if(is_integer($to) === false){
 				throw new InvalidArgumentException('Seek point must be an integer.');
-			}else if($to >= $this->count()){
+			}else if($to > 0 && $to >= $this->count()){
 				throw new LengthException('Cannot seek past Aurora::Addon::WebUI::abstractSeekableIterator::count()');
 			}
 
