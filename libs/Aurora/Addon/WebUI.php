@@ -128,25 +128,48 @@ namespace Aurora\Addon{
 				foreach($expectedResponse as $k=>$v){
 					++$exprsp;
 					if(property_exists($result, $k) === false){
-						throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.', $exprsp * 3);
+						throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.', $exprsp * 4);
 					}else if(in_array(gettype($result->{$k}), array_keys($v)) === false){
-						throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.', ($exprsp * 3) + 1);
+						throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.', ($exprsp * 4) + 1);
 					}else if(count($v[gettype($result->{$k})]) > 0){
 						$validValue = false;
-						foreach($v[gettype($result->{$k})] as $possibleValue){
-							if($result->{$k} === $possibleValue){
+						foreach($v[gettype($result->{$k})] as $_k => $possibleValue){
+							if(is_integer($_k) === true && gettype($result->{$k}) == 'array'){
+								$subPropertyKeys = array_keys($possibleValue);
+								foreach($result->{$k} as $_v){
+									if(in_array(gettype($_v), $subPropertyKeys) === false){
+										throw new UnexpectedValueException('Call to API was successful, but requires response sub-property was of unexpected type.', ($exprsp * 4) + 3);
+									}
+								}
+								$validValue = true;								
+							}else if($result->{$k} === $possibleValue){
 								$validValue = true;
 								break;
 							}
 						}
 						if($validValue === false){
-							throw new UnexpectedValueException('Call to API was successful, but required response property had an unexpected value.', ($exprsp * 3) + 2);
+							throw new UnexpectedValueException('Call to API was successful, but required response property had an unexpected value.', ($exprsp * 4) + 2);
 						}
 					}
 				}
 				return $result;
 			}
 			throw new RuntimeException('API call failed to execute.'); // if this starts happening frequently, we'll add in some more debugging code.
+		}
+
+//!	Returns the URI for a grid texture
+/**
+*	@param string $uuid texture UUID
+*	@return string full URL to texture
+*/
+		public function GridTexture($uuid){
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('Texture UUID should be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('Texture UUID was invalid.');
+			}
+
+			return $this->get_grid_info('WireduxTextureServer') . '/index.php?' . http_build_query(array( 'method'=>'GridTexture', 'uuid'=>$uuid));
 		}
 
 //!	Determines whether the specified username exists in the AuroraSim database.
@@ -1079,6 +1102,38 @@ namespace Aurora\Addon{
 		}
 
 
+		private static function GroupResult2GroupRecord(\stdClass $group){
+			if(isset(
+				$group->GroupID,
+				$group->GroupName,
+				$group->Charter,
+				$group->GroupPicture,
+				$group->FounderID,
+				$group->MembershipFee,
+				$group->OpenEnrollment,
+				$group->ShowInList,
+				$group->AllowPublish,
+				$group->MaturePublish,
+				$group->OwnerRoleID
+			) === false){
+				throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
+			}
+			return WebUI\GroupRecord::r(
+				$group->GroupID,
+				$group->GroupName,
+				$group->Charter,
+				$group->GroupPicture,
+				$group->FounderID,
+				$group->MembershipFee,
+				$group->OpenEnrollment,
+				$group->ShowInList,
+				$group->AllowPublish,
+				$group->MaturePublish,
+				$group->OwnerRoleID
+			);
+		}
+
+
 		public function GetGroups($start=0, $count=10, array $sort=null, array $boolFields=null){
 			$input = array(
 				'Start' => $start,
@@ -1094,42 +1149,40 @@ namespace Aurora\Addon{
 			$result = $this->makeCallToAPI('GetGroups', $input, array(
 				'Start'  => array('integer'=>array()),
 				'Total'  => array('integer'=>array()),
-				'Groups' => array('array'=>array()),
+				'Groups' => array('array'=>array(array('object'=>array()))),
 			));
 
 			$groups = array();
 			foreach($result->Groups as $group){
-				if(isset(
-					$group->GroupID,
-					$group->GroupName,
-					$group->Charter,
-					$group->GroupPicture,
-					$group->FounderID,
-					$group->MembershipFee,
-					$group->OpenEnrollment,
-					$group->ShowInList,
-					$group->AllowPublish,
-					$group->MaturePublish,
-					$group->OwnerRoleID
-				) === false){
-					throw new UnexpectedValueException('Call to API was successful, but required response sub-properties were missing.');
-				}
-				$groups[] = WebUI\GroupRecord::r(
-					$group->GroupID,
-					$group->GroupName,
-					$group->Charter,
-					$group->GroupPicture,
-					$group->FounderID,
-					$group->MembershipFee,
-					$group->OpenEnrollment,
-					$group->ShowInList,
-					$group->AllowPublish,
-					$group->MaturePublish,
-					$group->OwnerRoleID
-				);
+				$groups[] = self::GroupResult2GroupRecord($group);
 			}
 
 			return WebUI\GetGroupRecords::r($this, $result->Start, $result->Total, $sort, $boolFields, $groups);
+		}
+
+
+		public function GetGroup($nameOrUUID){
+			if(is_string($nameOrUUID) === true){
+				$nameOrUUID = trim($nameOrUUID);
+			}else if(is_string($nameOrUUID) === false){
+				throw new InvalidArgumentException('Method argument should be a string.');
+			}
+			$name = '';
+			$uuid = '00000000-0000-0000-0000-000000000000';
+			if(preg_match(self::regex_UUID, $nameOrUUID) !== 1){
+				$name = $nameOrUUID;
+			}else{
+				$uuid = $nameOrUUID;
+			}
+
+			$result = $this->makeCallToAPI('GetGroup', array(
+				'UUID' => $uuid,
+				'Name' => $name
+			), array(
+				'Group' => array('object'=>array(), 'boolean'=>array(false))
+			));
+
+			return $result->Group ? self::GroupResult2GroupRecord($result->Group) : false;
 		}
 	}
 }
