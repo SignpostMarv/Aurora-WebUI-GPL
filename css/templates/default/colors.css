@@ -2,7 +2,7 @@ html{
 	background: #666 ;
 }
 
-body, nav li:hover > ul{
+body, nav li:hover > ul, nav li  a:focus + ul{
 	background: #fff ;
 }
 

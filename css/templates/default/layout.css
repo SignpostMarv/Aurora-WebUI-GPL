@@ -86,16 +86,18 @@ nav li:first-child{
 nav li > ul{
 	display: none ;
 }
-nav li:hover > ul{
+nav li:hover > ul, nav li  a:focus + ul{
 	display: block ;
 	position: absolute ;
 	top: 1em ;
 	border: 1px solid ;
 	border-top-width: 0 ;
 	padding: .5em .25em .25em .5em ;
+	text-align: left ;
 }
 nav li li{
 	display: block ;
+	margin-left: 0 ;
 }
 nav .grid-selector legend{
 	display: none ;
