@@ -1201,6 +1201,25 @@ namespace Aurora\Addon{
 
 			return $result->Group ? self::GroupResult2GroupRecord($result->Group) : false;
 		}
+
+//!	Enables or disables the specified group as a news source for WebUI
+/**
+*	Throws an exception on failure, for laziness :P
+*	@param object $group instance of Aurora::Addon::WebUI::GroupRecord
+*	@param boolean $useAsNewsSource TRUE to enable, FALSE to disable
+*/
+		public function GroupAsNewsSource(WebUI\GroupRecord $group, $useAsNewsSource=true){
+			if(is_bool($useAsNewsSource) === false){
+				throw new InvalidArgumentException('flag must be a boolean.');
+			}
+
+			$this->makeCallToAPI('GroupAsNewsSource', array(
+				'Group' => $group->GroupID(),
+				'Use'   => $useAsNewsSource
+			), array(
+				'Verified' => array('boolean'=>array(true))
+			));
+		}
 	}
 }
 
