@@ -70,5 +70,26 @@ if($file->isFile() === true && $file->isReadable() === true){
 }else{
 	require_once('../templates/default/404.php');
 }
-ob_end_flush();
+$doc = ob_get_clean();
+if(in_array('gzip', str_getcsv($_SERVER['HTTP_ACCEPT_ENCODING'])) === true){
+	$doc = gzencode($doc, 9);
+	header('Content-Encoding: gzip');
+	header('Vary: Accept-Encoding');
+}
+
+header('Last-Modified: ' . date('r', $_SERVER['REQUEST_TIME']));
+header('Expires: ' . date('r', $_SERVER['REQUEST_TIME'] + 3600));
+header('Cache-Control: max-age=3600, must-revalidate');
+
+$ETag = sha1($doc);
+if(isset($_SERVER['HTTP_IF_NONE_MATCH']) === true){
+	if(in_array($ETag, str_getcsv($_SERVER['HTTP_IF_NONE_MATCH'])) === true){
+		header('HTTP/1.1 304 Not Modified');
+		exit;
+	}
+}
+
+header('Content-Length: ' . strlen($doc));
+header('ETag: ' . $ETag);
+die($doc);
 ?>
