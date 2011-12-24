@@ -128,9 +128,9 @@ namespace Aurora\Addon{
 				foreach($expectedResponse as $k=>$v){
 					++$exprsp;
 					if(property_exists($result, $k) === false){
-						throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.', $exprsp * 4);
+						throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.', $exprsp * 6);
 					}else if(in_array(gettype($result->{$k}), array_keys($v)) === false){
-						throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.', ($exprsp * 4) + 1);
+						throw new UnexpectedValueException('Call to API was successful, but required response property was of unexpected type.', ($exprsp * 6) + 1);
 					}else if(count($v[gettype($result->{$k})]) > 0){
 						$validValue = false;
 						foreach($v[gettype($result->{$k})] as $_k => $possibleValue){
@@ -138,7 +138,17 @@ namespace Aurora\Addon{
 								$subPropertyKeys = array_keys($possibleValue);
 								foreach($result->{$k} as $_v){
 									if(in_array(gettype($_v), $subPropertyKeys) === false){
-										throw new UnexpectedValueException('Call to API was successful, but requires response sub-property was of unexpected type.', ($exprsp * 4) + 3);
+										throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 3);
+									}else if(gettype($_v) === 'object' && isset($possibleValue[gettype($_v)]) === true){
+										foreach($possibleValue[gettype($_v)] as $__k => $__v){
+											if(isset($_v->{$__k}) === false){
+												throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
+											}else{
+												if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
+													throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+												}
+											}
+										}
 									}
 								}
 								$validValue = true;								
@@ -148,7 +158,7 @@ namespace Aurora\Addon{
 							}
 						}
 						if($validValue === false){
-							throw new UnexpectedValueException('Call to API was successful, but required response property had an unexpected value.', ($exprsp * 4) + 2);
+							throw new UnexpectedValueException('Call to API was successful, but required response property had an unexpected value.', ($exprsp * 6) + 2);
 						}
 					}
 				}
@@ -1187,15 +1197,16 @@ namespace Aurora\Addon{
 			$name = '';
 			$uuid = '00000000-0000-0000-0000-000000000000';
 			if(preg_match(self::regex_UUID, $nameOrUUID) !== 1){
-				$name = $nameOrUUID;
+				$input = array(
+					'Name' => $nameOrUUID
+				);
 			}else{
-				$uuid = $nameOrUUID;
+				$input = array(
+					'UUID' => $nameOrUUID
+				);
 			}
 
-			$result = $this->makeCallToAPI('GetGroup', array(
-				'UUID' => $uuid,
-				'Name' => $name
-			), array(
+			$result = $this->makeCallToAPI('GetGroup', $input, array(
 				'Group' => array('object'=>array(), 'boolean'=>array(false))
 			));
 
@@ -1219,6 +1230,107 @@ namespace Aurora\Addon{
 			), array(
 				'Verified' => array('boolean'=>array(true))
 			));
+		}
+
+//!	Get group notices for the specified groups
+/**
+*	@param integer $start start point of iterator. negatives are supported (kinda).
+*	@param integer $count Maximum number of group notices to fetch from the WebUI API end-point.
+*	@param array $groups instances of GroupRecord
+*	@return object instance of Aurora::Addon::WebUI::GetGroupNotices
+*/
+		public function GroupNotices($start=0, $count=10, array $groups){
+			$groupIDs = array();
+			foreach($groups as $group){
+				if(($group instanceof WebUI\GroupRecord) === false){
+					throw new InvalidArgumentException('Groups must be an array of Aurora::Addon::WebUI::GroupRecord instances');
+				}
+				$groupIDs[] = $group->GroupID();
+			}
+
+			$result = $this->makeCallToAPI('GroupNotices', array(
+				'Start' => $start,
+				'Count' => $count,
+				'Groups' => $groupIDs
+			), array(
+				'Total' => array('integer'=>array()),
+				'GroupNotices' => array('array'=>array(array('object'=>array(
+					'GroupID'       => array('string'=>array()),
+					'NoticeID'      => array('string'=>array()),
+					'Timestamp'     => array('integer'=>array()),
+					'FromName'      => array('string'=>array()),
+					'Subject'       => array('string'=>array()),
+					'Message'       => array('string'=>array()),
+					'HasAttachment' => array('boolean'=>array()),
+					'ItemID'        => array('string'=>array()),
+					'AssetType'     => array('integer'=>array()),
+					'ItemName'      => array('string'=>array())
+				))))
+			));
+
+			$groupNotices = array();
+			foreach($result->GroupNotices as $groupNotice){
+				$groupNotices[] = WebUI\GroupNoticeData::r(
+					$groupNotice->GroupID,
+					$groupNotice->NoticeID,
+					$groupNotice->Timestamp,
+					$groupNotice->FromName,
+					$groupNotice->Subject,
+					$groupNotice->Message,
+					$groupNotice->HasAttachment,
+					$groupNotice->ItemID,
+					$groupNotice->AssetType,
+					$groupNotice->ItemName
+				);
+			}
+
+			return WebUI\GetGroupNotices::r($this, $start, $result->Total, $groupIDs, $groupNotices);
+		}
+
+//!	Get group notices from groups flagged as being news sources.
+/**
+*	@param integer $start start point of iterator. negatives are supported (kinda).
+*	@param integer $count Maximum number of group notices to fetch from the WebUI API end-point.
+*	@return object instance of Aurora::Addon::WebUI::GetGroupNotices
+*/
+		public function NewsFromGroupNotices($start=0, $count=10){
+
+			$result = $this->makeCallToAPI('NewsFromGroupNotices', array(
+				'Start' => $start,
+				'Count' => $count
+			), array(
+				'Total' => array('integer'=>array()),
+				'GroupNotices' => array('array'=>array(array('object'=>array(
+					'GroupID'       => array('string'=>array()),
+					'NoticeID'      => array('string'=>array()),
+					'Timestamp'     => array('integer'=>array()),
+					'FromName'      => array('string'=>array()),
+					'Subject'       => array('string'=>array()),
+					'Message'       => array('string'=>array()),
+					'HasAttachment' => array('boolean'=>array()),
+					'ItemID'        => array('string'=>array()),
+					'AssetType'     => array('integer'=>array()),
+					'ItemName'      => array('string'=>array())
+				))))
+			));
+
+			$groupNotices = array();
+			foreach($result->GroupNotices as $groupNotice){
+				$groupNotices[] = WebUI\GroupNoticeData::r(
+					$groupNotice->GroupID,
+					$groupNotice->NoticeID,
+					$groupNotice->Timestamp,
+					$groupNotice->FromName,
+					$groupNotice->Subject,
+					$groupNotice->Message,
+					$groupNotice->HasAttachment,
+					$groupNotice->ItemID,
+					$groupNotice->AssetType,
+					$groupNotice->ItemName
+				);
+			}
+
+			return WebUI\GetNewsFromGroupNotices::r($this, $start, $result->Total, array(), $groupNotices);
 		}
 	}
 }

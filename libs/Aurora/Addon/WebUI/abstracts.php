@@ -175,7 +175,6 @@ namespace Aurora\Addon\WebUI{
 *	@param integer $total Total number of results possible with specified filters
 *	@param array $sort optional array of field names for keys and booleans for values, indicating ASC and DESC sort orders for the specified fields.
 *	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
-*	@param array $groups if specified, should be an array of instances of Aurora::Addon::WebUI::GroupRecord that were pre-fetched with a call to the API end-point.
 */
 		protected function __construct(WebUI $WebUI, $start=0, $total=0, array $sort=null, array $boolFields=null){
 			parent::__construct($WebUI, $start, $total);
@@ -183,7 +182,7 @@ namespace Aurora\Addon\WebUI{
 			$this->boolFields = $boolFields;
 		}
 
-//! This is a registry method for a class that implements the SeekableIterator class, so we can save ourselves some API calls if we've already fetched some groups.
+//! This is a registry method for a class that implements the SeekableIterator class, so we can save ourselves some API calls if we've already fetched some entities.
 /**
 *	@param object $WebUI instance of Aurora::Addon::WebUI We need to specify this in case we want to iterate past the original set of results.
 *	@param integer $start initial cursor position

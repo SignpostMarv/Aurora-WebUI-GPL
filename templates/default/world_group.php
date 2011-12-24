@@ -7,7 +7,7 @@ if(count($pathParts) >= 3){
 	$group = Globals::i()->WebUI->GetGroup($groupName);
 }
 if(count($pathParts) === 2){
-	header('Location: ' . Globals::i()->baseURI . Template\link('groups/'));
+	header('Location: ' . Globals::i()->baseURI . Template\link('/world/groups/'));
 	exit;
 }else if(count($pathParts) < 3 || ($group === false || $group->ShowInList() === false)){
 	require_once('404.php');
@@ -37,6 +37,10 @@ if(count($pathParts) === 2){
 			<tr>
 				<th scope=row><?php echo esc_html(__('Rating')); ?></th>
 				<td><?php echo esc_html(__($group->MaturePublish() ? 'Mature' : 'General')); ?></td>
+			</tr>
+			<tr>
+				<th scope=row><a href="<?php echo esc_attr(Template\link('/world/group/notices/' . urlencode($group->GroupName()))); ?>"><?php echo esc_html(__('Group Notices')); ?></a></th>
+				<td><?php echo esc_html(Globals::i()->WebUI->GroupNotices(0,0,array($group))->count()); ?></td>
 			</tr>
 		</table>
 	</section>

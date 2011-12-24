@@ -74,10 +74,10 @@
 	<section>
 		<h1><?php echo esc_html(__('Groups')); ?></h1>
 		<nav>
+			<ol>
 <?php
 	if($groups->count() > $_GET['per']){
 ?>
-			<ol>
 				<li><?php if($_GET['page'] > 1){ ?><a href="<?php echo esc_attr(Template\link('/world/groups/?' . http_build_query(array_merge($query, array('page'=>1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('First')); ?></a><?php }else{ ?><?php echo esc_html(__('First')); } ?></li>
 <?php	if((integer)ceil($groups->count() / $_GET['per']) == 2){ ?>
 				<li><?php if($_GET['page'] !== 2){ ?><a href="<?php echo esc_attr(Template\link('/world/groups/?' . http_build_query(array_merge($query, array('page'=>2, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php }else{ ?><?php echo esc_html(__('Last')); } ?></li>

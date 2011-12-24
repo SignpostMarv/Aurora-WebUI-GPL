@@ -141,7 +141,7 @@ namespace Aurora\Addon\WebUI{
 					$group->OpenEnrollment() != $openEnrollment ||
 					$group->ShowInList()     != $showInList ||
 					$group->AllowPublish()   != $allowPublish ||
-					$group->MaturePublish()  != $MaturePublish ||
+					$group->MaturePublish()  != $maturePublish ||
 					$group->OwnerRoleID()    != $ownerRoleID
 				);
 			}
@@ -256,6 +256,309 @@ namespace Aurora\Addon\WebUI{
 			}else if(isset($this->data[$this->key()]) === false){
 				$start   = $this->key();
 				$results = $this->WebUI->GetGroups($start, 10, $this->sort, $this->boolFields);
+				foreach($results as $group){
+					$this->data[$start++] = $group;
+				}
+			}
+			return $this->data[$this->key()];
+		}
+	}
+
+//!	Implementation of Aurora::Framework::GroupNoticeData
+	class GroupNoticeData implements Framework\GroupNoticeData{
+
+/**
+*	@param string $GroupID GroupID that the notice belongs to.
+*	@param string $NoticeID unique identifier for the notice.
+*	@param integer $timestamp unix timestamp indicating when the group notice was created.
+*	@param string $FromName Name of user that created the group notice.
+*	@param string $Subject Subject of group notice.
+*	@param string $Message Group notice message (this is actually from GroupNoticeInfo, but we're being lazy)
+*	@param boolean $HasAttachment TRUE of the group notice has an attachment, FALSE otherwise.
+*	@param string $ItemID attachment ID
+*	@param integer $AssetType asset type
+*	@param string $ItemName name of attachment
+*/
+		public function __construct($GroupID, $NoticeID, $timestamp, $FromName, $Subject, $Message, $HasAttachment=false, $ItemID='00000000-0000-0000-0000-000000000000', $AssetType=-1, $ItemName=''){
+			if(is_string($timestamp) === true && ctype_digit($timestamp) === true){
+				$timestamp = (integer)$timestamp;
+			}
+			if(is_string($FromName) === true){
+				$FromName = trim($FromName);
+			}
+			if(is_string($Subject) === true){
+				$Subject = trim($Subject);
+			}
+			if(is_string($Message) === true){
+				$Message = trim($Message);
+			}
+			if(is_string($AssetType) === true && ctype_digit($AssetType) === true){
+				$AssetType = (integer)$AssetType;
+			}
+			if(is_string($ItemName) === true){
+				$ItemName = trim($ItemName);
+			}
+
+			if(is_string($GroupID) === false){
+				throw new InvalidArgumentException('GroupID must be a string.');
+			}else if(preg_match(WebUI::regex_UUID, $GroupID) !== 1){
+				throw new InvalidArgumentException('GroupID must be a valid UUID.');
+			}else if(is_string($NoticeID) === false){
+				throw new InvalidArgumentException('NoticeID must be a string.');
+			}else if(preg_match(WebUI::regex_UUID, $NoticeID) !== 1){
+				throw new InvalidArgumentException('NoticeID must be a valid UUID.');
+			}else if(is_integer($timestamp) === false){
+				throw new InvalidArgumentException('Timestamp must be an integer.');
+			}else if(is_string($FromName) === false){
+				throw new InvalidArgumentException('FromName must be a string.');
+			}else if($FromName === ''){
+				throw new InvalidArgumentException('FromName cannot be an empty string.');
+			}else if(is_string($Subject) === false){
+				throw new InvalidArgumentException('Subject must be a string.');
+			}else if($Subject === ''){
+				throw new InvalidArgumentException('Subject cannot be an empty string.');
+			}else if(is_string($Message) === false){
+				throw new InvalidArgumentException('Message must be a string.');
+			}else if(is_bool($HasAttachment) === false){
+				throw new InvalidArgumentException('HasAttachment flag must be a boolean.');
+			}else if(is_string($ItemID) === false){
+				throw new InvalidArgumentException('ItemID must be a string.');
+			}else if(preg_match(WebUI::regex_UUID, $ItemID) !== 1){
+				throw new InvalidArgumentException('ItemID must be a valid UUID.');
+			}else if(is_integer($AssetType) === false){
+				throw new InvalidArgumentException('AssetType must be an integer.');
+			}else if(is_string($ItemName) === false){
+				throw new InvalidArgumentException('ItemName must be a string.');
+			}else if($HasAttachment === true && $ItemName === ''){
+				throw new InvalidArgumentException('ItemName cannot be an empty string when a group notice has an attachment.');
+			}
+
+			$this->GroupID       = $GroupID;
+			$this->NoticeID      = $NoticeID;
+			$this->Timestamp     = $timestamp;
+			$this->FromName      = $FromName;
+			$this->Subject       = $Subject;
+			$this->Message       = $Message;
+			$this->HasAttachment = $HasAttachment;
+			$this->AssetType     = $AssetType;
+			$this->ItemID        = $ItemID;
+			$this->ItemName      = $ItemName;
+		}
+
+//!	registry method
+/**
+*	@param string $GroupID GroupID that the notice belongs to.
+*	@param string $NoticeID unique identifier for the notice.
+*	@param integer $timestamp unix timestamp indicating when the group notice was created.
+*	@param string $FromName Name of user that created the group notice.
+*	@param string $Subject Subject of group notice.
+*	@param boolean $HasAttachment TRUE of the group notice has an attachment, FALSE otherwise.
+*	@param string $ItemID attachment ID
+*	@param integer $AssetType asset type
+*	@param string $ItemName name of attachment
+*	@return object instance of Aurora::Framework::GroupNoticeData
+*/
+		public static function r($GroupID, $NoticeID, $timestamp=null, $FromName=null, $Subject=null, $Message=null, $HasAttachment=false, $ItemID='00000000-0000-0000-0000-000000000000', $AssetType=-1, $ItemName=''){
+			if(is_string($GroupID) === false){
+				throw new InvalidArgumentException('GroupID must be a string.');
+			}else if(preg_match(WebUI::regex_UUID, $GroupID) === false){
+				throw new InvalidArgumentException('GroupID must be a valid UUID.');
+			}else if(is_string($NoticeID) === false){
+				throw new InvalidArgumentException('NoticeID must be a string.');
+			}else if(preg_match(WebUI::regex_UUID, $NoticeID) === false){
+				throw new InvalidArgumentException('NoticeID must be a valid UUID.');
+			}
+
+			$GroupID  = strtolower($GroupID);
+			$NoticeID = strtolower($NoticeID);
+			static $registry = array();
+			if(isset($registry[$GroupID]) === false){
+				$registry[$GroupID] = array();
+			}
+			if(isset($registry[$GroupID][$NoticeID]) === false){
+				$registry[$GroupID][$NoticeID] = new static($GroupID, $NoticeID, $timestamp, $FromName, $Subject, $Message, $HasAttachment, $ItemID, $AssetType, $ItemName);
+			}
+
+			return $registry[$GroupID][$NoticeID];
+		}
+
+//!	string GroupID that the notice belongs to.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::GroupID()
+		protected $GroupID;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$GroupID
+		public function GroupID(){
+			return $this->GroupID;
+		}
+
+//!	string NoticeID unique identifier for the notice.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::NoticeID()
+		protected $NoticeID;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$NoticeID
+		public function NoticeID(){
+			return $this->NoticeID;
+		}
+
+//!	integer unix timestamp indicating when the group notice was created.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::Timestamp()
+		protected $Timestamp;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$Timestamp
+		public function Timestamp(){
+			return $this->Timestamp;
+		}
+
+//!	string Name of user that created the group notice.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::FromName()
+		protected $FromName;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$FromName
+		public function FromName(){
+			return $this->FromName;
+		}
+
+//!	string Subject of group notice.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::Subject()
+		protected $Subject;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$Subject
+		public function Subject(){
+			return $this->Subject;
+		}
+
+//!	string Message of group notice.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::Message()
+		protected $Message;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$Message
+		public function Message(){
+			return $this->Message;
+		}
+
+//!	boolean TRUE of the group notice has an attachment, FALSE otherwise.
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::HasAttachment()
+		protected $HasAttachment;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$HasAttachment
+		public function HasAttachment(){
+			return $this->HasAttachment;
+		}
+
+//!	integer asset type
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::AssetType()
+		protected $AssetType;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$AssetType
+		public function AssetType(){
+			return $this->AssetType;
+		}
+
+//!	string attachment ID
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::ItemID()
+		protected $ItemID;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$ItemID
+		public function ItemID(){
+			return $this->ItemID;
+		}
+
+//!	string name of attachment
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::ItemName()
+		protected $ItemName;
+//!	@see Aurora::Addon::WebUI::GroupNoticeData::$ItemName
+		public function ItemName(){
+			return $this->ItemName;
+		}
+	}
+
+//!	Group Notices iterator
+	class GetGroupNotices extends WebUI\abstractSeekableFilterableIterator{
+
+	protected $groups;
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI We need to specify this in case we want to iterate past the original set of results.
+*	@param integer $start initial cursor position
+*	@param integer $total Total number of results possible with specified filters
+*	@param array $sort optional array of field names for keys and booleans for values, indicating ASC and DESC sort orders for the specified fields.
+*	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
+*	@param array $groups if specified, should be an array of instances of Aurora::Addon::WebUI::GroupNoticeData that were pre-fetched with a call to the API end-point.
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, array $groups, array $groupNotices=null){
+			foreach($groups as $groupID){
+				if(is_string($groupID) === false){
+					throw new InvalidArgumentException('GroupID must be a string.');
+				}else if(preg_match(WebUI::regex_UUID, $groupID) != 1){
+					throw new InvalidArgumentException('GroupID must be a valid UUID.');
+				}
+			}
+			$this->groups = $groups;
+			parent::__construct($WebUI, $start, $total, null, null);
+			if(isset($groupNotices) === true){
+				$i = $start;
+				foreach($groupNotices as $group){
+					if($group instanceof GroupNoticeData){
+						$this->data[$i++] = $group;
+					}else{
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::GroupNoticeData should be passed to Aurora::Addon::WebUI::GetGroupRecords::__construct()');
+					}
+				}
+			}
+		}
+
+//! This is a registry method for a class that implements the SeekableIterator class, so we can save ourselves some API calls if we've already fetched some groups.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI We need to specify this in case we want to iterate past the original set of results.
+*	@param integer $start initial cursor position
+*	@param integer $total Total number of results possible with specified filters
+*	@param array $groups array of group IDs that notices should be fetched for
+*	@param array $entities if specified, should be an array of entity objects to be validated by the child constructor
+*	@param array $ignored this parameter is ignored, only here to comply with the method
+*/
+		public static function r(WebUI $WebUI, $start=0, $total=0, array $groups=null, array $entities=null, array $ignored=null){
+			sort($groups);
+			static $registry = array();
+			$hash1 = spl_object_hash($WebUI);
+			$hash2 = md5(print_r($groups,true));
+
+			if(isset($registry[$hash1]) === false){
+				$registry[$hash1] = array();
+			}
+
+			$create = (isset($registry[$hash1][$hash2]) === false) || ($create === false && $registry[$hash1][$hash2]->count() !== $total);
+
+			if($create === true){
+				$registry[$hash1][$hash2] = new static($WebUI, $start, $total, $groups, $entities);
+			}
+
+			$registry[$hash1][$hash2]->seek($start);
+
+			return $registry[$hash1][$hash2];
+		}
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetGroupRecords::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::GroupRecord
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GroupNotices($start, 10, $this->groups);
+				foreach($results as $group){
+					$this->data[$start++] = $group;
+				}
+			}
+			return $this->data[$this->key()];
+		}
+	}
+
+//!	News iterator
+	class GetNewsFromGroupNotices extends GetGroupNotices{
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetGroupRecords::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::GroupRecord
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->NewsFromGroupNotices($start, 10);
 				foreach($results as $group){
 					$this->data[$start++] = $group;
 				}
