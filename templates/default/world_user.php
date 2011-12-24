@@ -32,7 +32,7 @@ if(count($pathParts) === 2){
 		<section class=first-life>
 			<h1><?php echo esc_html(__('First Life')); ?></h1>
 <?php	if($user->FirstLifeImage() !== '00000000-0000-0000-0000-000000000000'){ ?>
-			<img class=photo src="<?php echo esc_attr(Globals::i()->WebUI->GridTexture($user->FirstLifeImage())); ?>" alt="<?php echo esc_attr(sprintf(__('User photo for %s', $user->Name()))); ?>">
+			<img class=photo src="<?php echo esc_attr(Globals::i()->WebUI->GridTexture($user->FirstLifeImage())); ?>" alt="<?php echo esc_attr(sprintf(__('User photo for %s'), $user->Name())); ?>">
 <?php	} ?>
 <?php	if($user->FirstLifeAboutText() !== ''){ ?>
 			<p><?php echo wp_kses(nl2br($user->FirstLifeAboutText()), array('br'=>array())); ?></p>
