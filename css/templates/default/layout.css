@@ -45,6 +45,17 @@ p + h1, p + h2, p + h3, p + h4, p + h5, p + h6{
 	margin-top: .5em ;
 }
 
+section{
+	overflow: auto ;
+	width: 100% ;
+}
+section > section{
+	font-size: .95em ;
+}
+section > h1:first-child{
+	margin-top: .5em ;
+}
+
 footer{
 	margin-bottom: 0 ;
 	padding-bottom: .25em ;
@@ -117,12 +128,20 @@ table.regions-list td{
 	text-align: center ;
 }
 
-.world-group .vcard .logo{
+.vcard .fn + .vevent{
+	margin-bottom: .5em ;
+}
+.vcard .logo, .vcard .photo{
 	width: 126px ;
 	height: 126px ;
 	padding: .5em ;
 	border: 1px solid ;
 }
+body.world-user .vcard .logo, .vcard .photo{
+	float: left ;
+	margin-right: 1em ;
+}
+
 .world-group .vcard table{
 	margin-top: .5em ;
 }

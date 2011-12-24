@@ -11,7 +11,7 @@ form p.problem{
 	color: #900 ;
 }
 
-.world-group .vcard .logo{
+.vcard .logo, .vcard .photo{
 	background: #eee ;
 	border-color: #ccc ;
 }
