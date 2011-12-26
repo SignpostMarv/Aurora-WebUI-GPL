@@ -134,24 +134,43 @@ namespace Aurora\Addon{
 					}else if(count($v[gettype($result->{$k})]) > 0){
 						$validValue = false;
 						foreach($v[gettype($result->{$k})] as $_k => $possibleValue){
-							if(is_integer($_k) === true && gettype($result->{$k}) == 'array'){
+							if(is_integer($_k) === true){
 								$subPropertyKeys = array_keys($possibleValue);
-								foreach($result->{$k} as $_v){
-									if(in_array(gettype($_v), $subPropertyKeys) === false){
-										throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 3);
-									}else if(gettype($_v) === 'object' && isset($possibleValue[gettype($_v)]) === true){
-										foreach($possibleValue[gettype($_v)] as $__k => $__v){
-											if(isset($_v->{$__k}) === false){
+								switch(gettype($result->{$k})){
+									case 'array':
+										foreach($result->{$k} as $_v){
+											if(in_array(gettype($_v), $subPropertyKeys) === false){
+												throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 3);
+											}else if(gettype($_v) === 'object' && isset($possibleValue[gettype($_v)]) === true){
+												foreach($possibleValue[gettype($_v)] as $__k => $__v){
+													if(isset($__v['float']) == true){
+														$__v['double'] = $__v['float'];
+													}
+													if(isset($_v->{$__k}) === false){
+														throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
+													}else{
+														if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
+															throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+														}
+													}
+												}
+											}
+										}
+										$validValue = true;
+									break;
+									case 'object':
+										foreach($result->{$k} as $_k => $_v){
+											if(isset($possibleValue[$_k]) === false){
 												throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
 											}else{
-												if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
+												if(in_array(gettype($_v), array_keys($possibleValue[$_k])) === false){
 													throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
 												}
 											}
 										}
-									}
+										$validValue = true;
+									break;
 								}
-								$validValue = true;								
 							}else if($result->{$k} === $possibleValue){
 								$validValue = true;
 								break;
@@ -997,6 +1016,63 @@ namespace Aurora\Addon{
 			return $result->WebLoginKey;
 		}
 
+//!	Get a single region
+/**
+*	@param string $region either a UUID or a region name.
+*	@return object instance of Aurora::Addon::WebUI::GridRegion
+*/
+		public function GetRegion($region, $scopeID='00000000-0000-0000-0000-000000000000'){
+			if(is_string($region) === false){
+				throw new InvalidArgumentException('Region must be specified as a string.');
+			}else if(trim($region) === ''){
+				throw new InvalidArgumentException('Region must not be an empty string.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as a string.');
+			}else if(preg_match(self::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be a valid UUID.');
+			}
+
+			$input = array(
+				'ScopeID' => $scopeID
+			);
+
+			if(preg_match(self::regex_UUID, $region) != 1){
+				$input['Region'] = trim($region);
+			}else{
+				$input['RegionID'] = $region;
+			}
+
+			return WebUI\GridRegion::fromEndPointResult($this->makeCallToAPI('GetRegion', $input, array(
+				'Region' => array('object' => array(array(
+					'uuid'                 => array('string'  => array()),
+					'locX'                 => array('integer' => array()),
+					'locY'                 => array('integer' => array()),
+					'locZ'                 => array('integer' => array()),
+					'regionName'           => array('string'  => array()),
+					'regionType'           => array('string'  => array()),
+					'serverIP'             => array('string'  => array()),
+					'serverHttpPort'       => array('integer' => array()),
+					'serverURI'            => array('string'  => array()),
+					'serverPort'           => array('integer' => array()),
+					'regionMapTexture'     => array('string'  => array()),
+					'regionTerrainTexture' => array('string'  => array()),
+					'access'               => array('integer' => array()),
+					'owner_uuid'           => array('string'  => array()),
+					'AuthToken'            => array('string'  => array()),
+					'sizeX'                => array('integer' => array()),
+					'sizeY'                => array('integer' => array()),
+					'sizeZ'                => array('integer' => array()),
+					'LastSeen'             => array('integer' => array()),
+					'SessionID'            => array('string'  => array()),
+					'Flags'                => array('integer' => array()),
+					'GenericMap'           => array('object'  => array()),
+					'EstateOwner'          => array('string'  => array()),
+					'remoteEndPointIP'     => array('array'   => array()),
+					'remoteEndPointPort'   => array('integer' => array()),
+				)))
+			))->Region);
+		}
+
 //!	Get a list of regions in the AuroraSim install that match the specified flags.
 /**
 *	@param integer $flags A bitfield corresponding to constants in Aurora::Framework::RegionFlags
@@ -1331,6 +1407,69 @@ namespace Aurora\Addon{
 			}
 
 			return WebUI\GetNewsFromGroupNotices::r($this, $start, $result->Total, array(), $groupNotices);
+		}
+
+
+		public function GetParcelsByRegion(WebUI\GridRegion $region){
+			$result = $this->makeCallToAPI('GetParcelsByRegion', array(
+				'Region' => $region->RegionID()
+			), array(
+				'Parcels' => array(
+					'array' => array(array(
+						'object' => array(
+							'GroupID' => array('string' => array()),
+							'OwnerID' => array('string' => array()),
+							'Maturity' => array('integer' => array()),
+							'Area' => array('integer' => array()),
+							'AuctionID' => array('array' => array()),
+							'SalePrice' => array('integer' => array()),
+							'InfoUUID' => array('string' => array()),
+							'Dwell' => array('integer' => array()),
+							'Flags' => array('integer' => array()),
+							'Name' => array('string' => array()),
+							'Description' => array('string' => array()),
+							'UserLocation' => array('array' => array(array(
+								array('float' => array()),
+								array('float' => array()),
+								array('float' => array())
+							))),
+							'LocalID' => array('integer' => array()),
+							'GlobalID' => array('string' => array()),
+							'RegionID' => array('string' => array()),
+							'MediaDescription' => array('string' => array()),
+							'MediaHeight' => array('integer' => array()),
+							'MediaLoop' => array('boolean' => array()),
+							'MediaType' => array('string' => array()),
+							'ObscureMedia' => array('boolean' => array()),
+							'ObscureMusic' => array('boolean' => array()),
+							'SnapshotID' => array('string' => array()),
+							'MediaAutoScale' => array('integer' => array()),
+							'MediaLoopSet' => array('float' => array()),
+							'MediaURL' => array('string' => array()),
+							'MusicURL' => array('string' => array()),
+							'Bitmap' => array('string' => array()),
+							'Category' => array('integer' => array()),
+							'ClaimDate' => array('integer' => array()),
+							'ClaimPrice' => array('integer' => array()),
+							'Status' => array('integer' => array()),
+							'LandingType' => array('integer' => array()),
+							'PassHours' => array('float' => array()),
+							'PassPrice' => array('integer' => array()),
+							'UserLookAt' => array('array' => array(array(
+								array('float' => array()),
+								array('float' => array()),
+								array('float' => array())
+							))),
+							'AuthBuyerID' => array('string' => array()),
+							'OtherCleanTime' => array('integer' => array()),
+							'RegionHandle' => array('array' => array()),
+							'Private' => array('boolean' => array()),
+							'GenericData' => array('object' => array()),
+						)
+					))
+				)
+			));
+			return $result;
 		}
 	}
 }
