@@ -5,28 +5,28 @@ namespace{
 	use Aurora\Addon\WebUI\Configs;
 
 	var_dump(
-		Configs::d()->getRegions(
+		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline
 		),
-		Configs::d()->getRegions(
+		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
 			0,
 			10
 		),
-		Configs::d()->getRegions(
+		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
 			0,
 			10,
 			true
 		),
-		Configs::d()->getRegions(
+		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
 			0,
 			10,
 			true,
 			true
 		),
-		Configs::d()->getRegions(
+		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
 			0,
 			10,
