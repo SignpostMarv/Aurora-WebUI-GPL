@@ -144,8 +144,19 @@ namespace Aurora\Addon{
 											}else if(gettype($_v) === 'object' && isset($possibleValue[gettype($_v)]) === true){
 												foreach($possibleValue[gettype($_v)] as $__k => $__v){
 													if(isset($__v['float']) == true){
-														$__v['double'] = $__v['float'];
+														$possibleValue[gettype($_v)]['double'] = $__v['float'];
 													}
+												}
+												$pos = $possibleValue[gettype($_v)];
+												if(gettype($_v) === 'object'){
+													$pos = current($pos);
+													foreach($pos as $__k => $__v){
+														if(isset($__v['float']) === true){
+															$pos[$__k]['double'] = $__v['float'];
+														}
+													}
+												}
+												foreach($pos as $__k => $__v){
 													if(isset($_v->{$__k}) === false){
 														throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
 													}else{
@@ -159,11 +170,16 @@ namespace Aurora\Addon{
 										$validValue = true;
 									break;
 									case 'object':
-										foreach($result->{$k} as $_k => $_v){
-											if(isset($possibleValue[$_k]) === false){
+										foreach($possibleValue as $_k => $_v){
+											if(isset($_v['float']) === true){
+												$possibleValue[$_k]['double'] = $_v['float'];
+											}
+										}
+										foreach($possibleValue as $_k => $_v){
+											if(isset($result->{$k}->{$_k}) === false){
 												throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
 											}else{
-												if(in_array(gettype($_v), array_keys($possibleValue[$_k])) === false){
+												if(in_array(gettype($result->{$k}->{$_k}), array_keys($possibleValue[$_k])) === false){
 													throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
 												}
 											}
@@ -1409,65 +1425,102 @@ namespace Aurora\Addon{
 			return WebUI\GetNewsFromGroupNotices::r($this, $start, $result->Total, array(), $groupNotices);
 		}
 
+//!	PHP doesn't do const arrays :(
+/**
+*	@return array The validator array to be passed to Aurora::Addon::WebUI::makeCallToAPI() when making parcel-related calls.
+*/
+		protected static function ParcelResultValidatorArray(){
+			static $validator = array(
+				'object' => array(array(
+					'GroupID' => array('string' => array()),
+					'OwnerID' => array('string' => array()),
+					'Maturity' => array('integer' => array()),
+					'Area' => array('integer' => array()),
+					'AuctionID' => array('array' => array()),
+					'SalePrice' => array('integer' => array()),
+					'InfoUUID' => array('string' => array()),
+					'Dwell' => array('integer' => array()),
+					'Flags' => array('integer' => array()),
+					'Name' => array('string' => array()),
+					'Description' => array('string' => array()),
+					'UserLocation' => array('array' => array(array(
+						array('float' => array()),
+						array('float' => array()),
+						array('float' => array())
+					))),
+					'LocalID' => array('integer' => array()),
+					'GlobalID' => array('string' => array()),
+					'RegionID' => array('string' => array()),
+					'MediaDescription' => array('string' => array()),
+					'MediaHeight' => array('integer' => array()),
+					'MediaLoop' => array('boolean' => array()),
+					'MediaType' => array('string' => array()),
+					'ObscureMedia' => array('boolean' => array()),
+					'ObscureMusic' => array('boolean' => array()),
+					'SnapshotID' => array('string' => array()),
+					'MediaAutoScale' => array('integer' => array()),
+					'MediaLoopSet' => array('float' => array()),
+					'MediaURL' => array('string' => array()),
+					'MusicURL' => array('string' => array()),
+					'Bitmap' => array('string' => array()),
+					'Category' => array('integer' => array()),
+					'ClaimDate' => array('integer' => array()),
+					'ClaimPrice' => array('integer' => array()),
+					'Status' => array('integer' => array()),
+					'LandingType' => array('integer' => array()),
+					'PassHours' => array('float' => array()),
+					'PassPrice' => array('integer' => array()),
+					'UserLookAt' => array('array' => array(array(
+						array('float' => array()),
+						array('float' => array()),
+						array('float' => array())
+					))),
+					'AuthBuyerID' => array('string' => array()),
+					'OtherCleanTime' => array('integer' => array()),
+					'RegionHandle' => array('array' => array()),
+					'Private' => array('boolean' => array()),
+					'GenericData' => array('object' => array()),
+				))
+			);
+			return $validator;
+		}
+		
 
 		public function GetParcelsByRegion(WebUI\GridRegion $region){
 			$result = $this->makeCallToAPI('GetParcelsByRegion', array(
 				'Region' => $region->RegionID()
 			), array(
 				'Parcels' => array(
-					'array' => array(array(
-						'object' => array(
-							'GroupID' => array('string' => array()),
-							'OwnerID' => array('string' => array()),
-							'Maturity' => array('integer' => array()),
-							'Area' => array('integer' => array()),
-							'AuctionID' => array('array' => array()),
-							'SalePrice' => array('integer' => array()),
-							'InfoUUID' => array('string' => array()),
-							'Dwell' => array('integer' => array()),
-							'Flags' => array('integer' => array()),
-							'Name' => array('string' => array()),
-							'Description' => array('string' => array()),
-							'UserLocation' => array('array' => array(array(
-								array('float' => array()),
-								array('float' => array()),
-								array('float' => array())
-							))),
-							'LocalID' => array('integer' => array()),
-							'GlobalID' => array('string' => array()),
-							'RegionID' => array('string' => array()),
-							'MediaDescription' => array('string' => array()),
-							'MediaHeight' => array('integer' => array()),
-							'MediaLoop' => array('boolean' => array()),
-							'MediaType' => array('string' => array()),
-							'ObscureMedia' => array('boolean' => array()),
-							'ObscureMusic' => array('boolean' => array()),
-							'SnapshotID' => array('string' => array()),
-							'MediaAutoScale' => array('integer' => array()),
-							'MediaLoopSet' => array('float' => array()),
-							'MediaURL' => array('string' => array()),
-							'MusicURL' => array('string' => array()),
-							'Bitmap' => array('string' => array()),
-							'Category' => array('integer' => array()),
-							'ClaimDate' => array('integer' => array()),
-							'ClaimPrice' => array('integer' => array()),
-							'Status' => array('integer' => array()),
-							'LandingType' => array('integer' => array()),
-							'PassHours' => array('float' => array()),
-							'PassPrice' => array('integer' => array()),
-							'UserLookAt' => array('array' => array(array(
-								array('float' => array()),
-								array('float' => array()),
-								array('float' => array())
-							))),
-							'AuthBuyerID' => array('string' => array()),
-							'OtherCleanTime' => array('integer' => array()),
-							'RegionHandle' => array('array' => array()),
-							'Private' => array('boolean' => array()),
-							'GenericData' => array('object' => array()),
-						)
-					))
+					'array' => array(self::ParcelResultValidatorArray())
 				)
+			));
+			return $result;
+		}
+
+
+		public function GetParcel($parcel, WebUI\GridRegion $region=null, $scopeID='00000000-0000-0000-0000-000000000000'){
+			if(is_string($parcel) === false){
+				throw new InvalidArgumentException('Parcel argument must be specified as string.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as string.');
+			}else if(preg_match(self::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be a valid UUID.');
+			}
+
+			$input = array();
+			if(preg_match(self::regex_UUID, $parcel) != 1){
+				if(isset($region) === false){
+					throw new InvalidArgumentException('When attempting to get a parcel by name, the region must be specified.');
+				}
+				$input['RegionID'] = $region->RegionID();
+				$input['ScopeID'] = $scopeID;
+				$input['Parcel'] = trim($parcel);
+			}else{
+				$input['ParcelInfoUUID'] = $parcel;
+			}
+
+			$result = $this->makeCallToAPI('GetParcel', $input, array(
+				'Parcel' => self::ParcelResultValidatorArray()
 			));
 			return $result;
 		}
