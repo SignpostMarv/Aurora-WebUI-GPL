@@ -39,6 +39,8 @@ namespace Aurora\Addon{
 
 	use Globals;
 
+	use OpenMetaverse\Vector3;
+
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
 
@@ -1436,7 +1438,7 @@ namespace Aurora\Addon{
 					'OwnerID' => array('string' => array()),
 					'Maturity' => array('integer' => array()),
 					'Area' => array('integer' => array()),
-					'AuctionID' => array('array' => array()),
+					'AuctionID' => array('integer' => array()),
 					'SalePrice' => array('integer' => array()),
 					'InfoUUID' => array('string' => array()),
 					'Dwell' => array('integer' => array()),
@@ -1464,6 +1466,7 @@ namespace Aurora\Addon{
 					'MusicURL' => array('string' => array()),
 					'Bitmap' => array('string' => array()),
 					'Category' => array('integer' => array()),
+					'FirstParty' => array('boolean' => array()),
 					'ClaimDate' => array('integer' => array()),
 					'ClaimPrice' => array('integer' => array()),
 					'Status' => array('integer' => array()),
@@ -1477,14 +1480,69 @@ namespace Aurora\Addon{
 					))),
 					'AuthBuyerID' => array('string' => array()),
 					'OtherCleanTime' => array('integer' => array()),
-					'RegionHandle' => array('array' => array()),
+					'RegionHandle' => array('string' => array()),
 					'Private' => array('boolean' => array()),
 					'GenericData' => array('object' => array()),
 				))
 			);
 			return $validator;
 		}
-		
+
+
+//!	Converts an API result for parcels to an instance of Aurora::Addon::WebUI::LandData
+/**
+*	@param object API result
+*	@return object instance of Aurora::Addon::WebUI::LandData
+*/
+		private static function ParcelResult2LandData(\stdClass $result){		
+			$result->UserLookAt   = new Vector3($result->UserLookAt[0]  , $result->UserLookAt[1]  , $result->UserLookAt[2]  );
+			$result->UserLocation = new Vector3($result->UserLocation[0], $result->UserLocation[1], $result->UserLocation[2]);
+			return WebUI\LandData::r(
+				$result->InfoUUID,
+				$result->RegionID,
+				$result->GlobalID,
+				$result->LocalID,
+				$result->SalePrice,
+				$result->UserLocation,
+				$result->UserLookAt,
+				$result->Name,
+				$result->Description,
+				$result->Flags,
+				$result->Dwell,
+				$result->AuctionID,
+				$result->Area,
+				$result->Maturity,
+				$result->OwnerID,
+				$result->GroupID,
+				$result->IsGroupOwned,
+				$result->SnapshotID,
+				$result->MediaDescription,
+				$result->MediaWidth,
+				$result->MediaHeight,
+				$result->MediaLoop,
+				$result->MediaType,
+				$result->ObscureMedia,
+				$result->ObscureMusic,
+				$result->MediaLoopSet,
+				$result->MediaAutoScale,
+				$result->MediaURL,
+				$result->MusicURL,
+				$result->Bitmap,
+				$result->Category,
+				$result->FirstParty,
+				$result->ClaimDate,
+				$result->ClaimPrice,
+				$result->LandingType,
+				$result->PassHours,
+				$result->PassPrice,
+				$result->AuthBuyerID,
+				$result->OtherCleanTime,
+				$result->RegionHandle,
+				$result->Private,
+				$result->GenericData
+			);
+		}
+
 
 		public function GetParcelsByRegion(WebUI\GridRegion $region){
 			$result = $this->makeCallToAPI('GetParcelsByRegion', array(
@@ -1494,7 +1552,10 @@ namespace Aurora\Addon{
 					'array' => array(self::ParcelResultValidatorArray())
 				)
 			));
-			return $result;
+			foreach($result->Parcels as $k=>$v){
+				$result->Parcels[$k] = self::ParcelResult2LandData($v);
+			}
+			return $result->Parcels;
 		}
 
 
@@ -1519,10 +1580,9 @@ namespace Aurora\Addon{
 				$input['ParcelInfoUUID'] = $parcel;
 			}
 
-			$result = $this->makeCallToAPI('GetParcel', $input, array(
+			return self::ParcelResult2LandData($this->makeCallToAPI('GetParcel', $input, array(
 				'Parcel' => self::ParcelResultValidatorArray()
-			));
-			return $result;
+			))->Parcel);
 		}
 	}
 }
@@ -1532,6 +1592,7 @@ namespace{
 
 	require_once('WebUI/GridInfo.php');
 	require_once('WebUI/Regions.php');
+	require_once('WebUI/Parcels.php');
 	require_once('WebUI/User.php');
 	require_once('WebUI/Group.php');
 
