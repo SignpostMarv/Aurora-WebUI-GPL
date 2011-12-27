@@ -6,7 +6,9 @@
 //!	Code from libOMV, taken from visible metadata
 namespace OpenMetaverse{
 
-//!	Transposition of the Enum to be used by Aurora::Addon::WebUI::FriendInfo
+	use InvalidArgumentException;
+
+//!	Transposition of the enum to be used by Aurora::Addon::WebUI::FriendInfo
 	class FriendRights{
 
 //!	integer The avatar has no rights
@@ -20,6 +22,133 @@ namespace OpenMetaverse{
 
 //!	integer The avatar can modify the ojects of the target avatar
 		const CanModifyObjects = 4;
+	}
+
+//!	Transposition of the ParcelCategory enum
+	class ParcelCategory{
+
+//!	integer Not an actual category, only used for queries
+		const Any = -1;
+
+//!	integer No assigned category
+		const None = 0;
+
+//!	integer Linden Infohub or public area (probably counts as GridOperator)
+		const Linden = 1;
+
+//!	integer Adult themed area
+		const Adult = 2;
+
+//!	integer Arts and Culture
+		const Arts = 3;
+
+//!	integer Business
+		const Business = 4;
+
+//!	integer Educational
+		const Educational = 5;
+
+//!	integer Gaming
+		const Gaming = 6;
+
+//!	integer Hangout or Club
+		const Hangout = 7;
+
+//!	integer Newcomer friendly
+		const Newcomer = 8;
+
+//!	integer Parks and Nature
+		const Park = 9;
+
+//!	integer Residential
+		const Residential = 10;
+
+//!	integer Shopping
+		const Shopping = 11;
+
+//!	integer Not Used?
+		const Stage = 12;
+
+//!	integer Other
+		const Other = 13;
+	}
+
+//!	Transposition of the ParcelStatus enum
+	class ParcelStatus{
+
+//!	integer Placeholder
+        const None = -1;
+
+//!	integer Parcel is leased (owned) by an avatar or group
+        const Leased = 0;
+
+//!	integer Parcel is in process of being leased (purchased) by an avatar or group
+        const LeasePending = 1;
+
+//!	integer Parcel has been abandoned back to Governor Linden
+        const Abandoned = 2;
+	}
+
+//!	Transposition of Vector3
+	class Vector3{
+
+//!	float x-axis
+//!	@see OpenMetaverse::Vector3::X()
+		private $x=0.0;
+//!	@return float x-axis
+		public function X(){
+			return $this->x;
+		}
+
+//!	float y-axis
+//!	@see OpenMetaverse::Vector3::Y()
+		private $y=0.0;
+//!	@return float y-axis
+		public function Y(){
+			return $this->y;
+		}
+
+//!	float z-axis
+//!	@see OpenMetaverse::Vector3::Z()
+		private $z=0.0;
+//!	@return float z-axis
+		public function Z(){
+			return $this->z;
+		}
+
+//!	Accepts args to populate new instance axis values
+/**
+*	@param float $x x-axis
+*	@param float $y y-axis
+*	@param float $z z-axis
+*/
+		public function __construct($x=0.0, $y=0.0, $z=0.0){
+			if(is_integer($x) === true){
+				$x = (float)$x;
+			}
+			if(is_integer($y) === true){
+				$y = (float)$y;
+			}
+			if(is_integer($z) === true){
+				$z = (float)$z;
+			}
+
+			if(is_float($x) === false){
+				throw new InvalidArgumentException('x-axis should be a float.');
+			}else if(is_float($y) === false){
+				throw new InvalidArgumentException('y-axis should be a float.');
+			}else if(is_float($z) === false){
+				throw new InvalidArgumentException('z-axis should be a float.');
+			}
+
+			$this->x = $x;
+			$this->y = $y;
+			$this->z = $z;
+		}
+
+		public function __toString(){
+			return sprintf('<%1$f, %2$f, %3$f>', $this->x, $this->y, $this->z);
+		}
 	}
 }
 
