@@ -101,7 +101,7 @@ namespace Aurora\Addon\WebUI{
 //!	object instance of Aurora::Addon::WebUI
 		protected $WebUI;
 
-
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
 		protected function __construct(WebUI $WebUI, $start=0, $total=0){
 			if(is_integer($total) === false){
 				throw new InvalidArgumentException('Total number of entities must be an integer.');
@@ -168,7 +168,7 @@ namespace Aurora\Addon\WebUI{
 //!	mixed either NULL indicating no boolean filters, or an array of field name keys and boolean values.
 		private $boolFields;
 
-	//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
 /**
 *	@param object $WebUI instance of Aurora::Addon::WebUI We need to specify this in case we want to iterate past the original set of results.
 *	@param integer $start initial cursor position

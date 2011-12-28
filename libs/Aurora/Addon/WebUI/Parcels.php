@@ -835,5 +835,263 @@ namespace Aurora\Addon\WebUI{
 			return $registry[$InfoUUID];
 		}
 	}
+
+//!	Abstract iterator for instances of Aurora::Addon::WebUI::LandData
+	abstract class abstractSeekableLandDataIterator extends abstractSeekableIterator{
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of LandData results according to child-class filters
+*	@param array $parcels array of Aurora::Addon::WebUI::LandData objects
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, array $parcels=null){
+			parent::__construct($WebUI, $start, $total);
+			if(isset($parcels) === true){
+				$i = $start;
+				foreach($parcels as $parcel){
+					if($parcel instanceof LandData){
+						$this->data[$i++] = $parcel;
+					}else{
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::LandData should be passed to Aurora::Addon::WebUI::abstractSeekableLandDataIterator::__construct()');
+					}
+				}
+			}
+		}
+	}
+
+	abstract class abstractSeekableLandDataIteratorByRegion extends abstractSeekableLandDataIterator{
+
+//!	object instance of Aurora::Addon::WebUI::GridRegion
+		protected $region;
+
+//!	string region scopeID
+		protected $scopeID;
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of LandData results according to child-class filters
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $scopeID Region ScopeID
+*	@param array $parcels array of Aurora::Addon::WebUI::LandData objects
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, GridRegion $region, $scopeID='00000000-0000-0000-0000-000000000000', array $parcels=null){
+			if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be valid UUID.');
+			}
+
+			parent::__construct($WebUI, $start, $total, $parcels);
+			$this->region  = $region;
+			$this->scopeID = $scopeID;
+		}
+	}
+
+//!	Iterator for geting instances of Aurora::Addon::WebUI::LandData by parcel owner and region
+	class GetParcelsByRegion extends abstractSeekableLandDataIteratorByRegion{
+
+//!	string parcel owner UUID
+		protected $owner;
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of LandData results according to child-class filters
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $owner Parcel Owner UUID
+*	@param string $scopeID Region ScopeID
+*	@param array $parcels array of Aurora::Addon::WebUI::LandData objects
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, GridRegion $region, $owner='00000000-0000-0000-0000-000000000000', $scopeID='00000000-0000-0000-0000-000000000000', array $parcels=null){
+			if(is_string($owner) === false){
+				throw new InvalidArgumentException('OwnerID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $owner) != 1){
+				throw new InvalidArgumentException('OwnerID must be valid UUID.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be valid UUID.');
+			}
+
+			parent::__construct($WebUI, $start, $total, $region, $scopeID, $parcels);
+			$this->owner = $owner;
+		}
+
+//! This is a registry method for a class that implements the SeekableIterator class, so we can save ourselves some API calls if we've already fetched some parcels.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of LandData results according to child-class filters
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $owner Parcel Owner UUID
+*	@param string $scopeID Region ScopeID
+*	@param array $parcels array of Aurora::Addon::WebUI::LandData objects
+*	@return object instance of Aurora::Addon::WebUI::GetParcelsByRegion
+*/
+		public static function r(WebUI $WebUI, $start=0, $total=0, GridRegion $region, $owner='00000000-0000-0000-0000-000000000000', $scopeID='00000000-0000-0000-0000-000000000000', array $parcels=null){
+			if(is_string($owner) === false){
+				throw new InvalidArgumentException('OwnerID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $owner) != 1){
+				throw new InvalidArgumentException('OwnerID must be valid UUID.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be valid UUID.');
+			}
+
+			static $registry = array();
+			$hash1 = spl_object_hash($WebUI);
+			$hash2 = $region->RegionID();
+			$owner = strtolower($owner);
+			$scopeID = strtolower($scopeID);
+
+			if(isset($registry[$hash1]) === false){
+				$registry[$hash1] = array();
+			}
+			if(isset($registry[$hash1][$hash2]) === false){
+				$registry[$hash1][$hash2] = array();
+			}
+			if(isset($registry[$hash1][$hash2][$scopeID]) === false){
+				$registry[$hash1][$hash2][$scopeID] = array();
+			}
+
+			$create = (isset($registry[$hash1][$hash2][$scopeID][$owner]) === false || $registry[$hash1][$hash2][$scopeID][$owner]->count() !== $total);
+
+			if($create === true){
+				$registry[$hash1][$hash2][$scopeID][$owner] = new static($WebUI, $start, $total, $region, $owner, $scopeID, $parcels);
+			}
+
+			$registry[$hash1][$hash2][$scopeID][$owner]->seek($start);
+
+			return $registry[$hash1][$hash2][$scopeID][$owner];
+		}
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetParcelsByRegion::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::LandData
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GetParcelsByRegion($start, 10, $this->region, $this->owner, $this->scopeID);
+				foreach($results as $group){
+					$this->data[$start++] = $group;
+				}
+			}
+			return $this->data[$this->key()];
+		}
+	}
+
+//!	Iterator for geting instances of Aurora::Addon::WebUI::LandData by parcel name and region
+	class GetParcelsWithNameByRegion extends abstractSeekableLandDataIteratorByRegion{
+
+//!	string parcel name
+		protected $name;
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of LandData results according to child-class filters
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $owner Parcel Owner UUID
+*	@param string $scopeID Region ScopeID
+*	@param array $parcels array of Aurora::Addon::WebUI::LandData objects
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, $name='', GridRegion $region, $scopeID='00000000-0000-0000-0000-000000000000', array $parcels=null){
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+
+			if(is_string($name) === false){
+				throw new InvalidArgumentException('Parcel name must be specified as string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Parcel name cannot be empty string.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be valid UUID.');
+			}
+
+			parent::__construct($WebUI, $start, $total, $region, $scopeID, $parcels);
+			$this->name = $name;
+		}
+
+//! This is a registry method for a class that implements the SeekableIterator class, so we can save ourselves some API calls if we've already fetched some parcels.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of LandData results according to child-class filters
+*	@param string $name Parcel name
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $scopeID Region ScopeID
+*	@param array $parcels array of Aurora::Addon::WebUI::LandData objects
+*	@return object instance of Aurora::Addon::WebUI::GetParcelsByRegion
+*/
+		public static function r(WebUI $WebUI, $start=0, $total=0, $name='', GridRegion $region, $scopeID='00000000-0000-0000-0000-000000000000', array $parcels=null){
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+
+			if(is_string($name) === false){
+				throw new InvalidArgumentException('Parcel name must be specified as string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Parcel name cannot be empty string.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('ScopeID must be specified as string.');
+			}else if(preg_match(WebUI::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('ScopeID must be valid UUID.');
+			}
+
+			static $registry = array();
+			$hash1 = spl_object_hash($WebUI);
+			$hash2 = $region->RegionID();
+			$scopeID = strtolower($scopeID);
+
+			if(isset($registry[$hash1]) === false){
+				$registry[$hash1] = array();
+			}
+			if(isset($registry[$hash1][$hash2]) === false){
+				$registry[$hash1][$hash2] = array();
+			}
+			if(isset($registry[$hash1][$hash2][$scopeID]) === false){
+				$registry[$hash1][$hash2][$scopeID] = array();
+			}
+
+			$create = (isset($registry[$hash1][$hash2][$scopeID][$name]) === false || $registry[$hash1][$hash2][$scopeID][$name]->count() !== $total);
+
+			if($create === true){
+				$registry[$hash1][$hash2][$scopeID][$name] = new static($WebUI, $start, $total, $name, $region, $scopeID, $parcels);
+			}
+
+			$registry[$hash1][$hash2][$scopeID][$name]->seek($start);
+
+			return $registry[$hash1][$hash2][$scopeID][$name];
+		}
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetParcelsWithNameByRegion::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::LandData
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GetParcelsWithNameByRegion($start, 10, $this->name, $this->region, $this->scopeID, true);
+				foreach($results as $group){
+					$this->data[$start++] = $group;
+				}
+			}
+			return $this->data[$this->key()];
+		}
+	}
 }
 ?>

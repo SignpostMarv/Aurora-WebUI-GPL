@@ -1333,7 +1333,7 @@ namespace Aurora\Addon{
 *	@param array $groups instances of GroupRecord
 *	@return object instance of Aurora::Addon::WebUI::GetGroupNotices
 */
-		public function GroupNotices($start=0, $count=10, array $groups){
+		public function GroupNotices($start=0, $count=10, array $groups, $asArray=false){
 			$groupIDs = array();
 			foreach($groups as $group){
 				if(($group instanceof WebUI\GroupRecord) === false){
@@ -1378,7 +1378,7 @@ namespace Aurora\Addon{
 				);
 			}
 
-			return WebUI\GetGroupNotices::r($this, $start, $result->Total, $groupIDs, $groupNotices);
+			return $asArray ? $groupNotices : WebUI\GetGroupNotices::r($this, $start, $result->Total, $groupIDs, $groupNotices);
 		}
 
 //!	Get group notices from groups flagged as being news sources.
@@ -1387,7 +1387,7 @@ namespace Aurora\Addon{
 *	@param integer $count Maximum number of group notices to fetch from the WebUI API end-point.
 *	@return object instance of Aurora::Addon::WebUI::GetGroupNotices
 */
-		public function NewsFromGroupNotices($start=0, $count=10){
+		public function NewsFromGroupNotices($start=0, $count=10, $asArray=false){
 
 			$result = $this->makeCallToAPI('NewsFromGroupNotices', array(
 				'Start' => $start,
@@ -1424,7 +1424,7 @@ namespace Aurora\Addon{
 				);
 			}
 
-			return WebUI\GetNewsFromGroupNotices::r($this, $start, $result->Total, array(), $groupNotices);
+			return $asArray ? $groupNotices : WebUI\GetNewsFromGroupNotices::r($this, $start, $result->Total, array(), $groupNotices);
 		}
 
 //!	PHP doesn't do const arrays :(
@@ -1543,22 +1543,67 @@ namespace Aurora\Addon{
 			);
 		}
 
+//!	Gets all parcels in a region, optionally filtering by parcel owner and region scope ID
+/**
+*	@param integer $start start point for results (useful for paginated output)
+*	@param integer $count maximum number of results to return in initial call.
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $owner Parcel owner UUID
+*	@param string $scopeID Region scope ID
+*	@param boolean $asArray if TRUE return array of parcels, if FALSE return Iterator object
+*	@return mixed Either an array of Aurora::Addon::WebUI::LandData or an instance of Aurora::Addon::WebUI::GetParcelsByRegion
+*/
+		public function GetParcelsByRegion($start=0, $count=10, WebUI\GridRegion $region, $owner='00000000-0000-0000-0000-000000000000', $scopeID='00000000-0000-0000-0000-000000000000', $asArray=false){
+			if(is_string($start) === true && ctype_digit($start) === true){
+				$start = (integer)$start;
+			}
+			if(is_string($count) === true && ctype_digit($count) === true){
+				$count = (integer)$count;
+			}
 
-		public function GetParcelsByRegion(WebUI\GridRegion $region){
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be specified as integer.');
+			}else if($start < 0){
+				throw new InvalidArgumentException('Start point must be greater than or equal to zero.');
+			}else if(is_integer($count) === false){
+				throw new InvalidArgumentException('Count must be specified as integer.');
+			}else if($count < 0){
+				throw new InvalidArgumentException('Count must be greater than or equal to zero.');
+			}else if(is_string($owner) === false){
+				throw new InvalidArgumentException('Owner must be specified as string.');
+			}else if(preg_match(self::regex_UUID, $owner) != 1){
+				throw new InvalidArgumentException('Owner must be valid UUID.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('scopeID must be specified as string.');
+			}else if(preg_match(self::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('scopeID must be valid UUID.');
+			}
+
 			$result = $this->makeCallToAPI('GetParcelsByRegion', array(
-				'Region' => $region->RegionID()
+				'Start'   => $start,
+				'Count'   => $count,
+				'Region'  => $region->RegionID(),
+				'Owner'   => $owner,
+				'ScopeID' => $scopeID,
 			), array(
 				'Parcels' => array(
 					'array' => array(self::ParcelResultValidatorArray())
-				)
+				),
+				'Total' => array('integer'=>array())
 			));
 			foreach($result->Parcels as $k=>$v){
 				$result->Parcels[$k] = self::ParcelResult2LandData($v);
 			}
-			return $result->Parcels;
+			return $asArray ? $result->Parcels : WebUI\GetParcelsByRegion::r($this, $start, $result->Total, $region, $owner, $scopeID, $result->Parcels);
 		}
 
-
+//!	Gets a parcel either by infoID or by name, region and region scopeID
+/**
+*	@param string $parcel Either a parcel's infoID or a parcel name
+*	@param mixed $region Either NULL when $parcel is a UUID, or an instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $scopeID Region ScopeID
+*	@return object instance of Aurora::Addon::WebUI::LandData
+*/
 		public function GetParcel($parcel, WebUI\GridRegion $region=null, $scopeID='00000000-0000-0000-0000-000000000000'){
 			if(is_string($parcel) === false){
 				throw new InvalidArgumentException('Parcel argument must be specified as string.');
@@ -1583,6 +1628,63 @@ namespace Aurora\Addon{
 			return self::ParcelResult2LandData($this->makeCallToAPI('GetParcel', $input, array(
 				'Parcel' => self::ParcelResultValidatorArray()
 			))->Parcel);
+		}
+
+//!	Gets all parcels in the specified region with the specified parcel name.
+/**
+*	@param integer $start start point for results (useful for paginated output)
+*	@param integer $count maximum number of results to return in initial call.
+*	@param string Parcel name
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param string $scopeID Region scope ID
+*	@param boolean $asArray if TRUE return array of parcels, if FALSE return Iterator object
+*	@return mixed Either an array of Aurora::Addon::WebUI::LandData or an instance of Aurora::Addon::WebUI::GetParcelsWithNameByRegion
+*/
+		public function GetParcelsWithNameByRegion($start=0, $count=10, $name, WebUI\GridRegion $region, $scopeID='00000000-0000-0000-0000-000000000000', $asArray=false){
+			if(is_string($start) === true && ctype_digit($start) === true){
+				$start = (integer)$start;
+			}
+			if(is_string($count) === true && ctype_digit($count) === true){
+				$count = (integer)$count;
+			}
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be specified as integer.');
+			}else if($start < 0){
+				throw new InvalidArgumentException('Start point must be greater than or equal to zero.');
+			}else if(is_integer($count) === false){
+				throw new InvalidArgumentException('Count must be specified as integer.');
+			}else if($count < 0){
+				throw new InvalidArgumentException('Count must be greater than or equal to zero.');
+			}else if(is_string($scopeID) === false){
+				throw new InvalidArgumentException('scopeID must be specified as string.');
+			}else if(preg_match(self::regex_UUID, $scopeID) != 1){
+				throw new InvalidArgumentException('scopeID must be valid UUID.');
+			}else if(is_string($name) === false){
+				throw new InvalidArgumentException('Parcel name must be specified as string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Parcel name must not be empty string.');
+			}
+
+			$result = $this->makeCallToAPI('GetParcelsWithNameByRegion', array(
+				'Start'   => $start,
+				'Count'   => $count,
+				'Region'  => $region->RegionID(),
+				'Parcel'   => $name,
+				'ScopeID' => $scopeID,
+			), array(
+				'Parcels' => array(
+					'array' => array(self::ParcelResultValidatorArray())
+				),
+				'Total' => array('integer'=>array())
+			));
+			foreach($result->Parcels as $k=>$v){
+				$result->Parcels[$k] = self::ParcelResult2LandData($v);
+			}
+			return $asArray ? $result->Parcels : WebUI\GetParcelsWithNameByRegion::r($this, $start, $result->Total, $name, $region, $scopeID, $result->Parcels);
 		}
 	}
 }
@@ -1631,6 +1733,7 @@ namespace Aurora\Addon\WebUI{
 			}
 			return static::i()->offsetGet(0);
 		}
+
 
 		public function offsetSet($offset, $value){
 			if(($value instanceof \Aurora\Addon\WebUI) === false){

@@ -464,7 +464,7 @@ namespace Aurora\Addon\WebUI{
 	}
 
 //!	Group Notices iterator
-	class GetGroupNotices extends WebUI\abstractSeekableFilterableIterator{
+	class GetGroupNotices extends abstractSeekableFilterableIterator{
 
 	protected $groups;
 
@@ -538,7 +538,7 @@ namespace Aurora\Addon\WebUI{
 				return null;
 			}else if(isset($this->data[$this->key()]) === false){
 				$start   = $this->key();
-				$results = $this->WebUI->GroupNotices($start, 10, $this->groups);
+				$results = $this->WebUI->GroupNotices($start, 10, $this->groups, true);
 				foreach($results as $group){
 					$this->data[$start++] = $group;
 				}
