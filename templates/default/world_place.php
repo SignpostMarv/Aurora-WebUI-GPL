@@ -1,20 +1,36 @@
 <?php
+use Aurora\Addon\WebUI;
 use Aurora\Addon\WebUI\Template;
+use Aurora\Addon\WebUI\LandData;
+use Aurora\Addon\WebUI\GridRegion;
 $pathParts = explode('/', Globals::i()->section);
 $group = false;
 if(count($pathParts) >= 3){
-	$regionName = urldecode(implode('/', array_slice($pathParts, 2)));
+	$regionName = urldecode($pathParts[2]);
 	$region = Globals::i()->WebUI->GetRegion($regionName);
-	if($region instanceof Aurora\Addon\WebUI\GridRegion && $regionName !== $region->RegionName()){
+	if($region instanceof GridRegion && $regionName !== $region->RegionName()){
 		$pathParts[2] = $region->RegionName();
 		header('Location: ' . Globals::i()->baseURI . Template\link(implode('/', $pathParts)));
 		exit;
 	}
 }
+
+add_filter('body_class', function($classNames){
+	switch(count(explode('/', Globals::i()->section))){
+		case 3:
+			$classNames[] = 'world-place-region';
+		break;
+		case 5:
+			$classNames[] = 'world-place-parcel';
+		break;
+	}
+	return $classNames;
+});
+
 if(count($pathParts) === 2){
 	header('Location: ' . Globals::i()->baseURI . Template\link('/world/place/' . urlencode($region->RegionName()) . '/'));
 	exit;
-}else if(count($pathParts) < 3 || ($region instanceof Aurora\Addon\WebUI\GridRegion) === false || (count($pathParts) !== 3)){
+}else if(count($pathParts) < 3 || ($region instanceof GridRegion) === false || (count($pathParts) !== 3 && count($pathParts) !== 5)){
 	require_once('404.php');
 	return;
 }
@@ -30,8 +46,8 @@ if($_GET['per'] < 10){
 }
 $query = array();
 
-require_once('_header.php');
 if(count($pathParts) === 3){ // single region
+	require_once('_header.php');
 ?>
 	<section class=vcard data-size-x="<?php echo esc_attr($region->RegionSizeX()); ?>" data-size-y="<?php echo esc_attr($region->RegionSizeY()); ?>" data-size-z="<?php echo esc_attr($region->RegionSizeZ()); ?>">
 		<hgroup>
@@ -91,6 +107,32 @@ if(count($pathParts) === 3){ // single region
 	</section>
 <?php
 	}
+}else if(count($pathParts) === 5){ // single parcel
+	$parcelInfoUUID = str_split(str_pad(preg_replace_callback('/g\d+/',function($matches){
+			return str_repeat('0', (integer)substr($matches[0],1));
+		}, $pathParts[4]),32, '0'),4);
+	$parcelInfoUUID = $parcelInfoUUID[0] . $parcelInfoUUID[1] . '-' . $parcelInfoUUID[2] . '-' . $parcelInfoUUID[3] . '-' . $parcelInfoUUID[4] . '-' . $parcelInfoUUID[5] . $parcelInfoUUID[6] . $parcelInfoUUID[7];
+	if(preg_match(WebUI::regex_UUID, $parcelInfoUUID) != 1){
+		throw new WebUI\InvalidArgumentException('Parcel ID was not a valid UUID.');
+	}
+	$parcel = Globals::i()->WebUI->GetParcel($parcelInfoUUID);
+	if(($parcel instanceof LandData) === false){
+		require_once('404.php');
+		return;
+	}
+	require_once('_header.php');
+?>
+	<section class=vcard>
+		<hgroup>
+			<h1><?php echo esc_html(__('Parcel')); ?></h1>
+			<h2 class=fn><?php echo esc_html($parcel->Name()); ?></h2>
+		</hgroup>
+<?php if($parcel->SnapshotID() !== '00000000-0000-0000-0000-000000000000'){ ?>
+		<img class=photo src="<?php echo esc_attr(Globals::i()->WebUI->GridTexture($parcel->SnapshotID())); ?>" alt="<?php echo esc_attr(sprintf(__('Parcel snapshot for %s'), $parcel->Name())); ?>">
+<?php } ?>
+		<span class="uuid uid"><?php echo esc_html($parcel->GlobalID()); ?></span>
+	</section>
+<?php
 }
 require_once('_footer.php');
 ?>

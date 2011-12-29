@@ -155,9 +155,13 @@ body.world-user .vcard .logo, .vcard .photo{
 	display: none ;
 }
 
-.world-place .vcard .photo{
+.world-place-region .vcard .photo{
 	width: 256px ;
 	height: 256px ;
+}
+.world-place-parcel .vcard .photo{
+	width: 272px ;
+	height: 173px ;
 }
 
 .world-place .parcels nav{
