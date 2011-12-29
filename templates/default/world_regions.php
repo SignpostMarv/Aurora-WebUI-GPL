@@ -78,7 +78,7 @@
 	$i=0;
 	foreach($regions as $region){ ?>
 				<tr>
-					<th scope=row><?php echo esc_html($region->RegionName()); ?></th>
+					<th scope=row><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()))); ?>"><?php echo esc_html($region->RegionName()); ?></a></th>
 					<td><?php echo esc_html($region->RegionLocX() / 256); ?></td>
 					<td><?php echo esc_html($region->RegionLocY() / 256); ?></td>
 				</tr>

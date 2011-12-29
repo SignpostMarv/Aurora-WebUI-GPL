@@ -128,6 +128,9 @@ table.regions-list td{
 	text-align: center ;
 }
 
+.vcard .uuid{
+	display: none ;
+}
 .vcard .fn + .vevent{
 	margin-bottom: .5em ;
 }
@@ -148,7 +151,15 @@ body.world-user .vcard .logo, .vcard .photo{
 .world-group .vcard th{
 	text-align: right ;
 }
-
 .world-group-notices .hentry .org{
 	display: none ;
+}
+
+.world-place .vcard .photo{
+	width: 256px ;
+	height: 256px ;
+}
+
+.world-place .parcels nav{
+	margin-bottom: 1em ;
 }
