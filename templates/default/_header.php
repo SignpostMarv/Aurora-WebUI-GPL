@@ -13,7 +13,7 @@
 <script></script>
 <?php do_action('webui_head'); ?>
 </head>
-<body class="<?php echo esc_attr(str_replace(array('/',' '),array('-','_'), Globals::i()->sectionFile)); ?>">
+<body class="<?php echo esc_attr(implode(' ', array_merge(array(str_replace(array('/',' '),array('-','_'), Globals::i()->sectionFile)),array_unique(apply_filters('body_class', array()))))); ?>">
 <header>
 	<hgroup>
 		<h1><?php echo esc_html(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridname'))); ?></h1>
