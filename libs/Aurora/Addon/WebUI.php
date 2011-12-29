@@ -219,6 +219,16 @@ namespace Aurora\Addon{
 			return $this->get_grid_info('WireduxTextureServer') . '/index.php?' . http_build_query(array( 'method'=>'GridTexture', 'uuid'=>$uuid));
 		}
 
+//!	Returns the URI for a region texture
+/**
+*	@param object $region instance of Aurora::Addon::WebUI::GridRegion
+*	@param integer $zoomLevel map tile zoom level
+*	@return string full URL to texture
+*/
+		public function MapTexture(WebUI\GridRegion $region){
+			return $region->serverURI() . '/index.php?' . http_build_query(array( 'method'=>'regionImage' . str_replace('-','', $region->RegionID())));
+		}
+
 //!	Determines whether the specified username exists in the AuroraSim database.
 /**
 *	@param string $name the username we want to check exists
