@@ -651,14 +651,16 @@ namespace Aurora\Addon{
 			}
 
 			$result = $this->makeCallToAPI('GetProfile', array('Name' => $name, 'UUID' => $uuid), array(
-				'account'=> array('object'=>array())
+				'account'=> array('object'=>array(array(
+					'Created' => array('integer'=>array()),
+					'Name' => array('string'=>array()),
+					'PrincipalID' => array('string'=>array()),
+					'Email' => array('string'=>array()),
+					'TimeSinceCreated' => array('string'=>array())
+				)))
 			));
 
 			$account = $result->account;
-			
-			if(isset($account->Created, $account->Name, $account->PrincipalID, $account->Email, $account->PartnerUUID) === false){
-				throw new UnexpectedValueException('Call to API was successful, but required response properties were missing.');
-			}
 
 			$allowPublish = $maturePublish  = $visible     = false;
 			$wantToMask   = $canDoMask      = 0;
