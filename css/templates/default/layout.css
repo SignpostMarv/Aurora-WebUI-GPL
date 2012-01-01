@@ -47,7 +47,6 @@ p + h1, p + h2, p + h3, p + h4, p + h5, p + h6{
 
 section{
 	overflow: auto ;
-	width: 100% ;
 }
 section > section{
 	font-size: .95em ;
