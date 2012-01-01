@@ -54,6 +54,10 @@ if(count($pathParts) === 3){ // single region
 			<h1><?php echo esc_html(__('Region')); ?></h1>
 			<h2 class=fn><?php echo esc_html($region->RegionName()); ?></h2>
 		</hgroup>
+<?php
+	$estateOwner = Globals::i()->WebUI->GetGridUserInfo($region->EstateOwner());
+?>
+		<p class="vcard estate-owner"><?php echo esc_html(__('Estate Owner')); ?>: <a class="fn url" href="<?php echo esc_attr(Template\link('/world/user/' . urlencode($estateOwner->Name()))); ?>"><?php echo esc_html($estateOwner->Name()); ?></a></p>
 		<img class=photo src="<?php echo esc_attr(Globals::i()->WebUI->MapTexture($region)); ?>" alt="<?php echo esc_attr(sprintf(__('Map texture for %s'), $region->RegionName())); ?>">
 		<span class="uuid uid"><?php echo esc_html($region->RegionID()); ?></span>
 	</section>
