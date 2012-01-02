@@ -10,7 +10,6 @@
 <base href="<?php echo esc_attr(Globals::i()->baseURI); ?>">
 <link rel="stylesheet" type="text/css" href="css/templates/default/style.css" />
 <meta charset="UTF-8" />
-<script></script>
 <?php do_action('webui_head'); ?>
 </head>
 <body class="<?php echo esc_attr(implode(' ', array_merge(array(str_replace(array('/',' '),array('-','_'), Globals::i()->sectionFile)),array_unique(apply_filters('body_class', array()))))); ?>">
