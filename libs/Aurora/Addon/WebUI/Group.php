@@ -264,6 +264,14 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
+//!	Groups iterator
+	class foreknowledgeGetGroupRecords extends GetGroupRecords{
+
+		public function current(){
+			return ($this->valid() === false) ? null : $this->data[$this->key()];
+		}
+	}
+
 //!	Implementation of Aurora::Framework::GroupNoticeData
 	class GroupNoticeData implements Framework\GroupNoticeData{
 
@@ -466,7 +474,19 @@ namespace Aurora\Addon\WebUI{
 //!	Group Notices iterator
 	class GetGroupNotices extends abstractSeekableFilterableIterator{
 
+//!	Will be populated with an array of Group IDs that the class was instantiated with
+	protected $groupIDs;
+
+//!	Will store the group records
 	protected $groups;
+
+	public function Groups(){
+		if(isset($this->groups) === false){
+			$this->groups = $this->WebUI->foreknowledgeGetGroupRecords($this->groupIDs);
+		}
+
+		return $this->groups;
+	}
 
 //!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
 /**
@@ -485,7 +505,8 @@ namespace Aurora\Addon\WebUI{
 					throw new InvalidArgumentException('GroupID must be a valid UUID.');
 				}
 			}
-			$this->groups = $groups;
+			
+			$this->groupIDs = $groups;
 			parent::__construct($WebUI, $start, $total, null, null);
 			if(isset($groupNotices) === true){
 				$i = $start;
@@ -538,7 +559,7 @@ namespace Aurora\Addon\WebUI{
 				return null;
 			}else if(isset($this->data[$this->key()]) === false){
 				$start   = $this->key();
-				$results = $this->WebUI->GroupNotices($start, 10, $this->groups, true);
+				$results = $this->WebUI->GroupNotices($start, 10, $this->groupIDs, true);
 				foreach($results as $group){
 					$this->data[$start++] = $group;
 				}

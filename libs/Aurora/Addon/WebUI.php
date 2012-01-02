@@ -152,18 +152,22 @@ namespace Aurora\Addon{
 												$pos = $possibleValue[gettype($_v)];
 												if(gettype($_v) === 'object'){
 													$pos = current($pos);
-													foreach($pos as $__k => $__v){
-														if(isset($__v['float']) === true){
-															$pos[$__k]['double'] = $__v['float'];
+													if($pos !== false){
+														foreach($pos as $__k => $__v){
+															if(isset($__v['float']) === true){
+																$pos[$__k]['double'] = $__v['float'];
+															}
 														}
 													}
 												}
-												foreach($pos as $__k => $__v){
-													if(isset($_v->{$__k}) === false){
-														throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
-													}else{
-														if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
-															throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+												if($pos !== false){
+													foreach($pos as $__k => $__v){
+														if(isset($_v->{$__k}) === false){
+															throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
+														}else{
+															if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
+																throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+															}
 														}
 													}
 												}
@@ -1288,6 +1292,27 @@ namespace Aurora\Addon{
 			return WebUI\GetGroupRecords::r($this, $result->Start, $result->Total, $sort, $boolFields, $groups);
 		}
 
+//!	Gets an iterator for the specified list of GroupIDs
+/**
+*	@param array $GroupIDs list of GroupIDs
+*	@return object Aurora::Addon::WebUI::foreknowledgeGetGroupRecords
+*/
+		public function foreknowledgeGetGroupRecords(array $GroupIDs){
+
+			$result = $this->makeCallToAPI('GetGroups', array(
+				'Groups' => $GroupIDs
+			), array(
+				'Groups' => array('array'=>array(array('object'=>array()))),
+			));
+
+			$groups = array();
+			foreach($result->Groups as $group){
+				$groups[] = self::GroupResult2GroupRecord($group);
+			}
+
+			return WebUI\GetGroupRecords::r($this, $result->Start, $result->Total, null, null, $groups);
+		}
+
 //!	Fetches the specified group
 /**
 *	@param string $nameOrUUID Either a group UUID, or a group name.
@@ -1360,7 +1385,7 @@ namespace Aurora\Addon{
 				'Groups' => $groupIDs
 			), array(
 				'Total' => array('integer'=>array()),
-				'GroupNotices' => array('array'=>array(array('object'=>array(
+				'GroupNotices' => array('array'=>array(array('object'=>array(array(
 					'GroupID'       => array('string'=>array()),
 					'NoticeID'      => array('string'=>array()),
 					'Timestamp'     => array('integer'=>array()),
@@ -1371,7 +1396,7 @@ namespace Aurora\Addon{
 					'ItemID'        => array('string'=>array()),
 					'AssetType'     => array('integer'=>array()),
 					'ItemName'      => array('string'=>array())
-				))))
+				)))))
 			));
 
 			$groupNotices = array();
@@ -1406,7 +1431,7 @@ namespace Aurora\Addon{
 				'Count' => $count
 			), array(
 				'Total' => array('integer'=>array()),
-				'GroupNotices' => array('array'=>array(array('object'=>array(
+				'GroupNotices' => array('array'=>array(array('object'=>array(array(
 					'GroupID'       => array('string'=>array()),
 					'NoticeID'      => array('string'=>array()),
 					'Timestamp'     => array('integer'=>array()),
@@ -1417,7 +1442,7 @@ namespace Aurora\Addon{
 					'ItemID'        => array('string'=>array()),
 					'AssetType'     => array('integer'=>array()),
 					'ItemName'      => array('string'=>array())
-				))))
+				)))))
 			));
 
 			$groupNotices = array();
