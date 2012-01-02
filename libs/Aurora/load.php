@@ -150,6 +150,106 @@ namespace OpenMetaverse{
 			return sprintf('<%1$f, %2$f, %3$f>', $this->x, $this->y, $this->z);
 		}
 	}
+
+//!	Transposition of AssetType
+	class AssetType{
+
+//!	Unknown asset type
+        const Unknown = -1;
+
+//!	Texture asset, stores in JPEG2000 J2C stream format
+        const Texture = 0;
+
+//!	Sound asset
+        const Sound = 1;
+
+//!	Calling card for another avatar
+        const CallingCard = 2;
+
+//!	Link to a location in world
+        const Landmark = 3;
+
+//!	Collection of textures and parameters that can be worn by an avatar
+        const Clothing = 5;
+
+//!	Primitive that can contain textures, sounds, scripts and more
+        const Object = 6;
+
+//!	Notecard asset
+        const Notecard = 7;
+
+//!	Holds a collection of inventory items
+        const Folder = 8;
+
+//!	Root inventory folder
+        const RootFolder = 9;
+
+//!	Linden scripting language script
+        const LSLText = 10;
+
+//!	LSO bytecode for a script
+        const LSLBytecode = 11;
+
+//!	Uncompressed TGA texture
+        const TextureTGA = 12;
+
+//!	Collection of textures and shape parameters that can be worn
+        const Bodypart = 13;
+
+//!	Trash folder
+        const TrashFolder = 14;
+
+//!	Snapshot folder
+        const SnapshotFolder = 15;
+
+//!	Lost and found folder
+        const LostAndFoundFolder = 16;
+
+//!	Uncompressed sound
+        const SoundWAV = 17;
+
+//!	Uncompressed TGA non-square image, not to be used as a texture
+        const ImageTGA = 18;
+
+//!	Compressed JPEG non-square image, not to be used as a texture
+        const ImageJPEG = 19;
+
+//!	Animation
+        const Animation = 20;
+
+//!	Sequence of animations, sounds, chat, and pauses
+        const Gesture = 21;
+
+//!	Simstate file
+        const Simstate = 22;
+
+//!	Contains landmarks for favorites
+        const FavoriteFolder = 23;
+
+//!	Asset is a link to another inventory item
+        const Link = 24;
+
+//!	Asset is a link to another inventory folder
+        const LinkFolder = 25;
+
+//!	Beginning of the range reserved for ensembles
+        const EnsembleStart = 26;
+
+//!	End of the range reserved for ensembles
+        const EnsembleEnd = 45;
+
+//!	Folder containing inventory links to wearables and attachments that are part of the current outfit
+        const CurrentOutfitFolder = 46;
+
+//!	Folder containing inventory items or links to inventory items of wearables and attachments together make a full outfit
+        const OutfitFolder = 47;
+
+//!	Root folder for the folders of type OutfitFolder
+        const MyOutfitsFolder = 48;
+
+//!	Linden mesh format
+        const Mesh = 49;
+	}
 }
 
 //!	working in the global namespace here
