@@ -2,9 +2,15 @@
 	use Aurora\Addon\WebUI\Template;
 	$pathParts = explode('/', Globals::i()->section);
 	$group = false;
+	$feed = null;
 	if(count($pathParts) >= 4){
+		if(in_array(end($pathParts), array('feed.atom')) !== false){
+			$feed = substr(array_pop($pathParts), 5);
+			reset($pathParts);
+		}
 		$groupName = urldecode(implode('/', array_slice($pathParts, 3)));
 		$group = Globals::i()->WebUI->GetGroup($groupName);
+		Globals::i()->sectionGroup = $group;
 	}
 	if(count($pathParts) === 2){
 		header('Location: ' . Globals::i()->baseURI . Template\link('/world/groups/'));
@@ -37,6 +43,22 @@
 		return;
 	}
 	$last = (integer)ceil($news->count() / $_GET['per']);
+	if(isset($feed) === true){
+		switch($feed){
+			case 'atom':
+				header('Content-Type: application/atom+xml');
+			break;
+		}
+		do_action('group_notices', $news, $feed);
+		return;
+	}
+	
+	add_action('webui_head', function(){
+		do_action('webui_head_group_notices', Globals::i()->sectionGroup, Globals::i()->WebUI);
+	});
+	add_action('webui_head_group_notices', function($group){
+		echo '<link rel="alternate" title="', esc_attr(sprintf(__('Group Notices for %s'), $group->GroupName())), '" type="application/atom+xml" href="', esc_attr(Globals::i()->baseURI . Template\link('world/group/notices/' . urlencode($group->GroupName()) . '/feed.atom')), '">';
+	}, 10, 2);
 	require_once('_header.php');
 ?>
 	<section>
@@ -68,26 +90,7 @@
 				<li><?php if($_GET['per'] !== 100){ ?><a href="<?php echo esc_attr(Template\link('/world/group/notices/' . urlencode($group->GroupName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>100))))); ?>">100</a><?php }else{ ?>100<?php } ?></li>
 			</ol>
 		</nav>
-		<ol class=hfeed>
-<?php
-	$i=0;
-	foreach($news as $item){ ?>
-				<li class=hentry id="<?php echo esc_attr('group-notice_' . $item->NoticeID()); ?>">
-					<h2 class=entry-title><?php echo esc_html($item->Subject()); ?></h2>
-					<abbr class=published title="<?php echo esc_attr(date('c', $item->Timestamp())); ?>"><?php echo esc_html(date(apply_filters('news_date_format', 'F h:ia'), $item->Timestamp())); ?></abbr>
-					<p class=entry-content><?php echo wp_kses(nl2br($item->Message()), array('br'=>array())); ?></p>
-					<ul class="vcard author">
-						<li class=user><?php echo esc_html(__('Author')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link('/world/user/' . urlencode($item->FromName()))); ?>"><?php echo esc_html($item->FromName()); ?></a></li>
-						<li class=org><?php echo esc_html(__('Group')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link('/world/group/' . urlencode(Globals::i()->WebUI->GetGroup($item->GroupID())->GroupName()))); ?>"><?php echo esc_html(Globals::i()->WebUI->GetGroup($item->GroupID())->GroupName()); ?></a></li>
-					</ul>
-				</li>
-<?php
-		++$i;
-		if($i >= $_GET['per']){
-			break;
-		}
-	} ?>
-		</ol>
+<?php	do_action('group_notices', $news, 'hAtom'); ?>
 	</section>
 <?php
 	require_once('_footer.php');
