@@ -12,7 +12,7 @@ namespace{
 	$configs = Configs::i();
 
 	$configs[] = WebUI::r(
-		'http://localhost:8007/WIREDUX',
+		'http://localhost:8007/WEBUI',
 		'Password'
 	);
 

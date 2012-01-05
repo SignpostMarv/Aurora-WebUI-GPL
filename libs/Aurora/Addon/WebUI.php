@@ -56,7 +56,7 @@ namespace Aurora\Addon{
 
 //!	This is protected because we're going to use a registry method to access it.
 /**
-*	The WIREDUX_PASSWORD constant is never used without being passed as an md5() hash, so we immediately do this on instantiation.
+*	The WIREDUX_PASSWORD constant was never used without being passed as an md5() hash, so we immediately do this on instantiation.
 *	@param string $serviceURL WebUI API end point.
 *	@param string $password WebUI API password
 */
@@ -220,7 +220,27 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Texture UUID was invalid.');
 			}
 
-			return $this->get_grid_info('WireduxTextureServer') . '/index.php?' . http_build_query(array( 'method'=>'GridTexture', 'uuid'=>$uuid));
+			return $this->get_grid_info('WebUIHandlerTextureServer') . '/index.php?' . http_build_query(array( 'method'=>'GridTexture', 'uuid'=>$uuid));
+		}
+
+//!	Returns the size of the specified texture
+/**
+*	WebUI has a call for this so we don't have to spend bandwidth on curling the texture.
+*	@param string $uuid texture UUID
+*	@return integer size of texture
+*/
+		public function GridTextureSize($uuid){
+			if(is_string($uuid) === false){
+				throw new InvalidArgumentException('Texture UUID should be a string.');
+			}else if(preg_match(self::regex_UUID, $uuid) !== 1){
+				throw new InvalidArgumentException('Texture UUID was invalid.');
+			}
+
+			return $this->makeCallToAPI('SizeOfHTTPGetTextureImage', array(
+				'Texture' => $uuid
+			), array(
+				'Size' => array('integer'=>array())
+			))->Size;
 		}
 
 //!	Returns the URI for a region texture
@@ -1310,7 +1330,7 @@ namespace Aurora\Addon{
 				$groups[] = self::GroupResult2GroupRecord($group);
 			}
 
-			return WebUI\GetGroupRecords::r($this, $result->Start, $result->Total, null, null, $groups);
+			return WebUI\foreknowledgeGetGroupRecords::r($this, $result->Start, $result->Total, null, null, $groups);
 		}
 
 //!	Fetches the specified group
