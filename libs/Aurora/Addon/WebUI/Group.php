@@ -483,6 +483,7 @@ namespace Aurora\Addon\WebUI{
 	public function Groups(){
 		if(isset($this->groups) === false){
 			$this->groups = $this->WebUI->foreknowledgeGetGroupRecords($this->groupIDs);
+			$this->groups->rewind();
 		}
 
 		return $this->groups;
