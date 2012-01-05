@@ -127,7 +127,7 @@ table.regions-list td{
 	text-align: center ;
 }
 
-.vcard .uuid{
+.vcard .uuid, .hentry .uuid{
 	display: none ;
 }
 .vcard .fn + .vevent{
