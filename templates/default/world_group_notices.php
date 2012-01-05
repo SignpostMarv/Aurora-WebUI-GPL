@@ -4,7 +4,7 @@
 	$group = false;
 	$feed = null;
 	if(count($pathParts) >= 4){
-		if(in_array(end($pathParts), array('feed.atom')) !== false){
+		if(preg_match('/^feed\.[a-z]+$/', end($pathParts)) === 1){
 			$feed = substr(array_pop($pathParts), 5);
 			reset($pathParts);
 		}
@@ -43,13 +43,14 @@
 		return;
 	}
 	$last = (integer)ceil($news->count() / $_GET['per']);
-	if(isset($feed) === true){
-		switch($feed){
-			case 'atom':
-				header('Content-Type: application/atom+xml');
-			break;
+	if(isset($feed) === true && class_exists('\Aurora\Addon\WebUI\plugins\GroupNotices\\' . $feed) === true){
+		$reflection = new \ReflectionClass('\Aurora\Addon\WebUI\plugins\GroupNotices\\' . $feed);
+		if(in_array('Aurora\Addon\WebUI\plugins\GroupNoticesFeed',$reflection->getInterfaceNames()) === true){
+			header('Content-Type: ' . call_user_func('\Aurora\Addon\WebUI\plugins\GroupNotices\\' . $feed . '::ContentType'));
+			do_action('group_notices', $news, $feed);
+		}else{
+			require_once('404.php');
 		}
-		do_action('group_notices', $news, $feed);
 		return;
 	}
 	
