@@ -27,6 +27,13 @@ namespace Aurora\Addon\WebUI\plugins{
 	}
 
 
+	interface GroupNoticesFeed extends GroupNotices{
+
+
+		public static function ContentType();
+	}
+
+
 	function group_notices(WebUI\GetGroupNotices $news, $format='hAtom', WebUI $WebUI=null){
 		if(isset($WebUI) === false){
 			$WebUI = Configs::d();
@@ -68,6 +75,7 @@ namespace Aurora\Addon\WebUI\plugins\GroupNotices{
 	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\WebUI\Template;
 	use Aurora\Addon\WebUI\plugins\GroupNotices;
+	use Aurora\Addon\WebUI\plugins\GroupNoticesFeed;
 
 
 	abstract class abstractGroupNotices implements GroupNotices{
@@ -134,7 +142,12 @@ namespace Aurora\Addon\WebUI\plugins\GroupNotices{
 	}
 
 
-	class atom extends abstractGroupNotices{
+	class atom extends abstractGroupNotices implements GroupNoticesFeed{
+
+
+		public static function ContentType(){
+			return 'application/atom+xml';
+		}
 
 
 		public function group_notices(WebUI\GetGroupNotices $news){
@@ -205,6 +218,91 @@ namespace Aurora\Addon\WebUI\plugins\GroupNotices{
 			}
 ?>
 	</entry>
+<?php
+		}
+	}
+
+
+	class rss extends abstractGroupNotices implements GroupNoticesFeed{
+
+
+		public static function ContentType(){
+			return 'application/rss+xml';
+		}
+
+
+		public function group_notices(WebUI\GetGroupNotices $news){
+			$groups = $news->Groups();
+			$firstGroup = $groups->current();
+			$groupNames = array();
+			foreach($groups as $group){
+				$groupNames[] = $group->GroupName();
+			}
+			$groupNamesString = array_shift($groupNames);
+			$lastGroupName = null;
+			if(count($groupNames) > 0){
+				$lastGroupName = array_pop($groupNames);
+			}
+			if(count($groupNames) > 0){
+				$groupNamesString .= implode(', ', $groupNames);
+			}
+			if(isset($lastGroupName) === true){
+				$groupNamesString .= ' & ' . $lastGroupName;
+			}
+
+			$groupNotices = array();
+
+			$i = 0;
+			$j = $groups->count() * 10;
+			foreach($news as $groupNotice){
+				$groupNotices[$groupNotice->Timestamp()] = $groupNotice;
+				if(++$i >= $j){
+					break;
+				}
+			}
+
+			ksort($groupNotices, SORT_NUMERIC);
+
+			echo '<?xml version="1.0" encoding="utf-8"?>';
+?>
+
+<rss version="2.0">
+	<channel>
+		<title><?php echo esc_html(sprintf(__('Group Notices for %s'), $groupNamesString)); ?></title>
+<?php		if($groups->count() === 1){ ?>
+		<link><?php echo esc_html(Globals::i()->baseURI . Template\link('world/group/notices/' . urlencode(current($groupNames)))); ?></link>
+<?php			if($firstGroup->GroupPicture() !== '00000000-0000-0000-0000-000000000000'){ ?>
+		<image><?php echo esc_html($this->WebUI->GridTexture($firstGroup->GroupPicture())); ?></image>
+<?php			} ?>
+<?php		} ?>
+		<lastBuildDate><?php echo esc_html(date('r', key($groupNotices))); ?></lastBuildDate>
+<?php		foreach($groupNotices as $item){
+				$this->group_notice($item);
+			}
+?>
+	</channel>
+</rss>
+<?php
+		}
+
+
+		public function group_notice(WebUI\GroupNoticeData $item){
+?>
+		<item>
+			<title><?php echo esc_html($item->Subject()); ?></title>
+			<description><?php echo esc_html($item->Message()); ?></description>
+			<guid><?php echo esc_html($item->NoticeID()); ?></guid>
+			<pubDate><?php echo esc_html(date('r', $item->Timestamp())); ?></pubDate>
+<?php
+			if($item->HasAttachment()){
+				switch($item->AssetType()){
+					case AssetType::Texture: ?>
+			<enclosure length="<?php echo esc_attr($this->WebUI->GridTextureSize($item->ItemID())); ?>" type="image/jpeg" href="<?php echo esc_attr($this->WebUI->GridTexture($item->ItemID())); ?>" title="<?php echo esc_attr($item->ItemName()); ?>" />
+<?php				break;
+				}
+			}
+?>
+		</item>
 <?php
 		}
 	}
