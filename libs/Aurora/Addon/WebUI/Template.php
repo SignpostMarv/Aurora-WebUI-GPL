@@ -11,6 +11,9 @@ namespace Aurora\Addon\WebUI\Template{
 
 
 	function link($url){
+		if($url instanceof WebUI\abstractUser){
+			return link('/world/user/' . urlencode($url->Name()));
+		}
 		$queryArgs = isset($queryArgs) ? $queryArgs : array();
 
 		$url = parse_url(Globals::i()->baseURI . $url);
