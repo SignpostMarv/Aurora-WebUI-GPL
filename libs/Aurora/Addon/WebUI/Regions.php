@@ -89,6 +89,14 @@ namespace Aurora\Addon\WebUI{
 		}
 
 //!	integer
+//!	@see Aurora::Addon::WebUI::GridRegion::EstateID()		
+		protected $EstateID;
+//!	@see Aurora::Addon::WebUI::GridRegion::EstateID
+		public function EstateID(){
+			return $this->EstateID;
+		}
+
+//!	integer
 //!	@see Aurora::Addon::WebUI::GridRegion::RegionSizeX()
 		protected $RegionSizeX;
 //!	@see Aurora::Addon::WebUI::GridRegion::$RegionSizeX
@@ -151,7 +159,7 @@ namespace Aurora\Addon\WebUI{
 *	@param integer $Flags
 *	@param string $SessionID
 */
-		protected function __construct($RegionID, $HttpPort, $ServerURI, $RegionName, $RegionType, $RegionLocX, $RegionLocY, $RegionLocZ=0, $EstateOwner='00000000-0000-0000-0000-000000000000', $RegionSizeX=256, $RegionSizeY=256, $RegionSizeZ=256, $Flags=0, $SessionID='00000000-0000-0000-0000-000000000000'){
+		protected function __construct($RegionID, $HttpPort, $ServerURI, $RegionName, $RegionType, $RegionLocX, $RegionLocY, $RegionLocZ=0, $EstateOwner='00000000-0000-0000-0000-000000000000', $EstateID=0, $RegionSizeX=256, $RegionSizeY=256, $RegionSizeZ=256, $Flags=0, $SessionID='00000000-0000-0000-0000-000000000000'){
 			self::stringMaybe2Integer($HttpPort);
 			self::stringMaybe2Integer($RegionLocX);
 			self::stringMaybe2Integer($RegionLocY);
@@ -159,6 +167,7 @@ namespace Aurora\Addon\WebUI{
 			self::stringMaybe2Integer($RegionSizeX);
 			self::stringMaybe2Integer($RegionSizeY);
 			self::stringMaybe2Integer($RegionSizeZ);
+			self::stringMaybe2Integer($EstateID);
 			self::stringMaybe2Integer($Flags);
 
 			if(is_string($RegionID) === false){
@@ -183,6 +192,8 @@ namespace Aurora\Addon\WebUI{
 				throw new InvalidArgumentException('EstateOwner was not a string');
 			}else if(preg_match(\Aurora\Addon\WebUI::regex_UUID, $EstateOwner) !== 1){
 				throw new InvalidArgumentException('EstateOwner was not a valid UUID');
+			}else if(is_integer($EstateID) === false){
+				throw new InvalidArgumentException('EstateID was not an integer');
 			}else if(is_integer($RegionSizeX) === false){
 				throw new InvalidArgumentException('RegionSizeX was not an integer');
 			}else if(is_integer($RegionSizeY) === false){
@@ -208,6 +219,7 @@ namespace Aurora\Addon\WebUI{
 			$this->RegionLocY  = $RegionLocY;
 			$this->RegionLocZ  = $RegionLocZ;
 			$this->EstateOwner = $EstateOwner;
+			$this->EstateID    = $EstateID;
 			$this->RegionSizeX = $RegionSizeX;
 			$this->RegionSizeY = $RegionSizeY;
 			$this->RegionSizeZ = $RegionSizeZ;
@@ -221,7 +233,7 @@ namespace Aurora\Addon\WebUI{
 		public static function fromEndPointResult($result){
 			if(is_object($result) === false){
 				throw new InvalidArgumentException('result should be object');
-			}else if(isset($result->uuid, $result->serverHttpPort, $result->serverURI, $result->regionName, $result->regionType, $result->locX, $result->locY, $result->locZ, $result->EstateOwner, $result->sizeX, $result->sizeY, $result->sizeZ, $result->Flags, $result->SessionID) === false){
+			}else if(isset($result->uuid, $result->serverHttpPort, $result->serverURI, $result->regionName, $result->regionType, $result->locX, $result->locY, $result->locZ, $result->EstateOwner, $result->EstateID, $result->sizeX, $result->sizeY, $result->sizeZ, $result->Flags, $result->SessionID) === false){
 				$missing = array();
 				if(isset($result->uuid) === false){
 					$missing[] = 'uuid';
@@ -250,6 +262,9 @@ namespace Aurora\Addon\WebUI{
 				if(isset($result->EstateOwner) === false){
 					$missing[] = 'EstateOwner';
 				}
+				if(isset($result->EstateID) === false){
+					$missing[] = 'EstateID';
+				}
 				if(isset($result->sizeX) === false){
 					$missing[] = 'sizeX';
 				}
@@ -267,7 +282,7 @@ namespace Aurora\Addon\WebUI{
 				}
 				throw new InvalidArgumentException('Missing required properties: ' . implode(', ', $missing));
 			}
-			return new static($result->uuid, $result->serverHttpPort, $result->serverURI, $result->regionName, $result->regionType, $result->locX, $result->locY, $result->locZ, $result->EstateOwner, $result->sizeX, $result->sizeY, $result-> sizeZ, $result->Flags, $result->SessionID);
+			return new static($result->uuid, $result->serverHttpPort, $result->serverURI, $result->regionName, $result->regionType, $result->locX, $result->locY, $result->locZ, $result->EstateOwner, $result->EstateID, $result->sizeX, $result->sizeY, $result-> sizeZ, $result->Flags, $result->SessionID);
 		}
 	}
 

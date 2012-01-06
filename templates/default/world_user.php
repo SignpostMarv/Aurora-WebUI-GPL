@@ -41,5 +41,24 @@ if(count($pathParts) === 2){
 <?php } ?>
 	</section>
 <?php
+		$Estates = Globals::i()->WebUI->GetEstates($user, array('PublicAccess'=>true));
+		if($Estates->count() > 0){
+?>
+	<section class=estates>
+		<h1><?php echo esc_html(__('Estates')); ?></h1>
+		<ul>
+<?php
+			foreach($Estates as $Estate){
+?>
+			<li class=vcard><a class="url fn" href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($Estate->EstateName()))); ?>"><?php echo esc_html($Estate->EstateName()); ?></a></li>
+<?php
+			}
+?>
+		</ul>
+	</section>
+<?php
+		}
+?>
+<?php
 	require_once('_footer.php');
 ?>

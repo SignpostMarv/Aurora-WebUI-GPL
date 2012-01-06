@@ -3,13 +3,24 @@ use Aurora\Addon\WebUI;
 use Aurora\Addon\WebUI\Template;
 use Aurora\Addon\WebUI\LandData;
 use Aurora\Addon\WebUI\GridRegion;
+use Aurora\Addon\WebUI\EstateSettings;
 $pathParts = explode('/', Globals::i()->section);
 $group = false;
 if(count($pathParts) >= 3){
-	$regionName = urldecode($pathParts[2]);
+	$estateName = urldecode($pathParts[2]);
+	$estate = Globals::i()->WebUI->GetEstate($estateName);
+	if($estate instanceof EstateSettings && $estateName !== $estate->EstateName()){
+		$pathParts[2] = urlencode($estate->EstateName());
+		header('Location: ' . Globals::i()->baseURI . Template\link(implode('/', $pathParts)));
+		exit;
+	}
+}
+if(count($pathParts) >= 4){
+	$regionName = urldecode($pathParts[3]);
 	$region = Globals::i()->WebUI->GetRegion($regionName);
-	if($region instanceof GridRegion && $regionName !== $region->RegionName()){
-		$pathParts[2] = $region->RegionName();
+	if($region instanceof GridRegion && ($regionName !== $region->RegionName() || $estateName !== $estate->EstateName())){
+		$pathParts[2] = urlencode($estate->EstateName());
+		$pathParts[3] = urlencode($region->RegionName());
 		header('Location: ' . Globals::i()->baseURI . Template\link(implode('/', $pathParts)));
 		exit;
 	}
@@ -18,19 +29,19 @@ if(count($pathParts) >= 3){
 add_filter('body_class', function($classNames){
 	switch(count(explode('/', Globals::i()->section))){
 		case 3:
+			$classNames[] = 'world-place-estate';
+		break;
+		case 4:
 			$classNames[] = 'world-place-region';
 		break;
-		case 5:
+		case 6:
 			$classNames[] = 'world-place-parcel';
 		break;
 	}
 	return $classNames;
 });
 
-if(count($pathParts) === 2){
-	header('Location: ' . Globals::i()->baseURI . Template\link('/world/place/' . urlencode($region->RegionName()) . '/'));
-	exit;
-}else if(count($pathParts) < 3 || ($region instanceof GridRegion) === false || (count($pathParts) !== 3 && count($pathParts) !== 5)){
+if(count($pathParts) < 3 || (count($pathParts) >= 3 && (($estate instanceof EstateSettings) === false || $estate->PublicAccess() === false )) || (count($pathParts) >= 4 && ($region instanceof GridRegion) === false) || (count($pathParts) !== 3 && count($pathParts) !== 4 && count($pathParts) !== 6)){
 	require_once('404.php');
 	return;
 }
@@ -46,7 +57,19 @@ if($_GET['per'] < 10){
 }
 $query = array();
 
-if(count($pathParts) === 3){ // single region
+if(count($pathParts) === 3){ // estate listing
+	$estateOwner = Globals::i()->WebUI->GetProfile('',$estate->EstateOwner());
+	require_once('_header.php');
+?>
+	<section class=vcard>
+		<hgroup>
+			<h1><?php echo esc_html(__('Estate')); ?></h1>
+			<h2 class=fn><?php echo esc_html($estate->EstateName()); ?></h2>
+		</hgroup>
+		<p class=vcard><?php echo esc_html(__('Owner')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link($estateOwner)); ?>"><?php echo esc_html($estateOwner->Name()); ?></a></p>
+	</section>
+<?php
+}else if(count($pathParts) === 4){ // single region
 	require_once('_header.php');
 ?>
 	<section class=vcard data-size-x="<?php echo esc_attr($region->RegionSizeX()); ?>" data-size-y="<?php echo esc_attr($region->RegionSizeY()); ?>" data-size-z="<?php echo esc_attr($region->RegionSizeZ()); ?>">
@@ -111,10 +134,10 @@ if(count($pathParts) === 3){ // single region
 	</section>
 <?php
 	}
-}else if(count($pathParts) === 5){ // single parcel
+}else if(count($pathParts) === 6){ // single parcel
 	$parcelInfoUUID = str_split(str_pad(preg_replace_callback('/g\d+/',function($matches){
 			return str_repeat('0', (integer)substr($matches[0],1));
-		}, $pathParts[4]),32, '0'),4);
+		}, $pathParts[5]),32, '0'),4);
 	$parcelInfoUUID = $parcelInfoUUID[0] . $parcelInfoUUID[1] . '-' . $parcelInfoUUID[2] . '-' . $parcelInfoUUID[3] . '-' . $parcelInfoUUID[4] . '-' . $parcelInfoUUID[5] . $parcelInfoUUID[6] . $parcelInfoUUID[7];
 	if(preg_match(WebUI::regex_UUID, $parcelInfoUUID) != 1){
 		throw new WebUI\InvalidArgumentException('Parcel ID was not a valid UUID.');

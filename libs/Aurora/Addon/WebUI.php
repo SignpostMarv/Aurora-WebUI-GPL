@@ -1070,6 +1070,41 @@ namespace Aurora\Addon{
 			return $result->WebLoginKey;
 		}
 
+//!	Gets the array used as the expected response parameter for Aurora::Addon::WebUI::makeCallToAPI()
+/**
+*	@return array
+*/
+		private static function GridRegionValidator(){
+			return array('object' => array(array(
+				'uuid'                 => array('string'  => array()),
+				'locX'                 => array('integer' => array()),
+				'locY'                 => array('integer' => array()),
+				'locZ'                 => array('integer' => array()),
+				'regionName'           => array('string'  => array()),
+				'regionType'           => array('string'  => array()),
+				'serverIP'             => array('string'  => array()),
+				'serverHttpPort'       => array('integer' => array()),
+				'serverURI'            => array('string'  => array()),
+				'serverPort'           => array('integer' => array()),
+				'regionMapTexture'     => array('string'  => array()),
+				'regionTerrainTexture' => array('string'  => array()),
+				'access'               => array('integer' => array()),
+				'owner_uuid'           => array('string'  => array()),
+				'AuthToken'            => array('string'  => array()),
+				'sizeX'                => array('integer' => array()),
+				'sizeY'                => array('integer' => array()),
+				'sizeZ'                => array('integer' => array()),
+				'LastSeen'             => array('integer' => array()),
+				'SessionID'            => array('string'  => array()),
+				'Flags'                => array('integer' => array()),
+				'GenericMap'           => array('object'  => array()),
+				'EstateOwner'          => array('string'  => array()),
+				'EstateID'             => array('integer' => array()),
+				'remoteEndPointIP'     => array('array'   => array()),
+				'remoteEndPointPort'   => array('integer' => array()),
+			)));
+		}
+
 //!	Get a single region
 /**
 *	@param string $region either a UUID or a region name.
@@ -1097,33 +1132,7 @@ namespace Aurora\Addon{
 			}
 
 			return WebUI\GridRegion::fromEndPointResult($this->makeCallToAPI('GetRegion', $input, array(
-				'Region' => array('object' => array(array(
-					'uuid'                 => array('string'  => array()),
-					'locX'                 => array('integer' => array()),
-					'locY'                 => array('integer' => array()),
-					'locZ'                 => array('integer' => array()),
-					'regionName'           => array('string'  => array()),
-					'regionType'           => array('string'  => array()),
-					'serverIP'             => array('string'  => array()),
-					'serverHttpPort'       => array('integer' => array()),
-					'serverURI'            => array('string'  => array()),
-					'serverPort'           => array('integer' => array()),
-					'regionMapTexture'     => array('string'  => array()),
-					'regionTerrainTexture' => array('string'  => array()),
-					'access'               => array('integer' => array()),
-					'owner_uuid'           => array('string'  => array()),
-					'AuthToken'            => array('string'  => array()),
-					'sizeX'                => array('integer' => array()),
-					'sizeY'                => array('integer' => array()),
-					'sizeZ'                => array('integer' => array()),
-					'LastSeen'             => array('integer' => array()),
-					'SessionID'            => array('string'  => array()),
-					'Flags'                => array('integer' => array()),
-					'GenericMap'           => array('object'  => array()),
-					'EstateOwner'          => array('string'  => array()),
-					'remoteEndPointIP'     => array('array'   => array()),
-					'remoteEndPointPort'   => array('integer' => array()),
-				)))
+				'Region' => static::GridRegionValidator()
 			))->Region);
 		}
 
@@ -1183,7 +1192,7 @@ namespace Aurora\Addon{
 			$has = WebUI\GetRegions::hasInstance($this, $flags, $sortRegionName, $sortLocX, $sortLocY);
 			if($asArray === true || WebUI\GetRegions::hasInstance($this, $flags, $sortRegionName, $sortLocX, $sortLocY) === false){
 				$result = $this->makeCallToAPI('GetRegions', $input, array(
-					'Regions' => array('array'=>array()),
+					'Regions' => array('array'=>array(static::GridRegionValidator())),
 					'Total'   => array('integer'=>array())
 				));
 				foreach($result->Regions as $val){
@@ -1743,10 +1752,93 @@ namespace Aurora\Addon{
 			return $asArray ? $result->Parcels : WebUI\GetParcelsWithNameByRegion::r($this, $start, $result->Total, $name, $region, $scopeID, $result->Parcels);
 		}
 
+//!	Gets the array used as the expected response parameter for Aurora::Addon::WebUI::makeCallToAPI()
+/**
+*	@return array
+*/
+		private static function EstateSettingsValidator(){
+			return array(
+				'object' => array(array(
+					'EstateID' => array('integer'=>array()),
+					'EstateName' => array('string'=>array()),
+					'AbuseEmailToEstateOwner' => array('boolean'=>array()),
+					'DenyAnonymous' => array('boolean'=>array()),
+					'ResetHomeOnTeleport' => array('boolean'=>array()),
+					'FixedSun' => array('boolean'=>array()),
+					'DenyTransacted' => array('boolean'=>array()),
+					'BlockDwell' => array('boolean'=>array()),
+					'DenyIdentified' => array('boolean'=>array()),
+					'AllowVoice' => array('boolean'=>array()),
+					'UseGlobalTime' => array('boolean'=>array()),
+					'PricePerMeter' => array('integer'=>array()),
+					'TaxFree' => array('boolean'=>array()),
+					'AllowDirectTeleport' => array('boolean'=>array()),
+					'RedirectGridX' => array('integer'=>array(), 'null'=>array()),
+					'RedirectGridY' => array('integer'=>array(), 'null'=>array()),
+					'ParentEstateID' => array('integer'=>array()),
+					'SunPosition' => array('float'=>array()),
+					'EstateSkipScripts' => array('boolean'=>array()),
+					'BillableFactor' => array('float'=>array()),
+					'PublicAccess' => array('boolean'=>array()),
+					'AbuseEmail' => array('string'=>array()),
+					'EstateOwner' => array('string'=>array()),
+					'DenyMinors' => array('boolean'=>array()),
+					'AllowLandmark' => array('boolean'=>array()),
+					'AllowParcelChanges' => array('boolean'=>array()),
+					'AllowSetHome' => array('boolean'=>array()),
+					'EstateBans' => array('array'=>array(array('string'=>array()))),
+					'EstateManagers' => array('array'=>array(array('string'=>array()))),
+					'EstateGroups' => array('array'=>array(array('string'=>array()))),
+					'EstateAccess' => array('array'=>array(array('string'=>array()))),
+				))
+			);
+		}
+
+//!	Converts an API result into an EstateSettings object
+/**
+*	@return object instance of EstateSettings
+*/
+		private static function EstateSettingsFromResult(\stdClass $Estate){
+			return WebUI\EstateSettings::r(
+				$Estate->EstateID,
+				$Estate->EstateName,
+				$Estate->AbuseEmailToEstateOwner,
+				$Estate->DenyAnonymous,
+				$Estate->ResetHomeOnTeleport,
+				$Estate->FixedSun,
+				$Estate->DenyTransacted,
+				$Estate->BlockDwell,
+				$Estate->DenyIdentified,
+				$Estate->AllowVoice,
+				$Estate->UseGlobalTime,
+				$Estate->PricePerMeter,
+				$Estate->TaxFree,
+				$Estate->AllowDirectTeleport,
+				$Estate->RedirectGridX,
+				$Estate->RedirectGridY,
+				$Estate->ParentEstateID,
+				$Estate->SunPosition,
+				$Estate->EstateSkipScripts,
+				$Estate->BillableFactor,
+				$Estate->PublicAccess,
+				$Estate->AbuseEmail,
+				$Estate->EstateOwner,
+				$Estate->DenyMinors,
+				$Estate->AllowLandmark,
+				$Estate->AllowParcelChanges,
+				$Estate->AllowSetHome,
+				$Estate->EstateBans,
+				$Estate->EstateManagers,
+				$Estate->EstateGroups,
+				$Estate->EstateAccess
+			);
+		}
+
 //!	Gets all estates with the specified owner and optional boolean filters
 /**
 *	@param string $Owner Owner UUID
 *	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
+*	@return object instance of Aurora::Addon::WebUI::EstateSettingsIterator
 */
 		public function GetEstates($Owner, array $boolFields=null){
 			if(($Owner instanceof WebUI\abstractUser) === false){
@@ -1766,80 +1858,39 @@ namespace Aurora\Addon{
 			}
 
 			$Estates = $this->makeCallToAPI('GetEstates', $input, array(
-				'Estates' => array('array' => array(array(
-					'object' => array(array(
-						'EstateID' => array('integer'=>array()),
-						'EstateName' => array('string'=>array()),
-						'AbuseEmailToEstateOwner' => array('boolean'=>array()),
-						'DenyAnonymous' => array('boolean'=>array()),
-						'ResetHomeOnTeleport' => array('boolean'=>array()),
-						'FixedSun' => array('boolean'=>array()),
-						'DenyTransacted' => array('boolean'=>array()),
-						'BlockDwell' => array('boolean'=>array()),
-						'DenyIdentified' => array('boolean'=>array()),
-						'AllowVoice' => array('boolean'=>array()),
-						'UseGlobalTime' => array('boolean'=>array()),
-						'PricePerMeter' => array('integer'=>array()),
-						'TaxFree' => array('boolean'=>array()),
-						'AllowDirectTeleport' => array('boolean'=>array()),
-						'RedirectGridX' => array('integer'=>array(), 'null'=>array()),
-						'RedirectGridY' => array('integer'=>array(), 'null'=>array()),
-						'ParentEstateID' => array('integer'=>array()),
-						'SunPosition' => array('float'=>array()),
-						'EstateSkipScripts' => array('boolean'=>array()),
-						'BillableFactor' => array('float'=>array()),
-						'PublicAccess' => array('boolean'=>array()),
-						'AbuseEmail' => array('string'=>array()),
-						'EstateOwner' => array('string'=>array()),
-						'DenyMinors' => array('boolean'=>array()),
-						'AllowLandmark' => array('boolean'=>array()),
-						'AllowParcelChanges' => array('boolean'=>array()),
-						'AllowSetHome' => array('boolean'=>array()),
-						'EstateBans' => array('array'=>array(array('string'=>array()))),
-						'EstateManagers' => array('array'=>array(array('string'=>array()))),
-						'EstateGroups' => array('array'=>array(array('string'=>array()))),
-						'EstateAccess' => array('array'=>array(array('string'=>array()))),
-					))
-				)))
+				'Estates' => array('array' => array(
+					static::EstateSettingsValidator()
+				))
 			))->Estates;
 			$result = array();
 			foreach($Estates as $Estate){
-				$result[] = WebUI\EstateSettings::r(
-					$Estate->EstateID,
-					$Estate->EstateName,
-					$Estate->AbuseEmailToEstateOwner,
-					$Estate->DenyAnonymous,
-					$Estate->ResetHomeOnTeleport,
-					$Estate->FixedSun,
-					$Estate->DenyTransacted,
-					$Estate->BlockDwell,
-					$Estate->DenyIdentified,
-					$Estate->AllowVoice,
-					$Estate->UseGlobalTime,
-					$Estate->PricePerMeter,
-					$Estate->TaxFree,
-					$Estate->AllowDirectTeleport,
-					$Estate->RedirectGridX,
-					$Estate->RedirectGridY,
-					$Estate->ParentEstateID,
-					$Estate->SunPosition,
-					$Estate->EstateSkipScripts,
-					$Estate->BillableFactor,
-					$Estate->PublicAccess,
-					$Estate->AbuseEmail,
-					$Estate->EstateOwner,
-					$Estate->DenyMinors,
-					$Estate->AllowLandmark,
-					$Estate->AllowParcelChanges,
-					$Estate->AllowSetHome,
-					$Estate->EstateBans,
-					$Estate->EstateManagers,
-					$Estate->EstateGroups,
-					$Estate->EstateAccess
-				);
+				$result[] = static::EstateSettingsFromResult($Estate);
 			}
 
 			return new WebUI\EstateSettingsIterator($result);
+		}
+
+//!	Gets a single estate by estate name
+/**
+*	@param mixed Estate ID or Estate Name
+*	@return object instance of Aurora::Addon::WebUI::EstateSettings
+*/
+		public function GetEstate($Estate){
+			if(is_string($Estate) === true){
+				if(ctype_digit($Estate) === true){
+					$Estate = (integer)$Estate;
+				}else{
+					$Estate = trim($Estate);
+				}
+			}
+
+			if(is_integer($Estate) === false && is_string($Estate) === false){
+				throw new InvalidArgumentException('Estate must be specified as integer or string.');
+			}
+
+			return static::EstateSettingsFromResult($this->makeCallToAPI('GetEstate', array('Estate' => $Estate), array(
+				'Estate' => static::EstateSettingsValidator()
+			))->Estate);
 		}
 	}
 }
