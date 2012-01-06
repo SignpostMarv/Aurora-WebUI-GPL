@@ -80,7 +80,7 @@ if(count($pathParts) === 3){ // estate listing
 <?php
 	$estateOwner = Globals::i()->WebUI->GetGridUserInfo($region->EstateOwner());
 ?>
-		<p class="vcard estate-owner"><?php echo esc_html(__('Estate Owner')); ?>: <a class="fn url" href="<?php echo esc_attr(Template\link('/world/user/' . urlencode($estateOwner->Name()))); ?>"><?php echo esc_html($estateOwner->Name()); ?></a></p>
+		<p class="vcard estate-owner"><?php echo esc_html(__('Estate Owner')); ?>: <a class="fn url" href="<?php echo esc_attr(Template\link($estateOwner)); ?>"><?php echo esc_html($estateOwner->Name()); ?></a></p>
 		<img class=photo src="<?php echo esc_attr(Globals::i()->WebUI->MapTexture($region)); ?>" alt="<?php echo esc_attr(sprintf(__('Map texture for %s'), $region->RegionName())); ?>">
 		<span class="uuid uid"><?php echo esc_html($region->RegionID()); ?></span>
 	</section>
@@ -95,26 +95,26 @@ if(count($pathParts) === 3){ // estate listing
 <?php
 	if($parcels->count() > $_GET['per']){
 ?>
-				<li><?php if($_GET['page'] > 1){ ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('First')); ?></a><?php }else{ ?><?php echo esc_html(__('First')); } ?></li>
+				<li><?php if($_GET['page'] > 1){ ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('First')); ?></a><?php }else{ ?><?php echo esc_html(__('First')); } ?></li>
 <?php	if((integer)ceil($parcels->count() / $_GET['per']) == 2){ ?>
-				<li><?php if($_GET['page'] !== 2){ ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>2, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php }else{ ?><?php echo esc_html(__('Last')); } ?></li>
+				<li><?php if($_GET['page'] !== 2){ ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>2, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php }else{ ?><?php echo esc_html(__('Last')); } ?></li>
 <?php	}else{ ?>
 <?php		if($_GET['page'] > 1){ ?>
-				<li><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'] - 1, 'per'=>$_GET['per']))))); ?>" title="<?php echo esc_attr(__('Previous')); ?>"><?php echo esc_html(__('Prev')); ?></a></li>
+				<li><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'] - 1, 'per'=>$_GET['per']))))); ?>" title="<?php echo esc_attr(__('Previous')); ?>"><?php echo esc_html(__('Prev')); ?></a></li>
 <?php		} ?>
 <?php		if($_GET['page'] < $last){ ?>
-				<li><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'] + 1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Next')); ?></a></li>
+				<li><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'] + 1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Next')); ?></a></li>
 <?php		} ?>
-				<li><?php if($_GET['page'] !== $last){ ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$last, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php 
+				<li><?php if($_GET['page'] !== $last){ ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$last, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php 
 }else{ ?><?php echo esc_html(__('Last')); } ?></li>
 <?php	} ?>
 <?php
 	}
 ?>
-				<li><?php if($_GET['per'] !== 10){  ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>10 )))));  ?>">10</a><?php  }else{ ?>10<?php  } ?></li>
-				<li><?php if($_GET['per'] !== 20){  ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>20 )))));  ?>">20</a><?php  }else{ ?>20<?php  } ?></li>
-				<li><?php if($_GET['per'] !== 50){  ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>50 )))));  ?>">50</a><?php  }else{ ?>50<?php  } ?></li>
-				<li><?php if($_GET['per'] !== 100){ ?><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>100))))); ?>">100</a><?php }else{ ?>100<?php } ?></li>
+				<li><?php if($_GET['per'] !== 10){  ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>10 )))));  ?>">10</a><?php  }else{ ?>10<?php  } ?></li>
+				<li><?php if($_GET['per'] !== 20){  ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>20 )))));  ?>">20</a><?php  }else{ ?>20<?php  } ?></li>
+				<li><?php if($_GET['per'] !== 50){  ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>50 )))));  ?>">50</a><?php  }else{ ?>50<?php  } ?></li>
+				<li><?php if($_GET['per'] !== 100){ ?><a href="<?php echo esc_attr(Template\link($region, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>100))))); ?>">100</a><?php }else{ ?>100<?php } ?></li>
 			</ol>
 		</nav>
 		<ul>
@@ -123,7 +123,7 @@ if(count($pathParts) === 3){ // estate listing
 		$j = $_GET['page'] * $_GET['per'];
 		foreach($parcels as $parcel){
 ?>
-			<li class=vcard><a class="url fn" href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($region->RegionName()) . '/' . urlencode($parcel->Name()) . '/' . urlencode(preg_replace_callback('/0{3,}/',function($matches){return 'g' . strlen($matches[0]);}, rtrim(str_replace('-','',$parcel->InfoUUID()),'0'))))); ?>"><?php echo esc_html($parcel->Name()); ?></a></li>
+			<li class=vcard><a class="url fn" href="<?php echo esc_attr(Template\link($parcel)); ?>"><?php echo esc_html($parcel->Name()); ?></a></li>
 <?php
 			if(++$i >= $j){
 				break;

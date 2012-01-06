@@ -20,7 +20,7 @@ if(count($pathParts) === 2){
 <?php if($group->GroupPicture() !== '00000000-0000-0000-0000-000000000000'){ ?>
 		<img class=logo src="<?php echo esc_attr(Globals::i()->WebUI->GridTexture($group->GroupPicture())); ?>" alt="<?php echo esc_attr(sprintf(__('Group Insignia for %s'), $group->GroupName())); ?>">
 <?php } ?>
-		<p class=founder><?php echo esc_html(__('Founded by')); ?>: <a href="<?php echo esc_attr(Template\link('world/user/' . urlencode(Globals::i()->WebUI->GetGridUserInfo($group->FounderID())->Name()))); ?>"><?php echo esc_html(Globals::i()->WebUI->GetGridUserInfo($group->FounderID())->Name()); ?></a></p>
+		<p class=founder><?php echo esc_html(__('Founded by')); ?>: <a href="<?php echo esc_attr(Template\link(Globals::i()->WebUI->GetGridUserInfo($group->FounderID()))); ?>"><?php echo esc_html(Globals::i()->WebUI->GetGridUserInfo($group->FounderID())->Name()); ?></a></p>
 <?php if(trim($group->Charter()) !== '' && trim($group->Charter() !== 'Group Charter')) ?>
 		<h2><?php echo esc_html(__('Charter')); ?>:</h2>
 		<p><?php echo wp_kses(nl2br($group->Charter().false), array('br'=>array())); ?></p>

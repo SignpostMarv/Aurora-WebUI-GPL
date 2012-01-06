@@ -65,7 +65,7 @@
 					<p class=entry-content><?php echo wp_kses(nl2br($item->Message()), array('br'=>array())); ?></p>
 					<ul class="vcard author">
 						<li class=user><?php echo esc_html(__('Author')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link('/world/user/' . urlencode($item->FromName()))); ?>"><?php echo esc_html($item->FromName()); ?></a></li>
-						<li class=org><?php echo esc_html(__('Group')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link('/world/group/' . urlencode(Globals::i()->WebUI->GetGroup($item->GroupID())->GroupName()))); ?>"><?php echo esc_html(Globals::i()->WebUI->GetGroup($item->GroupID())->GroupName()); ?></a></li>
+						<li class=org><?php echo esc_html(__('Group')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link(Globals::i()->WebUI->GetGroup($item->GroupID()))); ?>"><?php echo esc_html(Globals::i()->WebUI->GetGroup($item->GroupID())->GroupName()); ?></a></li>
 					</ul>
 				</li>
 <?php

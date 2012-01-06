@@ -80,7 +80,7 @@
 		$Estate = Globals::i()->WebUI->GetEstate($region->EstateID());
 ?>
 				<tr>
-					<th scope=row><a href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($Estate->EstateName()) . '/' . urlencode($region->RegionName()))); ?>"><?php echo esc_html($region->RegionName()); ?></a></th>
+					<th scope=row><a href="<?php echo esc_attr(Template\link($region)); ?>"><?php echo esc_html($region->RegionName()); ?></a></th>
 					<td><?php echo esc_html($region->RegionLocX() / 256); ?></td>
 					<td><?php echo esc_html($region->RegionLocY() / 256); ?></td>
 				</tr>

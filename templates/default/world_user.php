@@ -50,7 +50,7 @@ if(count($pathParts) === 2){
 <?php
 			foreach($Estates as $Estate){
 ?>
-			<li class=vcard><a class="url fn" href="<?php echo esc_attr(Template\link('/world/place/' . urlencode($Estate->EstateName()))); ?>"><?php echo esc_html($Estate->EstateName()); ?></a></li>
+			<li class=vcard><a class="url fn" href="<?php echo esc_attr(Template\link($Estate)); ?>"><?php echo esc_html($Estate->EstateName()); ?></a></li>
 <?php
 			}
 ?>

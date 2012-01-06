@@ -11,10 +11,28 @@ namespace Aurora\Addon\WebUI\Template{
 
 
 	function link($url){
-		if($url instanceof WebUI\abstractUser){
-			return link('/world/user/' . urlencode($url->Name()));
+		if(is_object($url) === true){
+			$args = func_get_args();
+			$extra = '';
+			if(count($args) > 1){
+				$extra = '?' . $args[1];
+			}
+
+			if($url instanceof WebUI\abstractUser){
+				return link('/world/user/' . urlencode($url->Name()) . $extra);
+			}else if($url instanceof WebUI\EstateSettings){
+				return link('/world/place/' . urlencode($url->EstateName()) . $extra);
+			}else if($url instanceof WebUI\GridRegion){
+				$Estate = Globals::i()->WebUI->GetEstate($url->EstateID());
+				return link('/world/place/' . urlencode($Estate->EstateName()) . '/' . urlencode($url->RegionName()) . $extra);
+			}else if($url instanceof WebUI\GroupRecord){
+				return link('/world/group/' . urlencode($url->GroupName()));
+			}else if($url instanceof WebUI\LandData){
+				$region = Globals::i()->WebUI->GetRegion($url->RegionID());
+				$estate = Globals::i()->WebUI->GetEstate($region->EstateID());
+				return link('/world/place/' . urlencode($estate->EstateName()) . '/' . urlencode($region->RegionName()) . '/' . urlencode($url->Name()) . '/' . urlencode(preg_replace_callback('/0{3,}/',function($matches){return 'g' . strlen($matches[0]);}, rtrim(str_replace('-','',$url->InfoUUID()),'0'))));
+			}
 		}
-		$queryArgs = isset($queryArgs) ? $queryArgs : array();
 
 		$url = parse_url(Globals::i()->baseURI . $url);
 

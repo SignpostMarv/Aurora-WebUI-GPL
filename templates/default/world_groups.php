@@ -114,7 +114,7 @@
 	$i=0;
 	foreach($groups as $group){ ?>
 				<tr>
-					<th scope=row><a href="<?php echo esc_attr(Template\link('/world/group/' . urlencode($group->GroupName()) . '/')); ?>"><?php echo esc_html($group->GroupName()); ?></a></th>
+					<th scope=row><a href="<?php echo esc_attr(Template\link($group)); ?>"><?php echo esc_html($group->GroupName()); ?></a></th>
 					<td><?php echo esc_html($group->MembershipFee()); ?></td>
 					<td><?php echo esc_html(__($group->OpenEnrollment() ? 'Open' : 'Closed')); ?></td>
 					<td><?php echo esc_html(__($group->MaturePublish() ? 'Mature' : 'PG')); ?></td>

@@ -63,7 +63,7 @@
 	require_once('_header.php');
 ?>
 	<section>
-		<h1><?php echo esc_html(__('Group Notices')); ?> - <a href="<?php echo esc_attr(Template\link('/world/group/' . urlencode($group->GroupName()))); ?>"><?php echo esc_html($group->GroupName()); ?></a></h1>
+		<h1><?php echo esc_html(__('Group Notices')); ?> - <a href="<?php echo esc_attr(Template\link($group)); ?>"><?php echo esc_html($group->GroupName()); ?></a></h1>
 		<nav>
 			<ol>
 <?php
