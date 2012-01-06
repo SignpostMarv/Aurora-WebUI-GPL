@@ -1545,7 +1545,6 @@ namespace Aurora\Addon{
 			return $validator;
 		}
 
-
 //!	Converts an API result for parcels to an instance of Aurora::Addon::WebUI::LandData
 /**
 *	@param object API result
@@ -1742,6 +1741,105 @@ namespace Aurora\Addon{
 				$result->Parcels[$k] = self::ParcelResult2LandData($v);
 			}
 			return $asArray ? $result->Parcels : WebUI\GetParcelsWithNameByRegion::r($this, $start, $result->Total, $name, $region, $scopeID, $result->Parcels);
+		}
+
+//!	Gets all estates with the specified owner and optional boolean filters
+/**
+*	@param string $Owner Owner UUID
+*	@param array $boolFields optional array of field names for keys and booleans for values, indicating 1 and 0 for field values.
+*/
+		public function GetEstates($Owner, array $boolFields=null){
+			if(($Owner instanceof WebUI\abstractUser) === false){
+				if(is_string($Owner) === false){
+					throw new InvalidArgumentException('OwnerID must be a string.');
+				}else if(preg_match(self::regex_UUID, $Owner) !== 1){
+					throw new InvalidArgumentException('OwnerID must be a valid UUID.');
+				}
+				$Owner = $this->GetProfile('', $Owner);
+			}
+		
+			$input = array(
+				'Owner' => $Owner->PrincipalID()
+			);
+			if(isset($boolFields) === true){
+				$input['BoolFields'] = $boolFields;
+			}
+
+			$Estates = $this->makeCallToAPI('GetEstates', $input, array(
+				'Estates' => array('array' => array(array(
+					'object' => array(array(
+						'EstateID' => array('integer'=>array()),
+						'EstateName' => array('string'=>array()),
+						'AbuseEmailToEstateOwner' => array('boolean'=>array()),
+						'DenyAnonymous' => array('boolean'=>array()),
+						'ResetHomeOnTeleport' => array('boolean'=>array()),
+						'FixedSun' => array('boolean'=>array()),
+						'DenyTransacted' => array('boolean'=>array()),
+						'BlockDwell' => array('boolean'=>array()),
+						'DenyIdentified' => array('boolean'=>array()),
+						'AllowVoice' => array('boolean'=>array()),
+						'UseGlobalTime' => array('boolean'=>array()),
+						'PricePerMeter' => array('integer'=>array()),
+						'TaxFree' => array('boolean'=>array()),
+						'AllowDirectTeleport' => array('boolean'=>array()),
+						'RedirectGridX' => array('integer'=>array(), 'null'=>array()),
+						'RedirectGridY' => array('integer'=>array(), 'null'=>array()),
+						'ParentEstateID' => array('integer'=>array()),
+						'SunPosition' => array('float'=>array()),
+						'EstateSkipScripts' => array('boolean'=>array()),
+						'BillableFactor' => array('float'=>array()),
+						'PublicAccess' => array('boolean'=>array()),
+						'AbuseEmail' => array('string'=>array()),
+						'EstateOwner' => array('string'=>array()),
+						'DenyMinors' => array('boolean'=>array()),
+						'AllowLandmark' => array('boolean'=>array()),
+						'AllowParcelChanges' => array('boolean'=>array()),
+						'AllowSetHome' => array('boolean'=>array()),
+						'EstateBans' => array('array'=>array(array('string'=>array()))),
+						'EstateManagers' => array('array'=>array(array('string'=>array()))),
+						'EstateGroups' => array('array'=>array(array('string'=>array()))),
+						'EstateAccess' => array('array'=>array(array('string'=>array()))),
+					))
+				)))
+			))->Estates;
+			$result = array();
+			foreach($Estates as $Estate){
+				$result[] = WebUI\EstateSettings::r(
+					$Estate->EstateID,
+					$Estate->EstateName,
+					$Estate->AbuseEmailToEstateOwner,
+					$Estate->DenyAnonymous,
+					$Estate->ResetHomeOnTeleport,
+					$Estate->FixedSun,
+					$Estate->DenyTransacted,
+					$Estate->BlockDwell,
+					$Estate->DenyIdentified,
+					$Estate->AllowVoice,
+					$Estate->UseGlobalTime,
+					$Estate->PricePerMeter,
+					$Estate->TaxFree,
+					$Estate->AllowDirectTeleport,
+					$Estate->RedirectGridX,
+					$Estate->RedirectGridY,
+					$Estate->ParentEstateID,
+					$Estate->SunPosition,
+					$Estate->EstateSkipScripts,
+					$Estate->BillableFactor,
+					$Estate->PublicAccess,
+					$Estate->AbuseEmail,
+					$Estate->EstateOwner,
+					$Estate->DenyMinors,
+					$Estate->AllowLandmark,
+					$Estate->AllowParcelChanges,
+					$Estate->AllowSetHome,
+					$Estate->EstateBans,
+					$Estate->EstateManagers,
+					$Estate->EstateGroups,
+					$Estate->EstateAccess
+				);
+			}
+
+			return new WebUI\EstateSettingsIterator($result);
 		}
 	}
 }
