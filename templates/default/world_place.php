@@ -69,6 +69,55 @@ if(count($pathParts) === 3){ // estate listing
 		<p class=vcard><?php echo esc_html(__('Owner')); ?>: <a class="url fn" href="<?php echo esc_attr(Template\link($estateOwner)); ?>"><?php echo esc_html($estateOwner->Name()); ?></a></p>
 	</section>
 <?php
+	$regions = Globals::i()->WebUI->GetRegionsInEstate($estate, null, ($_GET['page'] - 1) * $_GET['per'], $_GET['per'], true);
+	if($regions->count() > 0){
+?>
+	<section class=regions>
+		<h1><?php echo esc_html(__('Regions')); ?></h1>
+		<nav>
+			<ol>
+<?php
+	if($regions->count() > $_GET['per']){
+?>
+				<li><?php if($_GET['page'] > 1){ ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('First')); ?></a><?php }else{ ?><?php echo esc_html(__('First')); } ?></li>
+<?php	if((integer)ceil($regions->count() / $_GET['per']) == 2){ ?>
+				<li><?php if($_GET['page'] !== 2){ ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>2, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php }else{ ?><?php echo esc_html(__('Last')); } ?></li>
+<?php	}else{ ?>
+<?php		if($_GET['page'] > 1){ ?>
+				<li><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'] - 1, 'per'=>$_GET['per']))))); ?>" title="<?php echo esc_attr(__('Previous')); ?>"><?php echo esc_html(__('Prev')); ?></a></li>
+<?php		} ?>
+<?php		if($_GET['page'] < $last){ ?>
+				<li><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'] + 1, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Next')); ?></a></li>
+<?php		} ?>
+				<li><?php if($_GET['page'] !== $last){ ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$last, 'per'=>$_GET['per']))))); ?>"><?php echo esc_html(__('Last')); ?></a><?php 
+}else{ ?><?php echo esc_html(__('Last')); } ?></li>
+<?php	} ?>
+<?php
+	}
+?>
+				<li><?php if($_GET['per'] !== 10){  ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>10 )))));  ?>">10</a><?php  }else{ ?>10<?php  } ?></li>
+				<li><?php if($_GET['per'] !== 20){  ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>20 )))));  ?>">20</a><?php  }else{ ?>20<?php  } ?></li>
+				<li><?php if($_GET['per'] !== 50){  ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>50 )))));  ?>">50</a><?php  }else{ ?>50<?php  } ?></li>
+				<li><?php if($_GET['per'] !== 100){ ?><a href="<?php echo esc_attr(Template\link($estate, '/?' . http_build_query(array_merge($query, array('page'=>$_GET['page'], 'per'=>100))))); ?>">100</a><?php }else{ ?>100<?php } ?></li>
+			</ol>
+		</nav>
+		<ul>
+<?php
+		$i = ($_GET['page'] - 1) * $_GET['per'];
+		$j = $_GET['page'] * $_GET['per'];
+		foreach($regions as $region){
+?>
+			<li class=vcard><a class="url fn" href="<?php echo esc_attr(Template\link($region)); ?>"><?php echo esc_html($region->RegionName()); ?></a></li>
+<?php
+			if(++$i >= $j){
+				break;
+			}
+		}
+?>
+		</ul>
+	</section>
+<?php
+	}
 }else if(count($pathParts) === 4){ // single region
 	require_once('_header.php');
 ?>

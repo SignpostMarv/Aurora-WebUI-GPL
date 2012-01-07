@@ -290,22 +290,22 @@ namespace Aurora\Addon\WebUI{
 	class GetRegions extends WORM implements SeekableIterator{
 
 //!	object instance of Aurora::Addon::WebUI
-		private $WebUI;
+		protected $WebUI;
 
 //!	integer Since we're allowing non-contiguous, delayed access to the region list, we need to pre-fetch the total size of the regions.
 		private $total;
 
 //!	integer Since we're allowing non-contiguous, delayed access to the region list, we need to store the Aurora::Framework::RegionFlags bitfield for future use.
-		private $flags;
+		protected $flags;
 
 //!	mixed Since we're allowing non-contiguous, delayed access to the region list, we need to store the sort by region name flag for future use.
-		private $sortRegionName;
+		protected $sortRegionName;
 
 //!	mixed Since we're allowing non-contiguous, delayed access to the region list, we need to store the sort by region name flag for future use.
-		private $sortLocX;
+		protected $sortLocX;
 
 //!	mixed Since we're allowing non-contiguous, delayed access to the region list, we need to store the sort by region name flag for future use.
-		private $sortLocY;
+		protected $sortLocY;
 
 //!	We're hiding this behind a registry method.
 /**
@@ -374,7 +374,7 @@ namespace Aurora\Addon\WebUI{
 		private static $registry = array();
 
 //!	registry method
-		public static function r(WebUI $WebUI, $flags, $start=0, $total=0, $sortRegionName=null, $sortLocX=null, $sortLocY=null, array $regions=null){
+		public static function r(WebUI $WebUI, EstateSettings $Estate=null, $flags, $start=0, $total=0, $sortRegionName=null, $sortLocX=null, $sortLocY=null, array $regions=null){
 			if(RegionFlags::isValid($flags) === false){
 				throw new InvalidArgumentException('Region Flags bitfield is invalid.');
 			}else if(isset($sortRegionName) === true && is_bool($sortRegionName) === false){
@@ -421,7 +421,7 @@ namespace Aurora\Addon\WebUI{
 *	@param integer $flags
 *	@return boolean TRUE if we have populated the registry array, FALSE otherwise.
 */
-		public static function hasInstance(WebUI $WebUI, $flags, $sortRegionName, $sortLocX, $sortLocY){
+		public static function hasInstance(WebUI $WebUI, EstateSettings $Estate=null, $flags, $sortRegionName, $sortLocX, $sortLocY){
 			$hash = spl_object_hash($WebUI);
 			$srn = isset($sortRegionName) ? ((integer)$sortRegionName) + 1 : 0;
 			$slx = isset($sortLocX) ? ((integer)$sortLocX) + 1 : 0;
@@ -498,6 +498,113 @@ namespace Aurora\Addon\WebUI{
 //!	advance the cursor
 		public function next(){
 			++$this->pos;
+		}
+	}
+
+//!	Seekable iterator for instances of Aurora\Addon\WebUI GridRegion in a specified estate
+	class GetRegionsInEstate extends GetRegions{
+
+//!	object instance of Aurora::Addon::WebUI::EstateSettings
+		private $Estate;
+
+//!	We're hiding this behind a registry method.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI. Used to get instances of Aurora::Addon::WebUI::GridRegion that the instance wasn't instantiated with.
+*	@param object $Estate instance of Aurora::Addon::WebUI::EstateSettings
+*	@param integer $flags bitfield of Aurora::Framework::RegionFlags values
+*	@param integer $start specifies the index that $regions starts at, if specified.
+*	@param integer $total specifies the total number of regions in the grid.
+*	@param mixed $sortRegionName NULL or boolean
+*	@param mixed $sortLocX NULL or boolean
+*	@param mixed $sortLocY NULL or boolean
+*	@param mixed $regions Either NULL or an array of Aurora::Addon::WebUI::GridRegion instances.
+*/
+		protected function __construct(WebUI $WebUI, EstateSettings $Estate, $flags=null, $start=0, $total=0, $sortRegionName=null, $sortLocX=null, $sortLocY=null, array $regions=null){
+			parent::__construct($WebUI, $flags, $start, $total, $sortRegionName, $sortLocX, $sortLocY, $regions);
+			$this->Estate = $Estate;
+		}
+
+//!	registry array.
+		private static $registry = array();
+
+//!	registry method
+		public static function r(WebUI $WebUI, EstateSettings $Estate, $flags, $start=0, $total=0, $sortRegionName=null, $sortLocX=null, $sortLocY=null, array $regions=null){
+			if(RegionFlags::isValid($flags) === false){
+				throw new InvalidArgumentException('Region Flags bitfield is invalid.');
+			}else if(isset($sortRegionName) === true && is_bool($sortRegionName) === false){
+				throw new InvalidArgumentException('If set, the sort by region name flag must be a boolean.');
+			}else if(isset($sortLocX) === true && is_bool($sortLocX) === false){
+				throw new InvalidArgumentException('If set, the sort by x-axis flag must be a boolean.');
+			}else if(isset($sortLocY) === true && is_bool($sortLocY) === false){
+				throw new InvalidArgumentException('If set, the sort by y-axis flag must be a boolean.');
+			}
+			$hash = spl_object_hash($WebUI) . '_' . $Estate->EstateID();
+			$srn = isset($sortRegionName) ? ((integer)$sortRegionName) + 1 : 0;
+			$slx = isset($sortLocX) ? ((integer)$sortLocX) + 1 : 0;
+			$sly = isset($sortLocY) ? ((integer)$sortLocY) + 1 : 0;
+			if(isset(static::$registry[$hash]) === false){
+				static::$registry[$hash] = array();
+			}
+			if(isset(static::$registry[$hash][$flags]) === false){
+				static::$registry[$hash][$flags] = array();
+			}
+			if(isset(static::$registry[$hash][$flags][$srn]) === false){
+				static::$registry[$hash][$flags][$srn] = array();
+			}
+			if(isset(static::$registry[$hash][$flags][$srn][$slx]) === false){
+				static::$registry[$hash][$flags][$srn][$slx] = array();
+			}
+
+			if(isset(static::$registry[$hash][$flags][$srn][$slx][$sly]) === false){
+				if(isset($total, $flags) === false){
+					throw new BadMethodCallException('Cannot fetch instance of Aurora::Addon::WebUI::GetRegions from cache as it has not been created yet.');
+				}
+				static::$registry[$hash][$flags][$srn][$slx][$sly] = new static($WebUI, $Estate, $flags, $start, $total, $sortRegionName, $sortLocX, $sortLocY, $regions);
+			}
+
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be an integer.');
+			}
+			static::$registry[$hash][$flags][$srn][$slx][$sly]->seek($start);
+			return static::$registry[$hash][$flags][$srn][$slx][$sly];
+		}
+
+//!	Determines whether we have something in the registry or not.
+/**
+*	@param object $WebUI instance of Aurora::Addon::WebUI
+*	@param integer $flags
+*	@return boolean TRUE if we have populated the registry array, FALSE otherwise.
+*/
+		public static function hasInstance(WebUI $WebUI, EstateSettings $Estate, $flags, $sortRegionName, $sortLocX, $sortLocY){
+			$hash = spl_object_hash($WebUI) . '_' . $Estate->EstateID();
+			$srn = isset($sortRegionName) ? ((integer)$sortRegionName) + 1 : 0;
+			$slx = isset($sortLocX) ? ((integer)$sortLocX) + 1 : 0;
+			$sly = isset($sortLocY) ? ((integer)$sortLocY) + 1 : 0;
+
+			return isset(
+				static::$registry[$hash],
+				static::$registry[$hash][$flags],
+				static::$registry[$hash][$flags][$srn],
+				static::$registry[$hash][$flags][$srn][$slx],
+				static::$registry[$hash][$flags][$srn][$slx][$sly]				
+			);
+		}
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetRegions::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::GridRegion
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GetRegionsInEstate($this->Estate, $this->flags, $start, 10, $this->sortRegionName, $this->sortLocX, $this->sortLocY, true);
+				foreach($results as $region){
+					$this->data[$start++] = $region;
+				}
+			}
+			return $this->data[$this->key()];
 		}
 	}
 

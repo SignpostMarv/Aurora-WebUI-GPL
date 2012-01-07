@@ -1189,8 +1189,8 @@ namespace Aurora\Addon{
 			if(isset($sortLocY) === true){
 				$input['SortLocY'] = $sortLocY;
 			}
-			$has = WebUI\GetRegions::hasInstance($this, $flags, $sortRegionName, $sortLocX, $sortLocY);
-			if($asArray === true || WebUI\GetRegions::hasInstance($this, $flags, $sortRegionName, $sortLocX, $sortLocY) === false){
+			$has = WebUI\GetRegions::hasInstance($this, null, $flags, $sortRegionName, $sortLocX, $sortLocY);
+			if($asArray === true || $has === false){
 				$result = $this->makeCallToAPI('GetRegions', $input, array(
 					'Regions' => array('array'=>array(static::GridRegionValidator())),
 					'Total'   => array('integer'=>array())
@@ -1200,7 +1200,70 @@ namespace Aurora\Addon{
 				}
 			}
 
-			return $asArray ? $response : WebUI\GetRegions::r($this, $flags, $start, $has ? null : $result->Total, $sortRegionName, $sortLocX, $sortLocY, $response);
+			return $asArray ? $response : WebUI\GetRegions::r($this, null, $flags, $start, $has ? null : $result->Total, $sortRegionName, $sortLocX, $sortLocY, $response);
+		}
+
+
+		public function GetRegionsInEstate(WebUI\EstateSettings $Estate, $flags=null, $start=0, $count=null, $sortRegionName=null, $sortLocX=null, $sortLocY=null, $asArray=false){
+			if(isset($flags) === false){
+				$flags = RegionFlags::RegionOnline;
+			}
+			if(is_bool($asArray) === false){
+				throw new InvalidArgumentException('asArray flag must be a boolean.');
+			}else if(is_integer($flags) === false){
+				throw new InvalidArgumentException('RegionFlags argument should be supplied as integer.');
+			}else if($flags < 0){
+				throw new InvalidArgumentException('RegionFlags cannot be less than zero');
+			}else if(RegionFlags::isValid($flags) === false){ // Aurora::Framework::RegionFlags::isValid() does do a check for integerness, but we want to throw a different exception message if it is an integer.
+				throw new InvalidArgumentException('RegionFlags value is invalid, aborting call to API');
+			}else if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be an integer.');
+			}else if(isset($count) === true){
+				if(is_integer($count) === false){
+					throw new InvalidArgumentException('Count must be an integer.');
+				}else if($count < 1){
+					throw new InvalidArgumentException('Count must be greater than zero.');
+				}
+			}else if(isset($sortRegionName) === true && is_bool($sortRegionName) === false){
+				throw new InvalidArgumentException('If set, the sort by region name flag must be a boolean.');
+			}else if(isset($sortLocX) === true && is_bool($sortLocX) === false){
+				throw new InvalidArgumentException('If set, the sort by x-axis flag must be a boolean.');
+			}else if(isset($sortLocY) === true && is_bool($sortLocY) === false){
+				throw new InvalidArgumentException('If set, the sort by y-axis flag must be a boolean.');
+			}
+			$response = array();
+			$input = array(
+				'Estate'      => $Estate->EstateID(),
+				'RegionFlags' => $flags,
+				'Start'       => $start,
+				'Count'       => $count
+			);
+
+			if(isset($sortRegionName) === true || isset($sortRegionName) === true || isset($sortLocY) === true){
+				$input['Sort'] = array();
+				if(isset($sortRegionName) === true){
+					$input['Sort']['RegionName'] = $sortRegionName;
+				}
+				if(isset($sortLocX) === true){
+					$input['Sort']['LocX'] = $sortLocX;
+				}
+				if(isset($sortLocY) === true){
+					$input['Sort']['LocY'] = $sortLocY;
+				}
+			}
+
+			$has = WebUI\GetRegions::hasInstance($this, $Estate, $flags, $sortRegionName, $sortLocX, $sortLocY);
+			if($asArray === true || $has === false){
+				$result = $this->makeCallToAPI('GetRegions', $input, array(
+					'Regions' => array('array'=>array(static::GridRegionValidator())),
+					'Total'   => array('integer'=>array())
+				));
+				foreach($result->Regions as $val){
+					$response[] = WebUI\GridRegion::fromEndPointResult($val);
+				}
+			}
+
+			return $asArray ? $response : WebUI\GetRegionsInEstate::r($this, $Estate, $flags, $start, $has ? null : $result->Total, $sortRegionName, $sortLocX, $sortLocY, $response);
 		}
 
 //!	object an instance of Aurora::Addon::WebUI::GridInfo
