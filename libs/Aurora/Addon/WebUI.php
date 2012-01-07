@@ -1203,7 +1203,18 @@ namespace Aurora\Addon{
 			return $asArray ? $response : WebUI\GetRegions::r($this, null, $flags, $start, $has ? null : $result->Total, $sortRegionName, $sortLocX, $sortLocY, $response);
 		}
 
-
+//!	Get a list of regions in the specified estate that match the specified flags.
+/**
+*	@param object $Estate instance of Aurora::Addon::WebUI::EstateSettings
+*	@param integer $flags A bitfield corresponding to constants in Aurora::Framework::RegionFlags
+*	@param integer $start start point. If Aurora::Addon::WebUI::GetRegions is primed, then Aurora::Addon::WebUI::GetRegions::r() will auto-seek to start.
+*	@param mixed $count Either an integer for the maximum number of regions to fetch from the API end point in a single batch, or NULL to use the end point's default value.
+*	@param boolean $asArray
+*	@return mixed If $asArray is TRUE returns an array, otherwise returns an instance of Aurora::Addon::WebUI::GetRegionsInEstate
+*	@see Aurora::Addon::WebUI::makeCallToAPI()
+*	@see Aurora::Addon::WebUI::fromEndPointResult()
+*	@see Aurora::Addon::WebUI::GetRegions::r()
+*/
 		public function GetRegionsInEstate(WebUI\EstateSettings $Estate, $flags=null, $start=0, $count=null, $sortRegionName=null, $sortLocX=null, $sortLocY=null, $asArray=false){
 			if(isset($flags) === false){
 				$flags = RegionFlags::RegionOnline;
@@ -1954,6 +1965,40 @@ namespace Aurora\Addon{
 			return static::EstateSettingsFromResult($this->makeCallToAPI('GetEstate', array('Estate' => $Estate), array(
 				'Estate' => static::EstateSettingsValidator()
 			))->Estate);
+		}
+
+//!	Get a list of events with optional filters
+/**
+*
+*/
+		public function GetEvents($start=0, $count=10, array $filter=null, array $sort=null){
+			if(is_string($start) === true && ctype_digit($start) === true){
+				$start = (integer)$start;
+			}
+			if(is_string($count) === true && ctype_digit($count) === true){
+				$count = (integer)$count;
+			}
+
+			if(is_integer($start) === false){
+				throw new InvalidArgumentException('Start point must be specified as integer.');
+			}else if(is_integer($count) === false){
+				throw new InvalidArgumentException('Count must be specified as integer.');
+			}else if($count < 0){
+				throw new InvalidArgumentException('Count must be greater than or equal to zero.');
+			}
+			
+			$input = array(
+				'Start' => $start,
+				'Count' => $count
+			);
+			if(isset($filter) === true){
+				$input['Filter'] = $filter;
+			}
+			if(isset($sort) === true){
+				$input['Sort'] = $sort;
+			}
+
+			return $this->makeCallToAPI('GetEvents', $input, array());
 		}
 	}
 }
