@@ -15,7 +15,7 @@ namespace Aurora\Addon\WebUI\Template{
 			$args = func_get_args();
 			$extra = '';
 			if(count($args) > 1){
-				$extra = '?' . $args[1];
+				$extra = $args[1];
 			}
 
 			if($url instanceof WebUI\abstractUser){
