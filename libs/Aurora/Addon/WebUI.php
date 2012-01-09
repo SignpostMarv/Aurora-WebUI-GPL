@@ -1969,7 +1969,11 @@ namespace Aurora\Addon{
 
 //!	Get a list of events with optional filters
 /**
-*
+*	@param integer $start Start point
+*	@param integer $count Maximum number of results to fetch in initial call
+*	@param array $filter columns to filter by
+*	@param array $sort fields to sort by
+*	@return object instance of Aurora::Addon::WebUI::GetEvents
 */
 		public function GetEvents($start=0, $count=10, array $filter=null, array $sort=null){
 			if(is_string($start) === true && ctype_digit($start) === true){
@@ -1999,6 +2003,107 @@ namespace Aurora\Addon{
 			}
 
 			return $this->makeCallToAPI('GetEvents', $input, array());
+		}
+
+//!	Adds an event to the grid directory
+/**
+*	@param object $creator User to list as the creator
+*	@param object $region Region the event is hosted in
+*	@param object $date Date & Time the event will be held
+*	@param integer $cover length of event
+*	@param integer $maturity indicates content rating of event
+*	@param integer $eventFlags bitfield
+*	@param integer $duration number of minutes the event lasts for
+*	@param object $localPos location of event within region
+*	@param string $name event subject
+*	@param string $description event description
+*	@param string $category event category
+*	@return object Instance of Aurora::Addon::WebUI::EventData
+*/
+		public function CreateEvent(WebUI\abstractUser $creator, WebUI\GridRegion $region, DateTime $date, $cover, $maturity, $eventFlags, $duration, Vector3 $localPos, $name, $description, $category){
+			if(is_string($cover) === true && ctype_digit($cover) === true){
+				$cover = (integer)$cover;
+			}
+			if(is_string($maturity) === true && ctype_digit($maturity) === true){
+				$maturity = (integer)$maturity;
+			}
+			if(is_string($eventFlags) === true && ctype_digit($eventFlags) === true){
+				$eventFlags = (integer)$eventFlags;
+			}
+			if(is_string($duration) === true && ctype_digit($duration) === true){
+				$duration = (integer)$duration;
+			}
+			if(is_string($name) === true){
+				$name = trim($name);
+			}
+			if(is_string($description) === true){
+				$description = trim($description);
+			}
+			if(is_string($category) === true){
+				$category = trim($category);
+			}
+
+			if(is_integer($cover) === false){
+				throw new InvalidArgumentException('Cover must be specified as integer.');
+			}else if($cover < 0){
+				throw new InvalidArgumentException('Cover must be greater than or equal to zero');
+			}else if(is_integer($maturity) === false){
+				throw new InvalidArgumentException('Maturity must be specified as integer.');
+			}else if($maturity < 0){
+				throw new InvalidArgumentException('Maturity must be greater than or equal to zero');
+			}else if(is_integer($eventFlags) === false){
+				throw new InvalidArgumentException('Flags must be specified as integer.');
+			}else if($eventFlags < 0){
+				throw new InvalidArgumentException('Flags must be greater than or equal to zero');
+			}else if(is_integer($duration) === false){
+				throw new InvalidArgumentException('Duration must be specified as integer.');
+			}else if($duration <= 0){
+				throw new InvalidArgumentException('Duration must be greater than zero');
+			}else if(is_string($name) === false){
+				throw new InvalidArgumentException('Name must be specified as string.');
+			}else if($name === ''){
+				throw new InvalidArgumentException('Name must be non-empty string.');
+			}else if(is_string($description) === false){
+				throw new InvalidArgumentException('Description must be specified as string.');
+			}else if($description === ''){
+				throw new InvalidArgumentException('Description must be non-empty string.');
+			}else if(is_string($category) === false){
+				throw new InvalidArgumentException('Category must be specified as string.');
+			}else if($category === ''){
+				throw new InvalidArgumentException('Category must be non-empty string.');
+			}
+
+			return $this->makeCallToAPI('CreateEvent', array(
+				'Creator'     => $creator->PrincipalID(),
+				'Region'      => $region->RegionID(),
+				'Parcel'      => '00000000-0000-0000-0000-000000000000',
+				'Date'        => $date->format('c'),
+				'Cover'       => $cover,
+				'Maturity'    => $maturity,
+				'EventFlags'  => $eventFlags,
+				'Duration'    => $duration,
+				'Position'    => (string)$localPos,
+				'Name'        => $name,
+				'Description' => $description,
+				'Category'    => $category
+			), array(
+				'Event' => array('object' => array(array(
+					'eventID'     => array('integer' => array()),
+					'creator'     => array('string'  => array()),
+					'name'        => array('string'  => array()),
+					'category'    => array('string'  => array()),
+					'description' => array('string'  => array()),
+					'date'        => array('string'  => array()),
+					'dateUTC'     => array('integer' => array()),
+					'duration'    => array('integer' => array()),
+					'cover'       => array('integer' => array()),
+					'amount'      => array('integer' => array()),
+					'simName'     => array('string' => array()),
+					'globalPos'   => array('array'   => array()),
+					'eventFlags'  => array('integer' => array()),
+					'maturity'    => array('integer' => array())
+				)))
+			));
 		}
 	}
 }
