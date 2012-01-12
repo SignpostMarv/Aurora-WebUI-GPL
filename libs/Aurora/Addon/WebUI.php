@@ -1967,6 +1967,29 @@ namespace Aurora\Addon{
 			))->Estate);
 		}
 
+//!	PHP doesn't do const arrays :(
+/**
+*	@return array The validator array to be passed to Aurora::Addon::WebUI::makeCallToAPI() when making event-related calls. 
+*/
+		private static function EventsResultValidatorArray(){
+			return array('object' => array(array(
+				'eventID'     => array('integer' => array()),
+				'creator'     => array('string'  => array()),
+				'name'        => array('string'  => array()),
+				'category'    => array('string'  => array()),
+				'description' => array('string'  => array()),
+				'date'        => array('string'  => array()),
+				'dateUTC'     => array('integer' => array()),
+				'duration'    => array('integer' => array()),
+				'cover'       => array('integer' => array()),
+				'amount'      => array('integer' => array()),
+				'simName'     => array('string' => array()),
+				'globalPos'   => array('array'   => array()),
+				'eventFlags'  => array('integer' => array()),
+				'maturity'    => array('integer' => array())
+			)));
+		}
+
 //!	Get a list of events with optional filters
 /**
 *	@param integer $start Start point
@@ -2002,7 +2025,9 @@ namespace Aurora\Addon{
 				$input['Sort'] = $sort;
 			}
 
-			return $this->makeCallToAPI('GetEvents', $input, array());
+			return $this->makeCallToAPI('GetEvents', $input, array(
+				'Events' => array('array'=>array( static::EventsResultValidatorArray()))
+			));
 		}
 
 //!	Adds an event to the grid directory
@@ -2087,22 +2112,7 @@ namespace Aurora\Addon{
 				'Description' => $description,
 				'Category'    => $category
 			), array(
-				'Event' => array('object' => array(array(
-					'eventID'     => array('integer' => array()),
-					'creator'     => array('string'  => array()),
-					'name'        => array('string'  => array()),
-					'category'    => array('string'  => array()),
-					'description' => array('string'  => array()),
-					'date'        => array('string'  => array()),
-					'dateUTC'     => array('integer' => array()),
-					'duration'    => array('integer' => array()),
-					'cover'       => array('integer' => array()),
-					'amount'      => array('integer' => array()),
-					'simName'     => array('string' => array()),
-					'globalPos'   => array('array'   => array()),
-					'eventFlags'  => array('integer' => array()),
-					'maturity'    => array('integer' => array())
-				)))
+				'Event' => static::EventsResultValidatorArray()
 			));
 		}
 	}
