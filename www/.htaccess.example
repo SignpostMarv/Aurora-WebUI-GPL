@@ -16,8 +16,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 Options -Indexes
+IndexIgnore *.js.gz
+IndexIgnore *.css.gz
 
 FileETag MTime Size
+
+# BEGIN mod_rewrite
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+# END mod_rewrite
 
 # BEGIN JS & CSS handler
 <IfModule mod_headers.c>
@@ -27,6 +40,11 @@ RewriteBase /
 <FilesMatch "\.css\.gz$">
 	Header set Content-Encoding "gzip"
 	Header set Content-Type "text/css"
+	Header set Vary "Accept-Encoding"
+</FilesMatch>
+<FilesMatch "\.js\.gz$">
+	Header set Content-Encoding "gzip"
+	Header set Content-Type "application/javascript"
 	Header set Vary "Accept-Encoding"
 </FilesMatch>
 RewriteCond %{DOCUMENT_ROOT}/$1.gz -f
