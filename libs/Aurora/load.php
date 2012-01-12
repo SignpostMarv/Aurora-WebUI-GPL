@@ -149,6 +149,19 @@ namespace OpenMetaverse{
 		public function __toString(){
 			return sprintf('<%1$f, %2$f, %3$f>', $this->x, $this->y, $this->z);
 		}
+
+//!	Compares two objects
+/**
+*	@param object $b instance of OpenMetaverse::Vector3
+*	@return boolean TRUE if identical, FALSE otherwise
+*/
+		public function equals(Vector3 $b){
+			return (
+				$this->X() === $b->X() &&
+				$this->Y() === $b->Y() &&
+				$this->Z() === $b->Z()
+			);
+		}
 	}
 
 //!	Transposition of AssetType
