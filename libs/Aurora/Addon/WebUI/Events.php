@@ -201,7 +201,7 @@ namespace Aurora\Addon\WebUI{
 			$this->category    = $category;
 			$this->date        = $date;
 			$this->duration    = $duration;
-			$this->cover       = $cover
+			$this->cover       = $cover;
 			$this->simName     = $simName;
 			$this->globalPos   = $globalPos;
 			$this->eventFlags  = $eventFlags;
@@ -244,7 +244,7 @@ namespace Aurora\Addon\WebUI{
 			}
 
 			if($create === true){
-				$registry[$eventID] = new static($eventID, $creator, $name, $description, $category, DateTime $date, $duration, $cover, $simName, Vector3 $globalPos, $eventFlags, $maturity);
+				$registry[$eventID] = new static($eventID, $creator, $name, $description, $category, $date, $duration, $cover, $simName, $globalPos, $eventFlags, $maturity);
 			}
 
 			return $registry[$eventID];

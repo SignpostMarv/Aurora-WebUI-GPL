@@ -2098,7 +2098,7 @@ namespace Aurora\Addon{
 				throw new InvalidArgumentException('Category must be non-empty string.');
 			}
 
-			return $this->makeCallToAPI('CreateEvent', array(
+			$event = $this->makeCallToAPI('CreateEvent', array(
 				'Creator'     => $creator->PrincipalID(),
 				'Region'      => $region->RegionID(),
 				'Parcel'      => '00000000-0000-0000-0000-000000000000',
@@ -2113,7 +2113,22 @@ namespace Aurora\Addon{
 				'Category'    => $category
 			), array(
 				'Event' => static::EventsResultValidatorArray()
-			));
+			))->Event;
+
+			return WebUI\EventData::r(
+				$event->eventID,
+				$event->creator,
+				$event->name,
+				$event->description,
+				$event->category,
+				DateTime::createFromFormat('U', $event->dateUTC),
+				$event->duration,
+				$event->cover,
+				$event->simName,
+				new Vector3($event->globalPos[0], $event->globalPos[1], $event->globalPos[2]) ,
+				$event->eventFlags,
+				$event->maturity
+			);
 		}
 	}
 }
@@ -2126,6 +2141,7 @@ namespace{
 	require_once('WebUI/Parcels.php');
 	require_once('WebUI/User.php');
 	require_once('WebUI/Group.php');
+	require_once('WebUI/Events.php');
 
 	require_once('WebUI/AbuseReports.php');
 	require_once('WebUI/AvatarArchives.php');
