@@ -1998,7 +1998,7 @@ namespace Aurora\Addon{
 *	@param array $sort fields to sort by
 *	@return object instance of Aurora::Addon::WebUI::GetEvents
 */
-		public function GetEvents($start=0, $count=10, array $filter=null, array $sort=null){
+		public function GetEvents($start=0, $count=10, array $filter=null, array $sort=null, $asArray=false){
 			if(is_string($start) === true && ctype_digit($start) === true){
 				$start = (integer)$start;
 			}
@@ -2024,10 +2024,29 @@ namespace Aurora\Addon{
 			if(isset($sort) === true){
 				$input['Sort'] = $sort;
 			}
-
-			return $this->makeCallToAPI('GetEvents', $input, array(
-				'Events' => array('array'=>array( static::EventsResultValidatorArray()))
+			
+			$result = $this->makeCallToAPI('GetEvents', $input, array(
+				'Events' => array('array'=>array( static::EventsResultValidatorArray())),
+				'Total'  => array('integer'=>array())
 			));
+			$events = array();
+			foreach($result->Events as $event){
+				$events[] = WebUI\EventData::r(
+					$event->eventID,
+					$event->creator,
+					$event->name,
+					$event->description,
+					$event->category,
+					DateTime::createFromFormat('U', $event->dateUTC),
+					$event->duration,
+					$event->cover,
+					$event->simName,
+					new Vector3($event->globalPos[0], $event->globalPos[1], $event->globalPos[2]) ,
+					$event->eventFlags,
+					$event->maturity
+				);
+			}
+			return $asArray ? $events : WebUI\GetEvents::r($this, $start, $result->Total, $filter, $sort, $events);
 		}
 
 //!	Adds an event to the grid directory

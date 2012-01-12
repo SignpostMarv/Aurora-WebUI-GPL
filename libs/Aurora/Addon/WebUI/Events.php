@@ -250,5 +250,101 @@ namespace Aurora\Addon\WebUI{
 			return $registry[$eventID];
 		}
 	}
+
+//!	Abstract iterator for instances of Aurora::Addon::WebUI::EventData
+	abstract class abstractSeekableEventDataIterator extends abstractSeekableIterator{
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of EventData results according to child-class filters
+*	@param array $parcels array of Aurora::Addon::WebUI::EventData objects
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, array $parcels=null){
+			parent::__construct($WebUI, $start, $total);
+			if(isset($parcels) === true){
+				$i = $start;
+				foreach($parcels as $parcel){
+					if($parcel instanceof EventData){
+						$this->data[$i++] = $parcel;
+					}else{
+						throw new InvalidArgumentException('Only instances of Aurora::Addon::WebUI::EventData should be passed to Aurora::Addon::WebUI::abstractSeekableEventDataIterator::__construct()');
+					}
+				}
+			}
+		}
+	}
+
+
+	class GetEvents extends abstractSeekableEventDataIterator{
+
+//!	array filter argument
+		protected $filter;
+
+//!	array sort argument
+		protected $sort;
+
+//!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
+/**
+*	@param object $WebUI instanceof Aurora::Addon::WebUI
+*	@param integer $start start point
+*	@param integer $total total number of EventData results according to child-class filters
+*	@param array $filter filter argument used with the API
+*	@param array $sort sort argument used with the API
+*	@param array $parcels array of Aurora::Addon::WebUI::EventData objects
+*/
+		protected function __construct(WebUI $WebUI, $start=0, $total=0, array $filter=null, array $sort=null, array $parcels=null){
+			$this->filter = $filter;
+			$this->sort   = $sort;
+			parent::__construct($WebUI, $start, $total, $parcels);
+		}
+
+
+		public static function r(WebUI $WebUI, $start=0, $total=0, array $filter=null, array $sort=null, array $parcels=null){
+		
+			static $registry = array();
+		
+			$hash1 = spl_object_hash($WebUI);
+			$hash2 = md5(print_r($filter, true));
+			$hash3 = md5(print_r($sort, true));
+
+			if(isset($registry[$hash1]) === false){
+				$registry[$hash1] = array();
+			}
+			if(isset($registry[$hash1][$hash2]) === false){
+				$registry[$hash1][$hash2] = array();
+			}
+
+			$create = (
+				isset($registry[$hash1][$hash2][$hash3]) === false ||
+				$registry[$hash1][$hash2][$hash3]->count() !== $total
+			);
+
+			if($create === true){
+				$registry[$hash1][$hash2][$hash3] = new static($WebUI, $start, $total, $filter, $sort, $parcels);
+			}
+
+			$registry[$hash1][$hash2][$hash3]->seek($start);
+			return $registry[$hash1][$hash2][$hash3];
+		}
+
+//!	To avoid slowdowns due to an excessive amount of curl calls, we populate Aurora::Addon::WebUI::GetEvents::$data in batches of 10
+/**
+*	@return mixed either NULL or an instance of Aurora::Addon::WebUI::LandData
+*/
+		public function current(){
+			if($this->valid() === false){
+				return null;
+			}else if(isset($this->data[$this->key()]) === false){
+				$start   = $this->key();
+				$results = $this->WebUI->GetEvents($start, 10, $this->filter, $this->sort, true);
+				foreach($results as $event){
+					$this->data[$start++] = $event;
+				}
+			}
+			return $this->data[$this->key()];
+		}
+	}
 }
 ?>
