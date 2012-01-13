@@ -10,7 +10,7 @@
 			mapui = new mapapi.userinterfaces.minimalist({
 				container  : document.getElementById('webui-gpl-mapapi-container'),
 				gridConfig : mapapi['gridConfigs']['aurorasim']({
-					'mapTextureURL' : 'http://127.0.0.1:9000/index.php?method=MapTexture&x=_%x%_&y=_%y%_&zoom=_%zoom%_',
+					'mapTextureURL' : 'http://127.0.0.1:8002/index.php?method=MapTexture2&x=_%x%_&y=_%y%_&zoom=_%zoom%_',
 					'namespace'     : 'localhost.aurorawebuigpl',
 					'vendor'        : 'Aurora Sim',
 					'name'          : 'Marvville',
