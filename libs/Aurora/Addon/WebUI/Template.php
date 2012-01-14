@@ -34,10 +34,20 @@ namespace Aurora\Addon\WebUI\Template{
 				return link('/world/place/' . urlencode($estate->EstateName()) . '/' . urlencode($region->RegionName()) . '/' . urlencode($url->Name()) . '/' . urlencode(preg_replace_callback('/0{3,}/',function($matches){return 'g' . strlen($matches[0]);}, rtrim(str_replace('-','',$url->InfoUUID()),'0'))));
 			}
 		}
+		
+		$baseURI = parse_url(Globals::i()->baseURI);
+		if(substr($baseURI['path'],0,1) === '/'){
+			$baseURI['path'] = substr($baseURI['path'],1);
+		}
+		if(substr($baseURI['path'],-1) === '/'){
+			$baseURI['path'] = substr($baseURI['path'],0,-1);
+		}
+		
+		if(substr($url,0,1) === '/'){
+			$url = substr($url,1);
+		}
 
 		$url = parse_url(Globals::i()->baseURI . $url);
-
-		$output = '';
 
 		if(substr($url['path'],0,1) === '/'){
 			$url['path'] = substr($url['path'],1);
@@ -45,6 +55,14 @@ namespace Aurora\Addon\WebUI\Template{
 		if(substr($url['path'],-1) === '/'){
 			$url['path'] = substr($url['path'],0,-1);
 		}
+		
+		$output = '';
+		$pos = strpos($url['path'], $baseURI['path']);
+		if($pos !== false && $pos >= 0){
+			$output = '.';
+			$url['path'] = substr($url['path'], strlen($baseURI['path']));
+		}
+
 
 		switch(Globals::i()->linkStyle){
 			case 'mod_rewrite':

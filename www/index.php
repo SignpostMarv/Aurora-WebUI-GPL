@@ -16,7 +16,13 @@ if(isset($_SESSION['loggedin']) === false){
 switch(Globals::i()->linkStyle){
 	case 'mod_rewrite':
 		$request = parse_url($_SERVER['REQUEST_URI']);
+		$baseURI = parse_url(Globals::i()->baseURI);		
+		$pos = strpos($request['path'], $baseURI['path']);
+		if($pos >= 0){
+			$request['path'] = substr($request['path'], strlen($baseURI['path']));
+		}
 		$request = $request['path'];
+		
 	break;
 	case 'path':
 	default:
