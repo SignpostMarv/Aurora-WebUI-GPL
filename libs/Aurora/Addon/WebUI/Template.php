@@ -6,6 +6,7 @@ namespace Aurora\Addon\WebUI\Template{
 
 	use Globals;
 
+	use Aurora\Addon\WORM;
 	use Aurora\Addon\WebUI;
 	use Aurora\Addon\WebUI\InvalidArgumentException;
 
@@ -70,7 +71,7 @@ namespace Aurora\Addon\WebUI\Template{
 	}
 
 
-	class FormProblem extends WebUI\WORM{
+	class FormProblem extends WORM{
 
 
 		public function offsetSet($offset, $value){

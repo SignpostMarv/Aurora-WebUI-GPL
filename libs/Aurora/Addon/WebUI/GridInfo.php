@@ -6,6 +6,8 @@
 
 namespace Aurora\Addon\WebUI{
 
+	use Aurora\Addon\WORM;
+
 //! class for representing the online status result of an API query.
 /**
 *	Now the simplest approach would just be to return the object that from json_decode() in Aurora::Addon::WebUI::makeCallToAPI(), but stdClass doesn't prevent properties being removed or overwritten.

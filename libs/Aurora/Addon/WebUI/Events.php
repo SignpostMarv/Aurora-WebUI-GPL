@@ -12,6 +12,7 @@ namespace Aurora\Addon\WebUI{
 
 	use Aurora\Framework;
 	use Aurora\Addon\WebUI;
+	use Aurora\Addon\abstractSeekableIterator;
 
 //!	Implementation of Aurora::Framework::EventData
 	class EventData implements Framework\EventData{
@@ -276,7 +277,7 @@ namespace Aurora\Addon\WebUI{
 		}
 	}
 
-
+//!	Return type iterator for Aurora::Addon::WebUI::GetEvents()
 	class GetEvents extends abstractSeekableEventDataIterator{
 
 //!	array filter argument

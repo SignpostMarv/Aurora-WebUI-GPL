@@ -8,8 +8,10 @@ namespace Aurora\Addon\WebUI{
 
 	use SeekableIterator;
 
-	use Aurora\Addon\WebUI;
 	use Aurora\Framework;
+	use Aurora\Addon;
+	use Aurora\Addon\WebUI;
+	use Aurora\Addon\abstractAPI;
 
 //!	Implementation of Aurora::Framework::GroupRecord
 	class GroupRecord implements Framework\GroupRecord{
@@ -221,7 +223,7 @@ namespace Aurora\Addon\WebUI{
 	}
 
 //!	Groups iterator
-	class GetGroupRecords extends WebUI\abstractSeekableFilterableIterator{
+	class GetGroupRecords extends Addon\abstractSeekableFilterableIterator{
 
 //!	Because we use a seekable iterator, we hide the constructor behind a registry method to avoid needlessly calling the end-point if we've rewound the iterator, or moved the cursor to an already populated position.
 /**
@@ -472,7 +474,7 @@ namespace Aurora\Addon\WebUI{
 	}
 
 //!	Group Notices iterator
-	class GetGroupNotices extends abstractSeekableFilterableIterator{
+	class GetGroupNotices extends Addon\abstractSeekableFilterableIterator{
 
 //!	Will be populated with an array of Group IDs that the class was instantiated with
 	protected $groupIDs;
@@ -530,7 +532,7 @@ namespace Aurora\Addon\WebUI{
 *	@param array $entities if specified, should be an array of entity objects to be validated by the child constructor
 *	@param array $ignored this parameter is ignored, only here to comply with the method
 */
-		public static function r(WebUI $WebUI, $start=0, $total=0, array $groups=null, array $entities=null, array $ignored=null){
+		public static function r(abstractAPI $WebUI, $start=0, $total=0, array $groups=null, array $entities=null, array $ignored=null){
 			sort($groups);
 			static $registry = array();
 			$hash1 = spl_object_hash($WebUI);

@@ -8,10 +8,12 @@ namespace Aurora\Addon\WebUI{
 
 	use SeekableIterator;
 
-	use Aurora\Addon\WebUI;
 	use Aurora\Framework;
-	use Aurora\Services\Interfaces;
 	use Aurora\Framework\RegionFlags;
+	use Aurora\Services\Interfaces;
+
+	use Aurora\Addon\WORM;
+	use Aurora\Addon\WebUI;
 
 //!	Implementation of Aurora::Services::Interfaces::GridRegion
 	class GridRegion implements Interfaces\GridRegion{

@@ -5,6 +5,8 @@
 
 namespace Aurora\Addon\WebUI{
 
+	use Aurora\Addon\abstractIterator;
+
 //!	AbuseReport class. Included in result returned by Aurora::Addon::WebUI::GetAbuseReports()
 	class AbuseReport{
 

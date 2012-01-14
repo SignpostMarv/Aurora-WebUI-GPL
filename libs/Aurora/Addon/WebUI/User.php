@@ -8,6 +8,7 @@ namespace Aurora\Addon\WebUI{
 	use IteratorAggregate;
 
 	use Aurora\Services\Interfaces;
+	use Aurora\Addon\abstractIterator;
 
 //!	abstract implementation
 	abstract class abstractUser implements Interfaces\User{
