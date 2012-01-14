@@ -8,6 +8,7 @@ namespace{
 
 	use Aurora\Addon\WebUI;
 	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\MapAPI;
 
 	$configs = Configs::i();
 
@@ -15,6 +16,9 @@ namespace{
 		'http://localhost:8007/WEBUI',
 		'Password'
 	);
+	$configs[$configs->count() - 1]->attachAPI(MapAPI::r(
+		'http://localhost:8007/mapapi'
+	));
 
 	Globals::i()->baseURI = 'http://localhost/';
 	Globals::i()->linkStyle = 'query'; // mod_rewrite or query
