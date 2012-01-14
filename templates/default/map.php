@@ -1,4 +1,10 @@
 <?php
+	$MapAPI = Globals::i()->WebUI->getAttachedAPI('MapAPI');
+	if(isset($MapAPI) === false){
+		require_once('404.php');
+		return;
+	}
+
 	add_action('webui_head', function(){
 ?>
 	<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
@@ -7,23 +13,26 @@
 	<script>
 	window.onload = function(){
 		var
+			resetCSS = mapapi.ui.prototype.css.indexOf('reset.css')
+		;
+		if(resetCSS >= 0){
+			mapapi.ui.prototype.css.splice(resetCSS, 1);
+		}
+		var
 			mapui = new mapapi.userinterfaces.minimalist({
 				container  : document.getElementById('webui-gpl-mapapi-container'),
 				gridConfig : mapapi['gridConfigs']['aurorasim']({
-					'mapTextureURL' : 'http://127.0.0.1:8002/index.php?method=MapTexture2&x=_%x%_&y=_%y%_&zoom=_%zoom%_',
-					'namespace'     : 'localhost.aurorawebuigpl',
+					'mapTextureURL' :  <?php echo json_encode(Globals::i()->WebUI->getAttachedAPI('MapAPI')->mapTextureURL()); ?>,
+					'namespace'     : <?php
+						$baseURI = parse_url(Globals::i()->baseURI);
+						$baseURI = implode('.', array_reverse(explode('.', $baseURI['host']))) . '.' . Globals::i()->WebUI->get_grid_info('gridnick');
+						echo json_encode($baseURI);
+					?>,
 					'vendor'        : 'Aurora Sim',
-					'name'          : 'Marvville',
-					'description'   : 'Marvville',
-					'gridLabel'     : 'gridLabel',
-					'gridLookup'    : {
-						1000 : {
-							1000 : {
-								'name' : 'Foo 1',
-								'uuid' : '6699b4ba-ac0c-4cc6-8ae8-b69ce981dfce'
-							}
-						}
-					}
+					'name'          : <?php echo json_encode(Globals::i()->WebUI->get_grid_info('gridname')); ?>,
+					'description'   : <?php echo json_encode(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridnick')) . ' - ' . __('Powered by AuroraSim')); ?>,
+					'gridLabel'     : <?php echo json_encode(Globals::i()->WebUI->get_grid_info('gridnick')); ?>,
+					'gridLookup'    : <?php echo json_encode(Globals::i()->WebUI->getAttachedAPI('MapAPI')->MonolithicRegionLookup()); ?>
 				})
 			}),
 			map   = mapui.renderer
