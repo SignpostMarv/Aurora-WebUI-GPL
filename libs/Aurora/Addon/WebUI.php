@@ -6,35 +6,37 @@
 //	Defining exception classes in the top of the file for purposes of clarity.
 namespace Aurora\Addon\WebUI{
 
+	use Aurora\Addon;
+
 //!	This interface exists purely to give client code the ability to detect all WebUI-specific exception classes in one go.
 //!	The purpose of this behaviour is that instances of Aurora::Addon::WebUI::Exception will be more or less "safe" for public consumption.
-	interface Exception{
+	interface Exception extends Addon\Exception{
 	}
 
 //!	WebUI-specific RuntimeException
-	class RuntimeException extends \RuntimeException implements Exception{
+	class RuntimeException extends Addon\RuntimeException implements Exception{
 	}
 
 //!	WebUI-specific InvalidArgumentException
-	class InvalidArgumentException extends \InvalidArgumentException implements Exception{
+	class InvalidArgumentException extends Addon\InvalidArgumentException implements Exception{
 	}
 
 //!	WebUI-specific UnexpectedValueException
-	class UnexpectedValueException extends \UnexpectedValueException implements Exception{
+	class UnexpectedValueException extends Addon\UnexpectedValueException implements Exception{
 	}
 
 //!	WebUI-specific LengthException
-	class LengthException extends \LengthException implements Exception{
+	class LengthException extends Addon\LengthException implements Exception{
 	}
 
 //!	WebUI-specific BadMethodCallException
-	class BadMethodCallException extends \BadMethodCallException implements Exception{
+	class BadMethodCallException extends Addon\BadMethodCallException implements Exception{
 	}
 }
 
-
 //!	Mimicking the layout of code in Aurora Sim here.
 namespace Aurora\Addon{
+
 	use DateTime;
 
 	use Globals;
@@ -44,13 +46,8 @@ namespace Aurora\Addon{
 	use Aurora\Framework\RegionFlags;
 	use Aurora\Services\Interfaces\User;
 
-	use Aurora\Addon\WebUI\RuntimeException;
-	use Aurora\Addon\WebUI\InvalidArgumentException;
-	use Aurora\Addon\WebUI\UnexpectedValueException;
-	use Aurora\Addon\WebUI\LengthException;
-
 //!	Now you might think this class should be a singleton loading config values from constants instead of a registry method, but Marv has plans. MUAHAHAHAHA.
-	class WebUI{
+	class WebUI extends abstractAPI{
 //!	string Regular expression for validating UUIDs (put here until this operation gets performed elsewhere.
 		const regex_UUID = '/^[a-fA-F0-9]{8}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{4}\-[a-fA-F0-9]{12}$/';
 
@@ -137,61 +134,70 @@ namespace Aurora\Addon{
 						$validValue = false;
 						foreach($v[gettype($result->{$k})] as $_k => $possibleValue){
 							if(is_integer($_k) === true){
-								$subPropertyKeys = array_keys($possibleValue);
-								switch(gettype($result->{$k})){
-									case 'array':
-										foreach($result->{$k} as $_v){
-											if(in_array(gettype($_v), $subPropertyKeys) === false){
-												throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 3);
-											}else if(gettype($_v) === 'object' && isset($possibleValue[gettype($_v)]) === true){
-												foreach($possibleValue[gettype($_v)] as $__k => $__v){
-													if(isset($__v['float']) == true){
-														$possibleValue[gettype($_v)]['double'] = $__v['float'];
+								if(gettype($result->{$k}) === 'boolean'){
+									if(is_bool($possibleValue) === false){
+										throw new InvalidArgumentException('Only booleans can be given as valid values to a boolean type.');
+									}else if($result->{$k} === $possibleValue){
+										$validValue = true;
+										break;
+									}
+								}else{
+									$subPropertyKeys = array_keys($possibleValue);
+									switch(gettype($result->{$k})){
+										case 'array':
+											foreach($result->{$k} as $_v){
+												if(in_array(gettype($_v), $subPropertyKeys) === false){
+													throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 3);
+												}else if(gettype($_v) === 'object' && isset($possibleValue[gettype($_v)]) === true){
+													foreach($possibleValue[gettype($_v)] as $__k => $__v){
+														if(isset($__v['float']) == true){
+															$possibleValue[gettype($_v)]['double'] = $__v['float'];
+														}
 													}
-												}
-												$pos = $possibleValue[gettype($_v)];
-												if(gettype($_v) === 'object'){
-													$pos = current($pos);
+													$pos = $possibleValue[gettype($_v)];
+													if(gettype($_v) === 'object'){
+														$pos = current($pos);
+														if($pos !== false){
+															foreach($pos as $__k => $__v){
+																if(isset($__v['float']) === true){
+																	$pos[$__k]['double'] = $__v['float'];
+																}
+															}
+														}
+													}
 													if($pos !== false){
 														foreach($pos as $__k => $__v){
-															if(isset($__v['float']) === true){
-																$pos[$__k]['double'] = $__v['float'];
-															}
-														}
-													}
-												}
-												if($pos !== false){
-													foreach($pos as $__k => $__v){
-														if(isset($_v->{$__k}) === false){
-															throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
-														}else{
-															if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
-																throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+															if(isset($_v->{$__k}) === false){
+																throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
+															}else{
+																if(in_array(gettype($_v->{$__k}), array_keys($__v)) === false){
+																	throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+																}
 															}
 														}
 													}
 												}
 											}
-										}
-										$validValue = true;
-									break;
-									case 'object':
-										foreach($possibleValue as $_k => $_v){
-											if(isset($_v['float']) === true){
-												$possibleValue[$_k]['double'] = $_v['float'];
-											}
-										}
-										foreach($possibleValue as $_k => $_v){
-											if(isset($result->{$k}->{$_k}) === false){
-												throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
-											}else{
-												if(in_array(gettype($result->{$k}->{$_k}), array_keys($possibleValue[$_k])) === false){
-													throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+											$validValue = true;
+										break;
+										case 'object':
+											foreach($possibleValue as $_k => $_v){
+												if(isset($_v['float']) === true){
+													$possibleValue[$_k]['double'] = $_v['float'];
 												}
 											}
-										}
-										$validValue = true;
-									break;
+											foreach($possibleValue as $_k => $_v){
+												if(isset($result->{$k}->{$_k}) === false){
+													throw new UnexpectedValueException('Call to API was successful, but required response sub-property property was of missing.', ($exprsp * 6) + 4);
+												}else{
+													if(in_array(gettype($result->{$k}->{$_k}), array_keys($possibleValue[$_k])) === false){
+														throw new UnexpectedValueException('Call to API was successful, but required response sub-property was of unexpected type.', ($exprsp * 6) + 5);
+													}
+												}
+											}
+											$validValue = true;
+										break;
+									}
 								}
 							}else if($result->{$k} === $possibleValue){
 								$validValue = true;
@@ -744,7 +750,7 @@ namespace Aurora\Addon{
 				$RLCountry = $agent->RLCountry;
 			}
 
-			return WebUI\UserProfile::r($account->PrincipalID, $account->Name, $account->Email, $account->Created, $allowPublish, $maturePublish, $wantToMask, $wantToText, $canDoMask, $canDoText, $languages, $image, $aboutText, $firstLifeImage, $firstLifeAboutText, $webURL, $displayName, $account->PartnerUUID, $visible, $customType, $notes, $RLName, $RLAddress, $RLZip, $RLCity, $RLCountry);
+			return WebUI\UserProfile::r($account->PrincipalID, $account->Name, $account->Email, $account->Created, $allowPublish, $maturePublish, $wantToMask, $wantToText, $canDoMask, $canDoText, $languages, $image, $aboutText, $firstLifeImage, $firstLifeAboutText, $webURL, $displayName, isset($account->PartnerUUID) ? $account->PartnerUUID : '00000000-0000-0000-0000-000000000000', $visible, $customType, $notes, $RLName, $RLAddress, $RLZip, $RLCity, $RLCountry);
 		}
 
 //!	Attempt to edit the account name, email address and real-life info.
@@ -1441,7 +1447,10 @@ namespace Aurora\Addon{
 			}
 
 			$result = $this->makeCallToAPI('GetGroup', $input, array(
-				'Group' => array('object'=>array(), 'boolean'=>array(false))
+				'Group' => array(
+					'object'  => array(),
+					'boolean' => array(false)
+				)
 			));
 
 			return $result->Group ? self::GroupResult2GroupRecord($result->Group) : false;
@@ -1476,10 +1485,11 @@ namespace Aurora\Addon{
 		public function GroupNotices($start=0, $count=10, array $groups, $asArray=false){
 			$groupIDs = array();
 			foreach($groups as $group){
-				if(($group instanceof WebUI\GroupRecord) === false){
-					throw new InvalidArgumentException('Groups must be an array of Aurora::Addon::WebUI::GroupRecord instances');
+				if($group instanceof WebUI\GroupRecord){
+					$groupIDs[] = $group->GroupID();
+				}else if(is_bool($group) === false){
+					throw new InvalidArgumentException('Groups must be an array of Aurora::Addon::WebUI::GroupRecord instances');				
 				}
-				$groupIDs[] = $group->GroupID();
 			}
 
 			$result = $this->makeCallToAPI('GroupNotices', array(
@@ -2172,6 +2182,8 @@ namespace{
 //!	Code specific to the WebUI
 namespace Aurora\Addon\WebUI{
 
+	use Aurora\Addon\WORM;
+
 //!	Long-term goal of Aurora-WebUI-GPL is to support multiple grids on a single website, so we need an iterator to hold all the configs.
 	class Configs extends WORM{
 
@@ -2215,6 +2227,5 @@ namespace Aurora\Addon\WebUI{
 			$this->data[$offset] = $value;
 		}
 	}
-
 }
 ?>
