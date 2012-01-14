@@ -6,6 +6,7 @@
 	}
 
 	add_action('webui_head', function(){
+		$pathParts = explode('/', Globals::i()->section);
 ?>
 	<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
 	<script src="./js/mapapi.js/mapapi-complete.js"></script>
@@ -40,7 +41,57 @@
 		map.scrollWheelZoom(true);
 		map.smoothZoom(true);
 		map.draggable(true);
-		map.focus(1000,1000,0);
+<?php
+		$regionName = null;
+		if(count($pathParts) >= 2){
+			$regionName = urldecode($pathParts[1]);
+		}
+		$localX = $localY = 128;
+		if(count($pathParts) >= 3 && ctype_digit($pathParts[2]) === true){
+			$localX = (integer)$pathParts[2];
+			if(count($pathParts) >= 4 && ctype_digit($pathParts[3]) === true){
+				$localY = (integer)$pathParts[3];
+			}
+		}
+?>
+		var
+			region = <?php echo json_encode($regionName); ?>,
+			localX = <?php echo json_encode($localX); ?>,
+			localY = <?php echo json_encode($localY); ?>,
+			pos = {'x' : 1000 + (localX / 256), 'y' : 1000  + (localY / 256)}
+		;
+		map.focus(pos.x, pos.y,0);
+/*
+		if(history.pushState){
+			window.onpopstate = function(e){
+				console.log(e.state);
+				if(e.state){
+					if(e.state.pos){
+						map.focus(e.state.pos);
+					}
+				}
+			};
+		}
+		if(history.replaceState){
+			history.replaceState({
+				'pos' : pos,
+				'region' : region
+			}, map.gridConfig.name, window.location.pathname);
+		}
+*/
+<?php	if(isset($regionName) === true){ ?>
+		map.gridConfig.region2pos(<?php echo json_encode($regionName); ?>, function(e){			
+			e.pos.x += localX / 256;
+			e.pos.y += localY / 256;
+			map.focus(e.pos);
+/*
+			history.pushState({
+				'pos'    : e.pos,
+				'region' : region
+			}, map.gridConfig.name, window.location.pathname);
+*/
+		});
+<?php	} ?>
 	};
 	</script>
 <?php
