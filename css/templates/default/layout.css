@@ -166,3 +166,65 @@ body.world-user .vcard .logo, .vcard .photo{
 .world-place .parcels nav{
 	margin-bottom: 1em ;
 }
+
+html.loginscreen{
+	margin: 0 ;
+	height: 100% ;
+	width: auto ;
+}
+body.loginscreen{
+	position: relative ;
+	height: 100% ;
+	width: auto ;
+	padding: 0 ;
+	display: block ;
+}
+
+body.loginscreen header{
+	display: none ;
+}
+
+body.loginscreen section#server-status{
+	position: absolute ;
+	top: 3em ;
+	right: .5em ;
+}
+body.loginscreen section#server-status th{
+	min-width: 10em ;
+	text-align: left ;
+}
+body.loginscreen section#server-status td{
+	text-align: right ;
+}
+
+body.loginscreen footer{
+	display: none ;
+}
+body.loginscreen footer#news, body.loginscreen footer#copyright{
+	display: block ;
+}
+body.loginscreen footer#copyright{
+	position: absolute ;
+	top: 1em ;
+	right: 0 ;
+}
+body.loginscreen footer#news{
+	position: absolute ;
+	bottom: 0 ;
+	width: 100% ;
+	border-width: 0 ;
+	padding: 0 ;
+}
+body.loginscreen footer#news ol{
+	border:1px solid;
+	padding: .5em ;
+	margin: .25em ;
+}
+body.loginscreen footer#news li{
+	position: relative ;
+	padding: .5em ;
+}
+body.loginscreen footer#news abbr{
+	position: absolute ;
+	right: .5em ;
+}

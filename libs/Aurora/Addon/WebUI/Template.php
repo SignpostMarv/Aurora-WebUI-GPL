@@ -6,6 +6,7 @@ namespace Aurora\Addon\WebUI\Template{
 
 	use Globals;
 
+	use Aurora\Addon;
 	use Aurora\Addon\WORM;
 	use Aurora\Addon\WebUI;
 	use Aurora\Addon\WebUI\InvalidArgumentException;
@@ -88,6 +89,27 @@ namespace Aurora\Addon\WebUI\Template{
 		return $output;
 	}
 
+	function squishUUID($uuid){
+		if(Addon\is_uuid($uuid) === false){
+			throw new InvalidArgumentException('Input value must be a valid UUID');
+		}
+		return base_convert(str_replace('-', '', $uuid), 16, 36);
+	}
+
+	function unsquishUUID($string){
+		$string = str_split(str_pad(base_convert($string, 36, 16), 32, '0', STR_PAD_LEFT), 4);
+		$uuid   =
+			$string[0] . $string[1] . '-' .
+			$string[2] . '-' .
+			$string[3] . '-' .
+			$string[4] . '-' .
+			$string[5] . $string[6] . $string[7]
+		;
+		if(Addon\is_uuid($uuid) === false){
+			throw new InvalidArgumentException('Input value was not a valid squished UUID');
+		}
+		return $uuid;
+	}
 
 	class FormProblem extends WORM{
 

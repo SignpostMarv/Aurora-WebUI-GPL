@@ -2,9 +2,10 @@
 	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\WebUI\Template;
 
+	$htmlClass = array_unique(apply_filters('htmlClass', array()));
 	header('Content-Type: text/html');
 ?><!DOCTYPE html>
-<html>
+<html<?php echo (count($htmlClass) > 0) ? ' class="' . esc_attr(implode(' ', $htmlClass)) . '"' : ''; ?>>
 <head>
 <title><?php echo esc_html(Globals::i()->WebUI->get_grid_info('gridname'));?></title>
 <base href="<?php echo esc_attr(Globals::i()->baseURI); ?>">

@@ -15,3 +15,13 @@ form p.problem{
 	background: #eee ;
 	border-color: #ccc ;
 }
+
+html.loginscreen{
+	background: transparent ;
+}
+body.loginscreen footer#news li{
+	background: #fff ;
+}
+body.loginscreen footer#news li:nth-child(1){
+	background: #eee ;
+}
