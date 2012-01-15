@@ -179,7 +179,11 @@ You will also need to [https://www.google.com/recaptcha/admin/create](obtain you
 	Globals::i()->recaptchaPrivateKey       = 'bar' ;
 ```
 
-#### If you want to use the more user-friendly, JavaScript-powered reCAPTCHA interface, you'll need to set this property to TRUE.
+#### reCAPTCHA JavaScript
+
+To give you fine-grained control over what JavaScript runs on your website, WebUI-GPL will disable reCAPTCHA's scripts by default.
+If you want to use the more user-friendly, JavaScript-powered reCAPTCHA interface, you'll need to set this property to TRUE.
+
 ```php
 	Globals::i()->recaptchaEnableJavaScript = false ; // set to TRUE to enable the prettier but JavaScript-powered reCAPTCHA input
 ```
