@@ -6,11 +6,12 @@
 	$WebUI = null;
 	$activationToken = null;
 	if(isset($_SERVER['REQUEST_METHOD']) === true && $_SERVER['REQUEST_METHOD'] === 'POST'){
+		$registration_is_valid = apply_filters('registration_is_valid', true, $_POST);
 		if(Globals::i()->registrationEmailRequired !== true){
 			$_POST['email'] = isset($_POST['email']) ? $_POST['email'] : '';
 			$_POST['confirm-email'] = isset($_POST['confirm-email']) ? $_POST['confirm-email'] : '';
 		}
-		if(isset(
+		if($registration_is_valid === true && isset(
 			$_POST['grid'],
 			$_POST['username'],
 			$_POST['password'],
@@ -77,10 +78,14 @@
 <?php
 		do_action('post_register_account_postal_fieldset', 'register');
 	}
+	do_action('pre_buttons_fieldset', 'register');
 ?>
 			<fieldset class=buttons>
 				<button type=submit><?php echo esc_html(__('Register')); ?></button>
 			</fieldset>
+<?php
+	do_action('post_buttons_fieldset', 'register');
+?>
 		</form>
 	</section>
 <?php
