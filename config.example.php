@@ -28,8 +28,8 @@ namespace{
 
 //!	In order to use the reCAPTCHA lib, you must get public and private keys from https://www.google.com/recaptcha/admin/create
 //	Globals::i()->recaptcha                 = true;
-//	Globals::i()->recaptchaPublicKey = 'foo' ;
-//	Globals::i()->recaptchaPrivateKey = 'bar' ;
+//	Globals::i()->recaptchaPublicKey        = 'foo' ;
+//	Globals::i()->recaptchaPrivateKey       = 'bar' ;
 //	Globals::i()->recaptchaEnableJavaScript = false ; // set to TRUE to enable the prettier but JavaScript-powered reCAPTCHA input
 }
 ?>

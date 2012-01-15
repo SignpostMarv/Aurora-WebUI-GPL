@@ -62,3 +62,124 @@ The minify.sh script in the utils directory attempts to "minify" and pre-gzip th
 			Allow from all
 		</Directory>
 	</VirtualHost>
+
+# Configuration
+
+## config.php
+
+### Default Timezone
+
+PHP can complain if no timezone is set- you'll want to configure the timezone to match the timezone your Aurora grid operates under.
+
+A [http://www.php.net/manual/en/timezones.php](full list of timezones is available on the PHP website).
+
+```php
+	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
+```
+
+### Default Content-Type header
+
+The template system sets appropriate Content-Type for different pages, but we set the default content type to text/plain to make debugging things a little easier when errors occur outside the scope of the template system. Feel free to change it!
+
+```php
+	header('Content-Type: text/plain');
+```
+
+### WebUI Configs array
+
+WebUI GPL configs need two arguments:
+1. The API end-point url, using the WebUIHandlerPort port number specified in the Aurora ini files
+2. The WebUIHandlerPassword from the Aurora ini files
+
+An instance of the PHP class that provides an interface to the [https://github.com/SignpostMarv/mapapi.cs](mapapi.cs) Aurora Module can be attached to an instance of the WebUI interface. The example commented-out example in the config.php file attaches the map API to the last created WebUI instance.
+
+```php
+	$configs[] = WebUI::r(
+		'http://localhost:8007/WEBUI',
+		'Password'
+	);
+//	$configs[$configs->count() - 1]->attachAPI(MapAPI::r(
+//		'http://localhost:8007/mapapi'
+//	));
+```
+
+### base URI
+
+The template system uses absolute paths, so a URI needs to be provided for the HTML base element.
+
+#### Installing in root directory of a domain
+
+```php
+	Globals::i()->baseURI = 'http://localhost/';
+```
+
+#### Installing in sub directory of a domain
+
+```php
+	Globals::i()->baseURI = 'http://localhost/webui';
+```
+
+### Link Style
+
+WebUI-GPL currently supports two modes for links- "query" and "mod_rewrite". The Aurora::Addon::WebUI::Template::link() method accepts mod_rewrite-mode style links, automatically converting them to query mode style links if needed.
+
+#### query
+
+This mode should be used if you don't have mod_rewrite available (which is why it's the default).
+
+```php
+	Globals::i()->linkStyle = 'query';
+```
+
+#### mod_rewrite
+
+The www/.httaccess.example file should be copied to www/.htaccess if mod_rewrite mode is to be used.
+
+```php
+	Globals::i()->linkStyle = 'mod_rewrite';
+```
+
+### Registration
+
+#### Postal Information
+
+This parameter should be set to TRUE if you need to store a user's postal information.
+
+```php
+	Globals::i()->registrationPostalRequired = false; // TRUE if postal address info is required for registration, FALSE otherwise.
+```
+
+#### Account Activation
+
+If your grid is public, you will most likely want to set this to true.
+
+However, WebUI-GPL currently does not support sending the activation link via email or other channels, so the link will get dumped straight to the web page.
+
+```php
+	Globals::i()->registrationActivationRequired = false; // TRUE if activation is required for registration, FALSE otherwise. NOTE: we're not specifying activation method here for a reason.
+```
+
+#### Email Address
+
+Currently serves no purpose, but will be used for password resets and activation links when support is added.
+
+```php
+	Globals::i()->registrationEmailRequired = false; // TRUE if emails are required, FALSE if they're optional.
+```
+
+### reCAPTCHA
+
+If you want to use the reCAPTCHA service on the registration page, you will need to uncomment and modify these 3 properties.
+You will also need to [https://www.google.com/recaptcha/admin/create](obtain your public and private keys).
+
+
+```php
+	Globals::i()->recaptcha                 = true;
+	Globals::i()->recaptchaPublicKey        = 'foo' ;
+	Globals::i()->recaptchaPrivateKey       = 'bar' ;
+```
+
+#### If you want to use the more user-friendly, JavaScript-powered reCAPTCHA interface, you'll need to set this property to TRUE.
+```php
+	Globals::i()->recaptchaEnableJavaScript = false ; // set to TRUE to enable the prettier but JavaScript-powered reCAPTCHA input
+```
