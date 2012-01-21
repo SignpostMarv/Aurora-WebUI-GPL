@@ -334,6 +334,14 @@ namespace Aurora\Addon{
 
 //!	working in the global namespace here
 namespace{
+
+	if(function_exists('is_email') === false){
+		function is_email($email){
+			return (is_string($email) && preg_match("/^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b$/", $email) === 1);
+		}
+	}
+	
+
 	require_once('Framework.php');
 	require_once('Services.php');
 	require_once('Addon.php');
