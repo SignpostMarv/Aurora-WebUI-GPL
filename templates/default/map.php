@@ -1,4 +1,8 @@
 <?php
+//! This file is an implementation of mapapi.cs (https://github.com/SignpostMarv/mapapi.cs )
+//! As it's currently the only public example implementation using mapapi.cs and that this project is GPL'd,
+//!	consider this file (and this file only) to be under the same license as that project.
+
 	$MapAPI = Globals::i()->WebUI->getAttachedAPI('MapAPI');
 	if(isset($MapAPI) === false){
 		require_once('404.php');
