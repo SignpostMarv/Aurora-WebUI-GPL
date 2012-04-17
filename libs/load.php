@@ -7,7 +7,7 @@ namespace{
 	require_once('phar://../libs/backpress-full.phar.gz/includes/functions.kses.php'); // we need this for the wp_kses() function.
 	require_once('phar://../libs/backpress-full.phar.gz/includes/pomo/mo.php'); // we need this for the esc_attr() function.
 	require_once('recaptcha/recaptchalib.php');
-	require_once('phar://../libs/Aurora-Sim.php.phar.gz/Aurora/load.php');
+	require_once('phar://../libs/libAurora.php.phar.gz/load.php');
 
 	use Aurora\Addon\WebUI;
 
