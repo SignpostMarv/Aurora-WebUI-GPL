@@ -11,16 +11,19 @@ namespace{
 		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
 			0,
+			0,
 			10
 		),
 		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
 			0,
 			10,
 			true
 		),
 		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
 			0,
 			10,
 			true,
@@ -28,6 +31,7 @@ namespace{
 		),
 		Configs::d()->GetRegions(
 			Aurora\Framework\RegionFlags::RegionOnline,
+			0,
 			0,
 			10,
 			true,

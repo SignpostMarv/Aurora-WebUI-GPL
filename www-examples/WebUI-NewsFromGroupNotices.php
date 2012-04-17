@@ -7,10 +7,7 @@ namespace{
 	var_dump(
 		Configs::d()->NewsFromGroupNotices(
 			0,
-			10,
-			array(
-				Configs::d()->GetGroup('Foobar')
-			)
+			10
 		)
 	);
 }
