@@ -1,6 +1,6 @@
 <?php
 namespace{
-	date_default_timezone_set('Europe/London'); // this is just to get rid of pesky errors
+	@date_default_timezone_set(@date_default_timezone_get()); // this is just to get rid of pesky errors
 
 	header('Content-Type: text/plain');
 
