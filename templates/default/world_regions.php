@@ -24,12 +24,14 @@
 	}
 	$start = (($_GET['page'] - 1) * $_GET['per']);
 	try{
-		$regions = Globals::i()->WebUI->GetRegions(null, $start, $_GET['per'], $sortByRegion, $sortByLocX, $sortByLocY);
+		$regions = Globals::i()->WebUI->GetRegions(null, 0, $start, $_GET['per'], $sortByRegion, $sortByLocX, $sortByLocY);
 		if($start >= $regions->count()){
+			error_log('start point greater than amount of news available');
 			require_once('404.php');
 			return;
 		}
 	}catch(Aurora\Addon\WebUI\LengthException $e){
+		error_log($e);
 		require_once('404.php');
 		return;
 	}
