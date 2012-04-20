@@ -228,3 +228,7 @@ body.loginscreen footer#news abbr{
 	position: absolute ;
 	right: .5em ;
 }
+
+body.world-users form li{
+	display: inline ;
+}
