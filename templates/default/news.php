@@ -16,10 +16,12 @@
 	try{
 		$news = Globals::i()->WebUI->NewsFromGroupNotices($start, $_GET['per']);
 		if($start >= $news->count()){
+			error_log('start point greater than amount of news available');
 			require_once('404.php');
 			return;
 		}
 	}catch(Aurora\Addon\WebUI\LengthException $e){
+		error_log($e);
 		require_once('404.php');
 		return;
 	}
