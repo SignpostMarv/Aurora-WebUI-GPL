@@ -25,6 +25,8 @@ namespace{
 	Globals::i()->registrationPostalRequired = false; // TRUE if postal address info is required for registration, FALSE otherwise.
 	Globals::i()->registrationActivationRequired = false; // TRUE if activation is required for registration, FALSE otherwise. NOTE: we're not specifying activation method here for a reason.
 	Globals::i()->registrationEmailRequired = false; // TRUE if emails are required, FALSE if they're optional.
+	Globals::i()->regexUsername = '^[A-z]{1}[A-z0-9]*\ [A-z]{1}[A-z0-9]*$';
+	Globals::i()->regexPassword = '^.{8}.*$';
 
 //!	In order to use the reCAPTCHA lib, you must get public and private keys from https://www.google.com/recaptcha/admin/create
 //	Globals::i()->recaptcha                 = true;

@@ -51,9 +51,9 @@
 			<fieldset class=account>
 				<legend><?php echo esc_html(__('Account Information')); ?></legend>
 				<ol>
-					<li><label for=register-username><?php echo esc_html(__('Account name')); ?>: </label><input id=register-username name=username required pattern="^[A-z]{1}[A-z0-9]*\ [A-z]{1}[A-z0-9]*$"<?php if(isset($_POST['username'])){ ?> value="<?php echo esc_attr($_POST['username']); ?>"<?php } ?>></li>
-					<li><label for=register-password><?php echo esc_html(__('Password')); ?>: </label><input id=register-password name=password type=password required pattern="^.{8}.*$"></li>
-					<li><label for=register-confirm-password><?php echo esc_html(__('Confirm Password')); ?>: </label><input id=register-confirm-password name=confirm-password type=password required pattern="^.{8}.*$"></li>
+					<li><label for=register-username><?php echo esc_html(__('Account Name')); ?>: </label><input id=register-username name=username required pattern="<?php echo esc_attr(Globals::i()->regexUsername); ?>"<?php if(isset($_POST['username'])){ ?> value="<?php echo esc_attr($_POST['username']); ?>"<?php } ?>></li>
+					<li><label for=register-password><?php echo esc_html(__('Password')); ?>: </label><input id=register-password name=password type=password required pattern="<?php echo esc_attr(Globals::i()->regexPassword); ?>"></li>
+					<li><label for=register-confirm-password><?php echo esc_html(__('Confirm Password')); ?>: </label><input id=register-confirm-password name=confirm-password type=password required pattern="<?php echo esc_attr(Globals::i()->regexPassword); ?>"></li>
 					<li><label for=register-email><?php echo esc_html(__('Email')); ?>: </label><input id=register-email name=email type=email<?php if(Globals::i()->registrationEmailRequired === true){ ?> required<?php } ?><?php if(isset($_POST['email'])){ ?> value="<?php echo esc_attr($_POST['email']); ?>"<?php } ?>></li>
 					<li><label for=register-confirm-email><?php echo esc_html(__('Confirm Email')); ?>: </label><input id=register-confirm-email name=confirm-email type=email<?php if(Globals::i()->registrationEmailRequired === true){ ?> required<?php } ?>></li>
 					<li><label for=register-dob title="<?php echo esc_attr(__('Date of Birth')); ?>"><?php echo esc_html(__('D.O.B')); ?>: </label><input id=register-dob name=dob type=date required<?php if(isset($_POST['dob'])){ ?> value="<?php echo esc_attr($_POST['dob']); ?>"<?php } ?>></li>
