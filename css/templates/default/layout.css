@@ -74,7 +74,7 @@ form.grid-selector fieldset, nav form.grid-selector fieldset{
 	margin-bottom: 0 ;
 }
 
-form ol li label{
+form ol li label, form ol li span:first-child{
 	display: block ;
 	min-width: 10em ;
 	vertical-align: text-top ;
@@ -83,6 +83,9 @@ form ol li label{
 }
 form ol li{
 	clear: both ;
+}
+form ol li span:first-child + span{
+	margin-left: .5em ;
 }
 
 nav li{
