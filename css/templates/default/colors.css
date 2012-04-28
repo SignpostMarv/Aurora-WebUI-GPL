@@ -5,6 +5,9 @@ html{
 body, nav li:hover > ul, nav li  a:focus + ul{
 	background: #fff ;
 }
+nav li > ul{
+	z-index: 1 ;
+}
 
 form p.problem{
 	font-weight: bolder ;
