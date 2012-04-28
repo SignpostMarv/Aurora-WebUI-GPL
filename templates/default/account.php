@@ -60,7 +60,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 			}else if($_POST['new-password'] !== $_POST['confirm-new-password']){
 				$FormProblems['confirm-new-password'] = __('New passwords do not match.');
 			}else if(preg_match('/' . Globals::i()->regexPassword . '/', $_POST['new-password']) != 1){
-				
+				$FormProblems['new-password'] = __('New password does not appear to be of a valid format.');
 			}else if(Globals::i()->WebUI->ChangePassword($UserInfo->PrincipalID(), $_POST['old-password'], $_POST['new-password'])){
 				session_unset();
 				session_destroy();
