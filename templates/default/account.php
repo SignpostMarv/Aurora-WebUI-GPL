@@ -123,12 +123,12 @@ require_once('_header.php');
 	<form method=post>
 		<input type=hidden name=for value="<?php echo esc_attr($UserInfo->PrincipalID()); ?>">
 <?php if(isset($FormProblems['for']) === true){ ?>
-		<p class=error><?php echo esc_html($FormProblems['for']); ?></p>
+		<p class=problem><?php echo esc_html($FormProblems['for']); ?></p>
 <?php } ?>
 		<fieldset>
 			<legend><?php echo esc_html(__('Home Region')); ?></legend>
 			<ol>
-				<li><?php if(isset($FormProblems['home-region']) === true){ ?><p class=error><?php echo esc_html($FormProblems['home-region']); ?></p><?php } ?><label for=edit-home-region><?php echo esc_html(__('Region Name')); ?>: </label><input id=edit-home-region name=home-region list=datalist-region-names required <?php if(trim($UserInfo->HomeName()) !== ''){ ?>placeholder="<?php echo esc_attr(trim($UserInfo->HomeName())); ?>" <?php } ?>></li>
+				<li><?php if(isset($FormProblems['home-region']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['home-region']); ?></p><?php } ?><label for=edit-home-region><?php echo esc_html(__('Region Name')); ?>: </label><input id=edit-home-region name=home-region list=datalist-region-names required <?php if(trim($UserInfo->HomeName()) !== ''){ ?>placeholder="<?php echo esc_attr(trim($UserInfo->HomeName())); ?>" <?php } ?>></li>
 			</ol>
 		</fieldset>
 		<button type=submit><?php echo esc_html(__('Submit')); ?></button>
@@ -138,9 +138,9 @@ require_once('_header.php');
 		<fieldset>
 			<legend><?php echo esc_html(__('Password')); ?></legend>
 			<ol>
-				<li><?php if(isset($FormProblems['old-password']) === true){ ?><p class=error><?php echo esc_html($FormProblems['old-password']); ?></p><?php } ?><label for=old-password><?php echo esc_html(__('Old Password')); ?>: </label><input id=old-password name=old-password type=password required></li>
-				<li><?php if(isset($FormProblems['new-password']) === true){ ?><p class=error><?php echo esc_html($FormProblems['new-password']); ?></p><?php } ?><label for=new-password><?php echo esc_html(__('New Password')); ?>: </label><input id=new-password name=new-password type=password required pattern="<?php echo esc_attr(Globals::i()->regexPassword); ?>"></li>
-				<li><?php if(isset($FormProblems['confirm-new-password']) === true){ ?><p class=error><?php echo esc_html($FormProblems['confirm-new-password']); ?></p><?php } ?><label for=confirm-new-password><?php echo esc_html(__('Confirm Password')); ?>: </label><input id=confirm-new-password name=confirm-new-password type=password required pattern="<?php echo esc_attr(Globals::i()->regexPassword); ?>"></li>
+				<li><?php if(isset($FormProblems['old-password']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['old-password']); ?></p><?php } ?><label for=old-password><?php echo esc_html(__('Old Password')); ?>: </label><input id=old-password name=old-password type=password required></li>
+				<li><?php if(isset($FormProblems['new-password']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['new-password']); ?></p><?php } ?><label for=new-password><?php echo esc_html(__('New Password')); ?>: </label><input id=new-password name=new-password type=password required pattern="<?php echo esc_attr(Globals::i()->regexPassword); ?>"></li>
+				<li><?php if(isset($FormProblems['confirm-new-password']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['confirm-new-password']); ?></p><?php } ?><label for=confirm-new-password><?php echo esc_html(__('Confirm Password')); ?>: </label><input id=confirm-new-password name=confirm-new-password type=password required pattern="<?php echo esc_attr(Globals::i()->regexPassword); ?>"></li>
 			</ol>
 		</fieldset>
 		<button type=submit><?php echo esc_html(__('Submit')); ?></button>
@@ -150,9 +150,9 @@ require_once('_header.php');
 		<fieldset>
 			<legend><?php echo esc_html(__('Email Address')); ?></legend>
 			<ol>
-				<li><?php if(isset($FormProblems['old-email']) === true){ ?><p class=error><?php echo esc_html($FormProblems['old-email']); ?></p><?php } ?><span><?php echo esc_html(__('Old Email')); ?>: </span><span><?php echo esc_html($UserInfo->Email()); ?></span></li>
-				<li><?php if(isset($FormProblems['new-email']) === true){ ?><p class=error><?php echo esc_html($FormProblems['new-email']); ?></p><?php } ?><label for=new-email><?php echo esc_html(__('Email')); ?>: </label><input id=new-email name=new-email type=email required></li>
-				<li><?php if(isset($FormProblems['confirm-new-email']) === true){ ?><p class=error><?php echo esc_html($FormProblems['confirm-new-email']); ?></p><?php } ?><label for=confirm-new-email><?php echo esc_html(__('Confirm Email')); ?>: </label><input id=confirm-new-email name=confirm-new-email type=email required></li>
+				<li><?php if(isset($FormProblems['old-email']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['old-email']); ?></p><?php } ?><span><?php echo esc_html(__('Old Email')); ?>: </span><span><?php echo esc_html($UserInfo->Email()); ?></span></li>
+				<li><?php if(isset($FormProblems['new-email']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['new-email']); ?></p><?php } ?><label for=new-email><?php echo esc_html(__('Email')); ?>: </label><input id=new-email name=new-email type=email required></li>
+				<li><?php if(isset($FormProblems['confirm-new-email']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['confirm-new-email']); ?></p><?php } ?><label for=confirm-new-email><?php echo esc_html(__('Confirm Email')); ?>: </label><input id=confirm-new-email name=confirm-new-email type=email required></li>
 			</ol>
 		</fieldset>
 		<button type=submit><?php echo esc_html(__('Submit')); ?></button>
@@ -162,7 +162,7 @@ require_once('_header.php');
 		<fieldset>
 			<legend><?php echo esc_html(__('Account Name')); ?></legend>
 			<ol>
-				<li><?php if(isset($FormProblems['new-account-name']) === true){ ?><p class=error><?php echo esc_html($FormProblems['new-account-name']); ?></p><?php } ?><label for=new-account-name><?php echo esc_html(__('New Account Name')); ?>: </label><input id=new-account-name name=new-account-name placeholder="<?php echo esc_attr($UserInfo->Name()); ?>" required pattern="<?php echo esc_attr(Globals::i()->regexUsername); ?>"></li>
+				<li><?php if(isset($FormProblems['new-account-name']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['new-account-name']); ?></p><?php } ?><label for=new-account-name><?php echo esc_html(__('New Account Name')); ?>: </label><input id=new-account-name name=new-account-name placeholder="<?php echo esc_attr($UserInfo->Name()); ?>" required pattern="<?php echo esc_attr(Globals::i()->regexUsername); ?>"></li>
 			</ol>
 		</fieldset>
 		<button type=submit><?php echo esc_html(__('Submit')); ?></button>
@@ -172,7 +172,7 @@ require_once('_header.php');
 		<fieldset>
 			<legend><?php echo esc_html(__('Purge Appearance?')); ?></legend>
 <?php if(isset($FormProblems['purge-appearance']) === true){ ?>
-				<p class=error><?php echo esc_html($FormProblems['purge-appearance']); ?></p><?php } ?>
+				<p class=problem><?php echo esc_html($FormProblems['purge-appearance']); ?></p><?php } ?>
 			<ol>
 				<li><input type=radio id=purge-appearance-yes name=purge-appearance value=yes><label for=purge-appearance-yes><?php echo esc_html(__('Yes')); ?></label></li>
 				<li><input type=radio id=purge-appearance-no name=purge-appearance value=no checked><label for=purge-appearance-no><?php echo esc_html(__('No')); ?></label></li>
