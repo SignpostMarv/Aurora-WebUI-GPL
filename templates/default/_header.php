@@ -14,6 +14,11 @@
 <?php do_action('webui_head'); ?>
 </head>
 <body class="<?php echo esc_attr(implode(' ', array_merge(array(str_replace(array('/',' '),array('-','_'), Globals::i()->sectionFile)),array_unique(apply_filters('body_class', array()))))); ?>">
+<datalist id=datalist-region-names>
+<?php foreach(Globals::i()->WebUI->GetRegions() as $region){ ?>
+	<option value="<?php echo esc_attr($region->RegionName()); ?>">
+<?php } ?>
+</datalist>
 <header>
 	<hgroup>
 		<h1><?php echo esc_html(apply_filters('page_title', Globals::i()->WebUI->get_grid_info('gridname'))); ?></h1>
@@ -23,6 +28,7 @@
 		<ul>
 			<?php echo wp_kses(apply_filters('main_nav_links', 
 				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>' .
+				(Globals::i()->loggedIn ? '<li><a href="' . esc_attr(Template\link('/account/')) . '">' . esc_html(__('Account')) . '</a></li>' : '') .
 				'<li><a href="' . esc_attr(Template\link('/news/')) . '">' . esc_html(__('News')) . '</a></li>' .
 				'<li><a href="' . esc_attr(Template\link('world/')) . '">' . __('World') . '</a><ul>' .
 					'<li><a href="' . esc_attr(Template\link('world/regions/')) . '">' . esc_html(__('Regions')) . '</a></li>' .
