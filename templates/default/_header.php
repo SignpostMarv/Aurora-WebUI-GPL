@@ -28,6 +28,7 @@
 					'<li><a href="' . esc_attr(Template\link('world/regions/')) . '">' . esc_html(__('Regions')) . '</a></li>' .
 					'<li><a href="' . esc_attr(Template\link('world/groups/')) . '">' . esc_html(__('Groups')) . '</a></li>' .
 					(Globals::i()->loggedIn ? '<li><a href="' . esc_attr(Template\link('/world/users/')) . '">' . esc_html(__('Users')) . '</a></li>' : '') .
+					(Globals::i()->WebUI->getAttachedAPI('MapAPI') !== null ? '<li><a href="' . esc_attr(Template\link('/map/')) . '">' . esc_html(__('Map')) . '</a></li>' : '') .
 				'</ul></li>'
 						
 			), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
