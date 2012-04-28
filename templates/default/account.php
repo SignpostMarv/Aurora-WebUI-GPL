@@ -6,6 +6,9 @@ if(Globals::i()->loggedIn !== true){
 	header('Location: ' . Globals::i()->baseURI . Template\link('/'));
 	exit;
 }
+
+add_filter('GlobalDataLists::RegionNames', function($val){ return true ; });
+
 $UserInfo = Globals::i()->WebUI->GetGridUserInfo(Globals::i()->loggedInAs->PrincipalID());
 require_once('_header.php');
 ?>
