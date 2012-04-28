@@ -35,6 +35,10 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 <?php
 		do_action('pre_account_credentials_fieldset');
 ?>
+<?php	if(FormProblem::i()->offsetExists('login-nonce')){?>
+			<p class=problem><?php echo esc_html(FormProblem::i()->offsetGet('login-nonce')); ?></p>
+<?php	} ?>
+			<input type=hidden name=login-nonce value="<?php echo esc_attr(Globals::i()->Nonces->get(300)); ?>">
 			<fieldset id=login-account-credentials>
 				<legend><?php echo esc_html(__('Account Credentials')); ?></legend>
 <?php	if(FormProblem::i()->offsetExists('login-account-credentials')){?>

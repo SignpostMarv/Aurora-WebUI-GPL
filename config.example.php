@@ -27,6 +27,8 @@ namespace{
 	Globals::i()->registrationEmailRequired = false; // TRUE if emails are required, FALSE if they're optional.
 	Globals::i()->regexUsername = '^[A-z]{1}[A-z0-9]*\ [A-z]{1}[A-z0-9]*$';
 	Globals::i()->regexPassword = '^.{8}.*$';
+//	Globals::i()->DBLink = new libAurora\DataManager\MySQLDataLoader('', 'WebUIGPL', false, true, '5.5');
+//	Globals::i()->Nonces = libAurora\Nonces::r(Globals::i()->DBLink);
 
 //!	In order to use the reCAPTCHA lib, you must get public and private keys from https://www.google.com/recaptcha/admin/create
 //	Globals::i()->recaptcha                 = true;

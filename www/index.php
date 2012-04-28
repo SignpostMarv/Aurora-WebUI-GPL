@@ -49,21 +49,26 @@ if(isset(Globals::i()->WebUI) === false){
 
 $gridIndex = Configs::i()->valueOffset(Globals::i()->WebUI);
 
-if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_POST['login-password']) === true){
-	$success = false;
-	try{
-		$login = Globals::i()->section === 'admin' ? Globals::i()->WebUI->AdminLogin($_POST['login-username'], $_POST['login-password']) : Globals::i()->WebUI->Login($_POST['login-username'], $_POST['login-password']);
-		$success = true;
-	}catch(InvalidArgumentException $e){
-		FormProblem::i()->offsetSet('login-account-credentials',$e->getMessage());
-	}
-	if($success){
-		$_SESSION['loggedin'][$gridIndex] = $login;
-		if(Globals::i()->section === 'admin'){
-			$_SESSION['loggedinadmin'][$gridIndex] = $login;
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_POST['login-password'], $_POST['login-nonce']) === true){
+	if(Globals::i()->Nonces->isValid($_POST['login-nonce'])){
+		Globals::i()->Nonces->useNonce($_POST['login-nonce']);
+		$success = false;
+		try{
+			$login = Globals::i()->section === 'admin' ? Globals::i()->WebUI->AdminLogin($_POST['login-username'], $_POST['login-password']) : Globals::i()->WebUI->Login($_POST['login-username'], $_POST['login-password']);
+			$success = true;
+		}catch(InvalidArgumentException $e){
+			FormProblem::i()->offsetSet('login-account-credentials',$e->getMessage());
 		}
-		Globals::i()->loggedIn   = true;
-		Globals::i()->loggedInAs = $_SESSION['loggedin'][$gridIndex];
+		if($success){
+			$_SESSION['loggedin'][$gridIndex] = $login;
+			if(Globals::i()->section === 'admin'){
+				$_SESSION['loggedinadmin'][$gridIndex] = $login;
+			}
+			Globals::i()->loggedIn   = true;
+			Globals::i()->loggedInAs = $_SESSION['loggedin'][$gridIndex];
+		}
+	}else{
+		FormProblem::i()->offsetSet('login-nonce', __('Nonce has expired'));
 	}
 }
 if(isset(Globals::i()->loggedIn) === false){
