@@ -3,6 +3,7 @@ require_once('../config.php');
 require_once('../plugins/load.php');
 
 use Aurora\Addon\WebUI\Configs;
+use Aurora\Addon\WebUI\Template\FormProblem;
 
 if(isset(Globals::i()->linkStyle) === false){
 	Globals::i()->linkStyle = 'query';
@@ -11,6 +12,9 @@ if(isset(Globals::i()->linkStyle) === false){
 session_start();
 if(isset($_SESSION['loggedin']) === false){
 	$_SESSION['loggedin'] = array();
+}
+if(isset($_SESSION['loggedinadmin']) === false){
+	$_SESSION['loggedinadmin'] = array();
 }
 
 switch(Globals::i()->linkStyle){
@@ -43,15 +47,28 @@ if(isset(Globals::i()->WebUI) === false){
 	Globals::i()->WebUI = Configs::d();
 }
 
-foreach(Configs::i() as $k=>$v){
-	if(Globals::i()->WebUI === $v && isset($_SESSION['loggedin'][$k]) === true){
+$gridIndex = Configs::i()->valueOffset(Globals::i()->WebUI);
+
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_POST['login-password']) === true){
+	$success = false;
+	try{
+		$login = Globals::i()->section === 'admin' ? Globals::i()->WebUI->AdminLogin($_POST['login-username'], $_POST['login-password']) : Globals::i()->WebUI->Login($_POST['login-username'], $_POST['login-password']);
+		$success = true;
+	}catch(InvalidArgumentException $e){
+		FormProblem::i()->offsetSet('login-account-credentials',$e->getMessage());
+	}
+	if($success){
+		$_SESSION['loggedin'][$gridIndex] = $login;
+		if(Globals::i()->section === 'admin'){
+			$_SESSION['loggedinadmin'][$gridIndex] = $login;
+		}
 		Globals::i()->loggedIn   = true;
-		Globals::i()->loggedInAs = $_SESSION['loggedin'][$k];
-		break;
+		Globals::i()->loggedInAs = $_SESSION['loggedin'][$gridIndex];
 	}
 }
 if(isset(Globals::i()->loggedIn) === false){
-	Globals::i()->loggedIn = false;
+	Globals::i()->loggedIn = isset($_SESSION['loggedin'][$gridIndex]);
+	Globals::i()->loggedInAs = isset($_SESSION['loggedin'][$gridIndex]) ? $_SESSION['loggedin'][$gridIndex] : null;
 }
 
 $pathParts = explode('/', Globals::i()->section);
