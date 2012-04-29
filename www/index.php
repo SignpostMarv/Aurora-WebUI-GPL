@@ -66,6 +66,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_PO
 			}
 			Globals::i()->loggedIn   = true;
 			Globals::i()->loggedInAs = $_SESSION['loggedin'][$gridIndex];
+			Globals::i()->loggedInAsAdmin = (Globals::i()->section === 'admin');
 		}
 	}else{
 		FormProblem::i()->offsetSet('login-nonce', __('Nonce has expired'));
