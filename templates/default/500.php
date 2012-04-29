@@ -8,7 +8,7 @@
 		if($e instanceof Exception){ ?>
 		<p><?php echo esc_html(sprintf(__('There was an exception of type %1$s, code %2$u.'), get_class($e), $e->getCode())); ?></p>
 <?php	}
-		if($e instanceof Aurora\Addon\WebUI\Exception){ ?>
+		if($e instanceof Aurora\Addon\WebUI\Exception || $e instanceof libAurora\Exception){ ?>
 		<h2><?php echo esc_html(__('Exception message')); ?></h2>
 		<p><?php echo esc_html($e->getMessage()); ?></p>
 <?php	}
