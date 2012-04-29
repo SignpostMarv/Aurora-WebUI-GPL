@@ -238,3 +238,23 @@ body.loginscreen footer#news abbr{
 body.world-users form li{
 	display: inline ;
 }
+
+body.admin-news table > thead > tr > th{
+	text-align: left ;
+}
+body.admin-news table > thead > tr > th#news-manager-title{
+	min-width: 10em ;
+}
+body.admin-news table > thead > tr > th#news-manager-action{
+	text-align: center ;
+}
+body.admin-news table > tbody > tr > th[scope="row"][headers*=news-manager-title]{
+	text-align: left ;
+	font-weight: inherit ;
+}
+body.admin-news table > tbody > tr > *{
+	padding-left: .5em ;
+}
+body.admin-news table > tbody > tr > *:first-child{
+	padding-left: 0 ;
+}
