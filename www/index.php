@@ -48,6 +48,7 @@ if(isset(Globals::i()->WebUI) === false){
 }
 
 $gridIndex = Configs::i()->valueOffset(Globals::i()->WebUI);
+$pathParts = explode('/', Globals::i()->section);
 
 if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_POST['login-password'], $_POST['login-nonce']) === true){
 	if(Globals::i()->Nonces->isValid($_POST['login-nonce'])){
@@ -61,8 +62,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_PO
 		}
 		if($success){
 			$_SESSION['loggedin'][$gridIndex] = $login;
-			if(Globals::i()->section === 'admin'){
+			if($pathParts[0] === 'admin'){
 				$_SESSION['loggedinadmin'][$gridIndex] = $login;
+			}else if(isset($_SESSION['loggedinadmin'], $_SESSION['loggedinadmin'][$gridIndex]) === true){
+				unset($_SESSION['loggedinadmin'][$gridIndex]);
 			}
 			Globals::i()->loggedIn   = true;
 			Globals::i()->loggedInAs = $_SESSION['loggedin'][$gridIndex];
@@ -73,17 +76,20 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login-username'], $_PO
 	}
 }
 if(isset(Globals::i()->loggedIn) === false){
-	Globals::i()->loggedIn = isset($_SESSION['loggedin'][$gridIndex]);
+	Globals::i()->loggedIn   = isset($_SESSION['loggedin'][$gridIndex]);
 	Globals::i()->loggedInAs = isset($_SESSION['loggedin'][$gridIndex]) ? $_SESSION['loggedin'][$gridIndex] : null;
+	Globals::i()->loggedInAsAdmin = isset($_SESSION['loggedinadmin'], $_SESSION['loggedinadmin'][$gridIndex]) === true && $_SESSION['loggedinadmin'][$gridIndex]->PrincipalID() === $_SESSION['loggedin'][$gridIndex]->PrincipalID();
 }
 
-$pathParts = explode('/', Globals::i()->section);
 $section = implode('/',$pathParts);
 $file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos($section, '_') === 0 ? substr($section,1) : $section))) . '.php');
 while(($file->isFile() === false || $file->isReadable() === false) && count($pathParts) > 1){
 	array_pop($pathParts);
 	$section = implode('/',$pathParts);
 	$file = new SplFileInfo('../templates/default/' . (str_replace('/','_',(strpos($section, '_') === 0 ? substr($section,1) : $section))) . '.php');
+}
+if($pathParts[0] === 'admin' && Globals::i()->loggedInAsAdmin === false){
+	$file = new SplFileInfo('../templates/default/admin.php');
 }
 Globals::i()->sectionFile = $section;
 ob_start();

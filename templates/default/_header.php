@@ -38,7 +38,7 @@
 	apply_filters('main_nav_links', $nav)->sort();
 	$htmlFilter = array(2);
 	$htmlFilter[] = Globals::i()->loggedIn ? 1 : 0;
-	if(Globals::i()->loggedInAsAdmin !== false){
+	if(Globals::i()->loggedInAsAdmin === true){
 		$htmlFilter[] = 3;
 	}
 
