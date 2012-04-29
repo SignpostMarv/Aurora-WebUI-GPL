@@ -6,6 +6,8 @@ namespace{
 
 	require_once('libs/load.php');
 
+	define('libAuroraTemplateNavigationNoStrictID', true);
+
 	use Aurora\Addon\WebUI;
 	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\MapAPI;
