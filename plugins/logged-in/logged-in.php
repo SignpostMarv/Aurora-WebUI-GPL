@@ -15,17 +15,20 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 	use Aurora\Addon\WebUI\Configs;
 	use Aurora\Addon\WebUI\Template;
 	use Aurora\Addon\WebUI\Template\FormProblem;
+	use libAurora\Template\navigation\Page;
+	use libAurora\Template\navigation\Pages;
 
 
-	function main_nav_links($nav_links){
+	function main_nav_links(Pages $nav_links){
 		if(Globals::i()->loggedIn){
-			return $nav_links . '<li><a href="' . esc_attr(Template\link('logout')) . '">' . esc_html(__('Logout')) . '</a></li>';
+			$nav_links['Admin']   = Page::f(__('Admin'), -9000, esc_attr(Template\link('admin')), '', 3);
+			$nav_links['Account'] = Page::f(__('Account'), -8888, esc_attr(Template\link('account')), '', 1);
+			$nav_links['Logout']  = Page::f(__('Logout'), PHP_INT_MAX, esc_attr(Template\link('logout')), '', 1);
 		}else{
-			return $nav_links .
-				'<li><a href="' . esc_attr(Template\link('login')) . '">' . esc_html(__('Login')) . '</a></li>' .
-				'<li><a href="' . esc_attr(Template\link('register')) . '">' . esc_html(__('Register')) . '</a></li>'
-			;
+			$nav_links['Login']    = Page::f(__('Login'), PHP_INT_MAX - 1, esc_attr(Template\link('login')), '', 0);
+			$nav_links['Register'] = Page::f(__('Register'), PHP_INT_MAX, esc_attr(Template\link('login')), '', 0);
 		}
+		return $nav_links;
 	}
 
 

@@ -1,6 +1,9 @@
 <?php
 	use Aurora\Addon\WebUI\Template;
 
+	use libAurora\Template\navigation\Page;
+	use libAurora\Template\navigation\Pages;
+
 	header('Content-Type: text/html');
 ?><!DOCTYPE html>
 <html>
@@ -19,11 +22,11 @@
 		<h2><?php echo esc_html(__('An Exception occurred')); ?></h2>
 	</hgroup>
 	<nav id="main-nav">
-		<ul>
-			<?php echo wp_kses(apply_filters('main_nav_links', 
-				'<li><a href="' . esc_attr(Template\link('/')) . '">' . esc_html(__('Home')) . '</a></li>'
-			), array('li'=>array(), 'ul'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https')); ?>
-		</ul>
+<?php
+	$nav = Pages::f();
+	$nav['Home']  = Page::f(__('Home'), -9999, esc_attr(Template\link('/')), '', 2);
+	echo wp_kses($nav->toHTML(), array('ul'=>array(), 'li'=>array(), 'a'=>array('href'=>array(), 'rel'=>array('nofollow'))), array('http', 'https'));
+?>
 	</nav>
 </header>
 <div id="main-content">
