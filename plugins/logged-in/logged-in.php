@@ -18,6 +18,14 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 	use libAurora\Template\navigation\Page;
 	use libAurora\Template\navigation\Pages;
 
+	
+	function body_class(array $classNames){
+		if(Globals::i()->loggedInAsAdmin === true){
+			$classNames[] = 'admin';
+		}
+		return $classNames;
+	}
+
 
 	function main_nav_links(Pages $nav_links){
 		if(Globals::i()->loggedIn){
@@ -63,6 +71,8 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 
 
 	add_filter('main_nav_links', __NAMESPACE__ . '\main_nav_links', 10, 1);
+	add_filter('body_class', __NAMESPACE__ . '\body_class', 10, 1);
+
 	add_action('login_form', __NAMESPACE__ . '\login_form');
 }
 ?>
