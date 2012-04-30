@@ -12,7 +12,7 @@
 <head>
 <title><?php echo esc_html(Globals::i()->WebUI->get_grid_info('gridname'));?></title>
 <base href="<?php echo esc_attr(Globals::i()->baseURI); ?>">
-<link rel="stylesheet" type="text/css" href="css/templates/default/style.css" />
+<link rel=stylesheet type="text/css" href="css/templates/default/style.css" >
 <meta charset="UTF-8" />
 <?php do_action('webui_head'); ?>
 </head>
