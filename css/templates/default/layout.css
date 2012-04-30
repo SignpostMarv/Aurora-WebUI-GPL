@@ -259,3 +259,14 @@ body.admin-news table > tbody > tr > *{
 body.admin-news table > tbody > tr > *:first-child{
 	padding-left: 0 ;
 }
+
+body.admin-news-edit form ol li label{
+	float: none ;
+}
+body.admin-news-edit form label, body.admin-news-edit form input, body.admin-news-edit form textarea{
+	display: block ;
+	width: 100% ;
+}
+body.admin-news-edit form textarea{
+	min-height: 10em ;
+}
