@@ -12,7 +12,7 @@ www-examples is not for public consumption. It's intended as a developer-only "l
 
 ## utils
 
-minify.sh uses the YUI compressor which is available from http://yuilibrary.com/download/yuicompressor/
+minify.sh uses the [YUI compressor](http://yuilibrary.com/download/yuicompressor/)
 
 ## Contributors
 SignpostMarv
