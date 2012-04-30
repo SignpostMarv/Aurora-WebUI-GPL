@@ -41,6 +41,10 @@ h6, fieldset > legend{
 	font-size: 1.1em ;
 }
 
+details, details > summary{
+	display: block ;
+}
+
 p + h1, p + h2, p + h3, p + h4, p + h5, p + h6, fieldset > legend, h1 + form{
 	margin-top: .5em ;
 }
