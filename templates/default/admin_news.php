@@ -24,8 +24,8 @@ if($news->count() >= 1){
 				<tr id="news_<?php echo esc_attr($newsItem->NoticeID()); ?>">
 					<th scope=row headers=news-manager-title><?php echo esc_html($newsItem->Subject()); ?></th>
 					<td headers=news-manager-date><time datetime="<?php echo esc_attr(date('r', $newsItem->Timestamp())); ?>"><?php echo esc_html(date("l M d Y", $newsItem->Timestamp())); ?></time></td>
-					<td headers=news-manager-action><a href="<?php echo esc_attr(Template\link('/admin/news/edit/?id=' . Template\squishUUID($newsItem->NoticeID()))); ?>"><?php echo esc_html(__('Edit')); ?></a></td>
-					<td headers=news-manager-action><a href="<?php echo esc_attr(Template\link('/admin/news/delete/?id=' . Template\squishUUID($newsItem->NoticeID()))); ?>"><?php echo esc_html(__('Delete')); ?></a></td>
+					<td headers=news-manager-action><a href="<?php echo esc_attr(Template\link('/admin/news/edit/?id=' . rawurlencode(Template\squishUUID($newsItem->NoticeID())))); ?>"><?php echo esc_html(__('Edit')); ?></a></td>
+					<td headers=news-manager-action><a href="<?php echo esc_attr(Template\link('/admin/news/delete/?id=' . rawurlencode(Template\squishUUID($newsItem->NoticeID())))); ?>"><?php echo esc_html(__('Delete')); ?></a></td>
 				</tr>
 <?php
 	}
