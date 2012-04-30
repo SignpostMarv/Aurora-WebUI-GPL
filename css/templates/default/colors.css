@@ -30,6 +30,13 @@ html.loginscreen{
 body.loginscreen footer#news li{
 	background: #fff ;
 }
-body.loginscreen footer#news li:nth-child(1){
+body.loginscreen footer#news li:nth-child(2n){
+	background: #eee ;
+}
+
+body.admin table > tbody{
+	background: #ddd ;
+}
+body.admin table > thead, body.admin table > tbody > tr:nth-child(2n){
 	background: #eee ;
 }
