@@ -276,10 +276,10 @@ body.world-users form li{
 	display: inline ;
 }
 
-body.admin-news table > thead > tr > th{
+body.admin table > thead > tr > th{
 	text-align: left ;
 }
-body.admin-news table > thead > tr > th#news-manager-title{
+body.admin-news table > thead > tr > th#news-manager-title, body.admin-abusereport table > thead > tr > th#abuse-report-summary{
 	min-width: 10em ;
 }
 body.admin-news table > thead > tr > th#news-manager-action{
@@ -289,20 +289,29 @@ body.admin-news table > tbody > tr > th[scope="row"][headers*=news-manager-title
 	text-align: left ;
 	font-weight: inherit ;
 }
-body.admin-news table > tbody > tr > *{
+body.admin table > tbody > tr > *{
 	padding-left: .5em ;
 }
-body.admin-news table > tbody > tr > *:first-child{
-	padding-left: 0 ;
+body.admin table > tbody > tr > *:first-child{
+	padding-left: .25em ;
 }
 
-body.admin-news-edit form ol li label{
+body.admin-news-edit form ol li label, body.admin-abusereport-review form ol li label{
 	float: none ;
 }
-body.admin-news-edit form label, body.admin-news-edit form input, body.admin-news-edit form textarea{
+body.admin-news-edit form label, body.admin-news-edit form input, body.admin-news-edit form textarea, body.admin-abusereport-review form textarea{
 	display: block ;
 	width: 100% ;
 }
-body.admin-news-edit form textarea{
+body.admin-news-edit form textarea, body.admin-abusereport-review form textarea{
 	min-height: 10em ;
+}
+
+body.admin-abusereport table > caption{
+	text-align: left ;
+	margin: .25em 0 ;
+}
+
+body.admin-abusereport-review table > tbody > tr > th[scope="row"]{
+	text-align: right ;
 }

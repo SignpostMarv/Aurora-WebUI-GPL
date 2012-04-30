@@ -30,7 +30,8 @@ namespace Aurora\Addon\WebUI\plugins\logged_in{
 	function main_nav_links(Pages $nav_links){
 		if(Globals::i()->loggedIn){
 			$nav_links['Admin']   = Page::f(__('Admin'), -9000, null, '', 3);
-			$nav_links['Admin']['NewsManager'] = Page::f(__('News Manager'), 0, '/admin/news/', '', 3);
+			$nav_links['Admin']['News Manager'] = Page::f(__('News Manager'), 0, '/admin/news/', '', 3);
+			$nav_links['Admin']['Abuse Reports'] = Page::f(__('Abuse Reports'), 0, '/admin/abusereport/', '', 3);
 			$nav_links['Account'] = Page::f(__('Account'), -8888, esc_attr(Template\link('account')), '', 1);
 			$nav_links['Logout']  = Page::f(__('Logout'), PHP_INT_MAX, esc_attr(Template\link('logout')), '', 1);
 		}else{
