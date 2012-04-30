@@ -14,6 +14,11 @@ form p.problem{
 	color: #900 ;
 }
 
+section blockquote{
+	background: #eee ;
+	border-radius: .5em .5em .5em 0 ;
+}
+
 .vcard .logo, .vcard .photo{
 	background: #eee ;
 	border-color: #ccc ;

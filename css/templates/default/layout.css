@@ -54,6 +54,38 @@ section > section{
 section > h1:first-child{
 	margin-top: .5em ;
 }
+section em{
+	font-style: italic ;
+}
+section q{
+	font-style: italic ;
+	font-weight: bolder ;
+}
+section q:before, section blockquote:before{
+	content: "“" ;
+}
+section q:after, section blockquote:after{
+	content: "”" ;
+}
+section blockquote{
+	position: relative ;
+	margin: 1em 1em ;
+	padding: 0.5em 1em ;
+	display: inline-block ;
+	clear: both ;
+}
+section blockquote:before{
+	font-size: 4em ;
+	position: absolute ;
+	left: -0.25em ;
+	top: -0.25em ;
+}
+section blockquote:after{
+	font-size: 4em ;
+	position: absolute ;
+	right: -0.25em ;
+	bottom: -0.75em ;
+}
 
 footer{
 	margin-bottom: 0 ;
