@@ -95,6 +95,7 @@ nav li{
 	display: inline-block ;
 	position: relative ;
 	margin-left: .25em ;
+	white-space: nowrap;
 }
 nav li:first-child{
 	margin-left: 0 ;
