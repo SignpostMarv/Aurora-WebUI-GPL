@@ -2,6 +2,11 @@
 use Aurora\Addon\WebUI\Template;
 use Aurora\Addon\WebUI\Template\FormProblem;
 
+$_GET['id'] = end(explode('/', Globals::i()->section));
+if($_GET['id'] === 'edit'){
+	unset($_GET['id']);
+}
+
 require_once('_header.php');
 $FormProblems = FormProblem::i();
 if(isset($_GET['id']) === false){
