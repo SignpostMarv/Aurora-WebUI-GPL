@@ -126,6 +126,12 @@ form ol li{
 form ol li span:first-child + span{
 	margin-left: .5em ;
 }
+form > table > tbody > tr > td > input, form > table > tbody > tr > td > select{
+	width: 98% ;
+	width: -webkit-calc(100% - .5em) ;
+	width: -moz-calc(100% - .5em) ;
+	width: calc(100% - .5em) ;
+}
 
 nav li{
 	display: inline-block ;
@@ -314,4 +320,15 @@ body.admin-abusereport table > caption, body.admin-manageuser table > caption{
 
 body.admin-abusereport-review table > tbody > tr > th[scope="row"], body.admin-manageuser table > tbody > tr > th[scope="row"]{
 	text-align: right ;
+}
+
+body.admin form > table > tbody > tr > th:first-child[scope="row"]{
+	text-align: right ;
+	padding: 4px .5em 6px .25em ;
+}
+body.admin form > table > tbody > tr > td > input{
+	padding-left: 1px ;
+}
+body.admin form > table > tbody > tr > td > input:hover, body.admin form > table > tbody > tr > td > input:focus{
+	padding-left: 0 ;
 }

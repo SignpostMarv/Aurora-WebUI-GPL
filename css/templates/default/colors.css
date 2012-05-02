@@ -40,3 +40,12 @@ body.admin table > tbody{
 body.admin table > thead, body.admin table > tbody > tr:nth-child(2n){
 	background: #eee ;
 }
+
+body.admin form > table > tbody > tr > td > input{
+	background: transparent ;
+	border-width: 0 ;
+}
+body.admin form > table > tbody > tr > td > input:hover, body.admin form > table > tbody > tr > td > input:focus{
+	background: #fff ;
+	border-width: 1px ;
+}
