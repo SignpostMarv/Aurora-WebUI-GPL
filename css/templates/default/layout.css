@@ -307,11 +307,11 @@ body.admin-news-edit form textarea, body.admin-abusereport-review form textarea{
 	min-height: 10em ;
 }
 
-body.admin-abusereport table > caption{
+body.admin-abusereport table > caption, body.admin-manageuser table > caption{
 	text-align: left ;
 	margin: .25em 0 ;
 }
 
-body.admin-abusereport-review table > tbody > tr > th[scope="row"]{
+body.admin-abusereport-review table > tbody > tr > th[scope="row"], body.admin-manageuser table > tbody > tr > th[scope="row"]{
 	text-align: right ;
 }
