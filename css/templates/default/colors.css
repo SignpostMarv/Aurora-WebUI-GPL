@@ -9,7 +9,7 @@ nav li > ul{
 	z-index: 1 ;
 }
 
-form p.problem{
+p.problem{
 	font-weight: bolder ;
 	color: #900 ;
 }
