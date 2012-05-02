@@ -183,14 +183,12 @@ foreach($UserSearch as $user){
 					<th scope=row headers=manage-user-name><?php echo esc_html(__($user->Name())); ?></th>
 					<td headers=manage-user-created><time datetime="<?php echo esc_attr(date('r', $user->Created())); ?>"><?php echo esc_html(date('Y-m-d', $user->Created())); ?></time></td>
 					<td headers=manage-user-status><?php
-	if($user->UserFlags() & 7){
-		echo esc_html(__('Active'));
+	if($user->UserFlags() & 5){
+		echo esc_html(__('Banned'));
 	}else if($user->UserFlags() & 3){
 		echo esc_html(__('Not Confirmed'));
-	}else if($user->UserFlags() & 5){
-		echo esc_html(__('Banned'));
 	}else{
-		echo esc_html(__('Inactive'));
+		echo esc_html(__('Confirmed'));
 	}
 ?></td>
 					<td headers=manage-user-action><a href="<? echo esc_attr(Template\link('/admin/manageuser/edit/' . rawurlencode(Template\squishUUID($user->PrincipalID())))); ?>"><?php echo esc_html(__('Edit')); ?></a></td>
