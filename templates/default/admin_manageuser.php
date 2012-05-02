@@ -188,7 +188,7 @@ foreach($UserSearch as $user){
 	}else if($user->UserFlags() & 3){
 		echo esc_html(__('Not Confirmed'));
 	}else{
-		echo esc_html(__('Confirmed'));
+		echo esc_html($user->UserLevel() >= 0 ? __('Active') : __('Inactive'));
 	}
 ?></td>
 					<td headers=manage-user-action><a href="<? echo esc_attr(Template\link('/admin/manageuser/edit/' . rawurlencode(Template\squishUUID($user->PrincipalID())))); ?>"><?php echo esc_html(__('Edit')); ?></a></td>
