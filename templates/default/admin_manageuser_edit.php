@@ -170,7 +170,7 @@ if(isset($id) === false){
 	if(isset($user) === true){
 ?>
 		<form method=post>
-				<input type=hidden name=id value="<?php echo esc_attr($user->PrincipalID()); ?>">
+				<?php if(isset($FormProblems['id']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['id']); ?></p><?php } ?><input type=hidden name=id value="<?php echo esc_attr($user->PrincipalID()); ?>">
 				<?php if(isset($FormProblems['nonce']) === true){ ?><p class=problem><?php echo esc_html($FormProblems['nonce']); ?></p><?php } ?><input type=hidden name=nonce value="<?php echo esc_attr(Globals::i()->Nonces->get(300)); ?>">
 			<table>
 				<caption><?php echo esc_html(sprintf(__('Profile information for %s'), $user->Name())); ?></caption>
