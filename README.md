@@ -23,7 +23,7 @@ This example uses "D:/github/Aurora-WebUI-GPL/" as the location of the repositor
 
 ## Aurora-Sim Addon
 
-Aurora-WebUI-GPL currently supports [Aurora WebAPI v2.0 rc5](https://github.com/aurora-sim/aurora-webapi/tree/v2.0-rc5). This module will need to be present and enabled on your [Aurora-Sim](https://github.com/aurora-sim/aurora-sim/) installation.
+Aurora-WebUI-GPL currently supports [Aurora WebAPI v2.0 rc6](https://github.com/aurora-sim/aurora-webapi/tree/v2.0-rc6). This module will need to be present and enabled on your [Aurora-Sim](https://github.com/aurora-sim/aurora-sim/) installation.
 
 ## Template CSS
 
