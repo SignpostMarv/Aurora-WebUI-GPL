@@ -9,13 +9,25 @@ $per   = '25';
 $query = '';
 if($parts[1] === 'manageuser'){
 	$page = $parts[0];
+	if(ctype_digit($page) === false){
+		require_once('404.php');
+		return;
+	}
 }else if($parts[2] === 'manageuser'){
 	$page = $parts[0];
 	$per  = $parts[1];
+	if(ctype_digit($per) === false){
+		require_once('404.php');
+		return;
+	}
 }else if($parts[3] === 'manageuser'){
 	$page  = $parts[0];
 	$per   = $parts[1];
 	$query = trim($parts[2]);
+	if(ctype_digit($per) === false){
+		require_once('404.php');
+		return;
+	}
 }
 $per -= ($per % 10);
 $per = (string)$per;
@@ -183,7 +195,7 @@ foreach($UserSearch as $user){
 					<th scope=row headers=manage-user-name><?php echo esc_html(__($user->Name())); ?></th>
 					<td headers=manage-user-created><time datetime="<?php echo esc_attr(date('r', $user->Created())); ?>"><?php echo esc_html(date('Y-m-d', $user->Created())); ?></time></td>
 					<td headers=manage-user-status><?php
-	if($user->UserFlags() & 5){
+	if($user->Flags() & (16 | 32)){
 		echo esc_html(__('Banned'));
 	}else if($user->UserFlags() & 3){
 		echo esc_html(__('Not Confirmed'));
@@ -192,7 +204,7 @@ foreach($UserSearch as $user){
 	}
 ?></td>
 					<td headers=manage-user-action><a href="<? echo esc_attr(Template\link('/admin/manageuser/edit/' . rawurlencode(Template\squishUUID($user->PrincipalID())))); ?>"><?php echo esc_html(__('Edit')); ?></a></td>
-					<td headers=manage-user-action><a href="<? echo esc_attr(Template\link('/admin/manageuser/ban/' . rawurlencode(Template\squishUUID($user->PrincipalID())))); ?>"><?php echo esc_html(__('Ban')); ?></a></td>
+					<td headers=manage-user-action><a href="<? echo esc_attr(Template\link('/admin/manageuser/ban/' . rawurlencode(Template\squishUUID($user->PrincipalID())))); ?>"><?php echo esc_html(($user->Flags() & (16 | 32)) ? __('Unban') : __('Ban')); ?></a></td>
 					<td headers=manage-user-action><a href="<? echo esc_attr(Template\link('/admin/manageuser/delete/' . rawurlencode(Template\squishUUID($user->PrincipalID())))); ?>"><?php echo esc_html(__('Delete')); ?></a></td>
 				</tr>
 <?php
