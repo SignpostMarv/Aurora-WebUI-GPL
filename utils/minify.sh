@@ -8,4 +8,12 @@ java -jar ../../yuicompressor-2.4.2.jar --type css --charset utf-8 -o ../www/css
 
 cat ../www/css/reset.css ../www/css/templates/default/layout.css ../www/css/templates/default/colors.css > ../www/css/templates/default/style.css
 rm -f ../www/css/reset.css ../www/css/templates/default/layout.css ../www/css/templates/default/colors.css
-gzip -cf --best ../www/css/templates/default/style.css > ../www/css/templates/default/style.css.gz
+if [ -f ../../7za.exe ];
+then
+	if [ -f ../www/css/templates/default/style.css.gz ];
+		then rm -f ../www/css/templates/default/style.css.gz
+	fi;
+	../../7za.exe a -tgzip ../www/css/templates/default/style.css.gz ../www/css/templates/default/style.css -mx=9 -mfb=258 -mpass=15
+else
+	gzip -cf --best ../www/css/templates/default/style.css > ../www/css/templates/default/style.css.gz
+fi;
