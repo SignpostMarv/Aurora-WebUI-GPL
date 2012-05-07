@@ -40,11 +40,54 @@
 					'gridLookup'    : <?php echo json_encode(Globals::i()->WebUI->getAttachedAPI('MapAPI')->MonolithicRegionLookup()); ?>
 				})
 			}),
-			map   = mapui.renderer
+			map   = mapui.renderer,
+			infoWindow = undefined,
+			infoWindows = {},
+			errorInfoWindows = {}
 		;
 		map.scrollWheelZoom(true);
 		map.smoothZoom(true);
 		map.draggable(true);
+		map.addListener('click', function(e){
+			var
+				x = Math.floor(e.pos['x']),
+				y = Math.floor(e.pos['y'])
+			;
+			map.gridConfig.pos2region(e.pos, function(result){
+				if(infoWindow != undefined){
+					infoWindow.close();
+				}
+				infoWindow = mapui.infoWindow({
+					content  : <?php echo json_encode(esc_html(__('Region Name'))); ?> + ': ' + result.region,
+					position : e.pos
+				});
+				if(infoWindows[result.region] != undefined){
+					infoWindows[result.region].close();
+				}
+				infoWindows[result.region] = infoWindow;
+				map.gridConfig.region2pos(result.region, function(result){
+					infoWindows[result.region].content( 
+						<?php echo json_encode(esc_html(__('Region Name'))); ?> + ': ' + result.region + "\n" +
+						<?php echo json_encode(esc_html(__('Coordinates'))); ?> + ': ' + result.pos.x + ', ' + result.pos.y
+					);
+				});
+				infoWindow.open(mapui);
+			}, function(errorMsg){
+				if(infoWindow != undefined){
+					infoWindow.close();
+				}
+				infoWindow = mapui.infoWindow({
+					content  : errorMsg,
+					position : e.pos
+				});
+				if(errorInfoWindows[x] != undefined && errorInfoWindows[x][y] != undefined){
+					errorInfoWindows[x][y].close();
+				}
+				errorInfoWindows[x] = errorInfoWindows[x] || {};
+				errorInfoWindows[x][y] = infoWindow;
+				infoWindow.open(mapui);
+			});
+		});
 <?php
 		$regionName = null;
 		if(count($pathParts) >= 2){
@@ -65,39 +108,20 @@
 			pos = {'x' : 1000 + (localX / 256), 'y' : 1000  + (localY / 256)}
 		;
 		map.focus(pos.x, pos.y,0);
-/*
-		if(history.pushState){
-			window.onpopstate = function(e){
-				console.log(e.state);
-				if(e.state){
-					if(e.state.pos){
-						map.focus(e.state.pos);
-					}
-				}
-			};
-		}
-		if(history.replaceState){
-			history.replaceState({
-				'pos' : pos,
-				'region' : region
-			}, map.gridConfig.name, window.location.pathname);
-		}
-*/
 <?php	if(isset($regionName) === true){ ?>
 		map.gridConfig.region2pos(<?php echo json_encode($regionName); ?>, function(e){			
 			e.pos.x += localX / 256;
 			e.pos.y += localY / 256;
 			map.focus(e.pos);
-/*
-			history.pushState({
-				'pos'    : e.pos,
-				'region' : region
-			}, map.gridConfig.name, window.location.pathname);
-*/
 		});
 <?php	} ?>
 	};
 	</script>
+	<style>
+#webui-gpl-mapapi-container.mapapi-ui-minimalist .mapapi-ui-infowindow .mapapi-ui-item-contents p{
+	white-space: nowrap ;
+}
+	</style>
 <?php
 	});
 	require_once('_header.php');
