@@ -53,5 +53,5 @@ if(isset($e) && $e instanceof \Aurora\Addon\APIMethodException){
 ?>
 	</section>
 <?php
-	require('_footer.php');
+require('_footer-exception.php');
 ?>
