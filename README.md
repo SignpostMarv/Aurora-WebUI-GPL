@@ -73,7 +73,7 @@ The minify.sh script in the utils directory attempts to "minify" and pre-gzip th
 
 ### Default Timezone
 
-PHP can complain if no timezone is set- you'll want to configure the timezone to match the timezone your Aurora grid operates under.
+PHP can complain if no timezone is set and WebUI-GPL will use your system timezone by default.
 
 A [http://www.php.net/manual/en/timezones.php](full list of timezones is available on the PHP website).
 
@@ -91,16 +91,18 @@ The template system sets appropriate Content-Type for different pages, but we se
 
 ### WebUI Configs array
 
-WebUI GPL configs need two arguments:
-1. The API end-point url, using the WebUIHandlerPort port number specified in the Aurora ini files
-2. The WebUIHandlerPassword from the Aurora ini files
+WebUI GPL configs need three arguments:
+1. The API end-point url, using the Port number specified in [https://github.com/aurora-sim/Aurora-WebAPI/blob/master/WebAPI/WebAPI.ini](WebAPI.ini)
+2. A username that has API access.
+3. The API access token from the [https://github.com/aurora-sim/aurora-webapi/tree/master](WebAPI module)
 
 An instance of the PHP class that provides an interface to the [https://github.com/SignpostMarv/mapapi.cs](mapapi.cs) Aurora Module can be attached to an instance of the WebUI interface. The example commented-out example in the config.php file attaches the map API to the last created WebUI instance.
 
 ```php
 	$configs[] = WebUI::r(
-		'http://localhost:8007/WEBUI',
-		'Password'
+		'http://localhost:8007/webapi',
+		'Username'
+		'AccessToken'
 	);
 //	$configs[$configs->count() - 1]->attachAPI(MapAPI::r(
 //		'http://localhost:8007/mapapi'
