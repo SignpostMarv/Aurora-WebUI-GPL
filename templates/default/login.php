@@ -1,7 +1,7 @@
 <?php
 	use Aurora\Addon\WebUI\Exception;
 	use Aurora\Addon\WebUI\InvalidArgumentException;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 	use Aurora\Addon\WebUI\Template\FormProblem;
 
 	if(isset($_SESSION['loggedin'], $_SESSION['loggedin'][Configs::i()->valueOffset(Globals::i()->WebUI)]) === true && Globals::i()->loggedIn === true){

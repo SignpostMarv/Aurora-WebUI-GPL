@@ -12,7 +12,7 @@ Author URI: https://github.com/SignpostMarv/
 namespace Aurora\Addon\WebUI\plugins\logged_in{
 
 	use Globals;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 	use Aurora\Addon\WebUI\Template;
 	use Aurora\Addon\WebUI\Template\FormProblem;
 	use libAurora\Template\navigation\Page;

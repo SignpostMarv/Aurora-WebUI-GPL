@@ -13,7 +13,7 @@ namespace Aurora\Addon\WebUI\plugins{
 	use OpenMetaverse\FriendRights;
 
 	use Aurora\Addon\WebUI;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 	use Aurora\Addon\WebUI\FriendInfo;
 	use Aurora\Addon\WebUI\FriendsList;
 

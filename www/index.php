@@ -2,7 +2,7 @@
 require_once('../config.php');
 require_once('../plugins/load.php');
 
-use Aurora\Addon\WebUI\Configs;
+use Aurora\Addon\WebAPI\Configs;
 use Aurora\Addon\WebUI\Template\FormProblem;
 
 if(isset(Globals::i()->linkStyle) === false){

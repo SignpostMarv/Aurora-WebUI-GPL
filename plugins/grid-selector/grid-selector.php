@@ -11,7 +11,7 @@ Author URI: https://github.com/SignpostMarv/
 namespace Aurora\Addon\WebUI\plugins{
 
 	use Aurora\Addon\WebUI;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 
 //!	Spits out a grid selection box.
 /**

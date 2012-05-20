@@ -1,7 +1,7 @@
 <?php
 use Aurora\Addon\WebUI\Exception as WebUIException;
 
-use Aurora\Addon\WebUI\Configs;
+use Aurora\Addon\WebAPI\Configs;
 use Aurora\Addon\WebUI\Template;
 use Aurora\Addon\WebUI\Template\FormProblem;
 

@@ -8,15 +8,16 @@ namespace{
 
 	define('libAuroraTemplateNavigationNoStrictID', true);
 
-	use Aurora\Addon\WebUI;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI;
+	use Aurora\Addon\WebAPI\Configs;
 	use Aurora\Addon\MapAPI;
 
 	$configs = Configs::i();
 
 	$configs[] = WebUI::r(
 		'http://localhost:8007/WEBUI',
-		'Password'
+		'Username'
+		'API Access Token'
 	);
 //	$configs[$configs->count() - 1]->attachAPI(MapAPI::r(
 //		'http://localhost:8007/mapapi'

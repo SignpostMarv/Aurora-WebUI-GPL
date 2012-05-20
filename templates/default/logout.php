@@ -1,5 +1,5 @@
 <?php
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 
 	if(Globals::i()->section === 'logout'){
 		$gridIndex = Configs::i()->valueOffset(Globals::i()->WebUI);

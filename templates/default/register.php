@@ -1,5 +1,5 @@
 <?php
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 	use Aurora\Addon\WebUI\Template;
 
 	$registeredUser = null;

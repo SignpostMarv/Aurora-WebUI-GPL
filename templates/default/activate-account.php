@@ -1,6 +1,6 @@
 <?php
 	use Aurora\Addon\WebUI;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 
 	if(isset($_SERVER['REQUEST_METHOD']) === true && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['password'], $_POST['grid'], $_POST['token']) === true){
 		$WebUI = Configs::i()->offsetGet($_POST['grid']);

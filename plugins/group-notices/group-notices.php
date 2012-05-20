@@ -11,7 +11,7 @@ Author URI: https://github.com/SignpostMarv/
 namespace Aurora\Addon\WebUI\plugins{
 
 	use Aurora\Addon\WebUI;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 
 //! We're going to use a reflection-based method for supporting various output formats, so we need an interface to look for.
 	interface GroupNotices{
@@ -72,7 +72,7 @@ namespace Aurora\Addon\WebUI\plugins\GroupNotices{
 	use OpenMetaverse\AssetType;
 
 	use Aurora\Addon\WebUI;
-	use Aurora\Addon\WebUI\Configs;
+	use Aurora\Addon\WebAPI\Configs;
 	use Aurora\Addon\WebUI\Template;
 	use Aurora\Addon\WebUI\plugins\GroupNotices;
 	use Aurora\Addon\WebUI\plugins\GroupNoticesFeed;
